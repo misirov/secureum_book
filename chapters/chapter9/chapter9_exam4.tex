@@ -1,0 +1,500 @@
+\section{Security Pitfalls \& Best Practices 101 Quiz}
+
+\textbf{1. The use of \texttt{pragma} in the given contract snippet}
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+pragma solidity ^0.6.0;
+
+contract test {
+   // Assume other required functionality is correctly implemented
+   // Assume this contract can work correctly without modifications across 0.6.x/0.7.x/0.8.x compiler versions
+}
+\end{lstlisting}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Is incorrect and will cause a compilation error
+    \item Allows testing with \verb|0.6.11| but accidental deployment with buggy \verb|0.6.5|
+    \item Is illustrative of risks from using a much older Solidity version (assume current version is \verb|0.8.9|)
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam4_q1]{here}.\\
+
+\textbf{2. The given contract snippet has}
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+pragma solidity 0.8.4;
+
+contract test {
+
+   // Assume other required functionality is correctly implemented
+
+   function kill() public {
+      selfdestruct(payable(0x0));
+   }
+}
+\end{lstlisting}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Unprotected call to \verb|selfdestruct| allowing anyone to destroy this contract
+    \item Dangerous use of zero address leading to burning of contract balance
+    \item A compiler error because of the use of the \verb|kill| reserved keyword
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam4_q2]{here}.\\
+
+\pagebreak
+
+\textbf{3. The given contract snippet has}
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+pragma solidity 0.8.4;
+
+contract test {
+
+    // Assume other required functionality is correctly implemented
+
+    modifier onlyAdmin() {
+        // Assume this is correctly implemented
+        _;
+    }
+
+    function transferFunds(address payable recipient, uint amount) public {
+        recipient.transfer(amount);
+   }
+}
+\end{lstlisting}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Missing use of \verb|onlyAdmin| modifier on \verb|transferFunds|
+    \item Missing \verb|return| value check on \verb|transfer|
+    \item Unprotected withdrawal of funds
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam4_q3]{here}.\\
+
+\pagebreak
+
+\textbf{4. In the given contract snippet}
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+pragma solidity 0.8.4;
+
+contract test {
+
+    // Assume other required functionality is correctly implemented
+
+    mapping (uint256 => address) addresses;
+    bool check;
+
+    modifier onlyIf() {
+        if (check) {
+            _;
+        }
+    }
+
+    function setAddress(uint id, address addr) public {
+        addresses[id] = addr;
+    }
+
+    function getAddress(uint id) public onlyIf returns (address) {
+        return addresses[id];
+    }
+}
+\end{lstlisting}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|getAddress| returns the expected addresses if \verb|check| is \verb|true|
+    \item\verb|getAddress| returns zero address if \verb|check| is \verb|false|
+    \item\verb|getAddress| reverts if \verb|check| is \verb|false|
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam4_q4]{here}.\\
+
+\pagebreak
+
+\textbf{5. The security concern(s) in the given contract snippet is/are}
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+pragma solidity 0.8.4;
+
+contract test {
+
+    // Assume other required functionality is correctly implemented
+
+    modifier onlyAdmin {
+     // Assume this is correctly implemented
+        _;
+    }
+
+    function delegate (address addr) external {  addr.delegatecall(abi.encodeWithSignature("setDelay(uint256)"));
+    }
+}
+\end{lstlisting}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Potential controlled \verb|delegatecall| risk
+    \item\verb|delegatecall| return value is not checked
+    \item\verb|delegate()| may be missing \verb|onlyAdmin| modifier
+    \item\verb|delegate()| does not check for contract existence at \verb|addr|
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam4_q5]{here}.\\
+
+\pagebreak
+
+\textbf{6. The vulnerability/vulnerabilities present in the given contract snippet is/are}
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+pragma solidity 0.7.0;
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+// which works with 0.7.0
+
+contract test {
+
+ // Assume other required functionality is correctly implemented
+ // For e.g. users have deposited balances in the contract
+ // Assume nonReentrant modifier is always applied
+
+    mapping (address => uint256) balances;
+
+    function withdraw(uint256 amount) external nonReentrant {
+        msg.sender.call{value: amount}("");
+        balances[msg.sender] -= amount;
+    }
+}
+\end{lstlisting}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Reentrancy
+    \item Integer underflow leading to wrapping
+    \item Missing check on user balance in \verb|withdraw()|
+    \item All of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam4_q6]{here}.\\
+
+\pagebreak
+
+\textbf{7. The security concern(s) in the given contract snippet is/are}
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+pragma solidity 0.8.4;
+
+contract test {
+
+ // Assume other required functionality is correctly implemented
+
+    uint256 private constant secret = 123;
+
+    function diceRoll() external view returns (uint256) {
+        return (((block.timestamp * secret) % 6) + 1);
+    }
+}
+\end{lstlisting}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|diceRoll()| visibility should be \verb|public| instead of \verb|external|
+    \item The private variable \verb|secret| is not really hidden from users
+    \item\verb|block.timestamp| is an insecure source of randomness
+    \item Integer overflow
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam4_q7]{here}.\\
+
+\textbf{8. The security concern(s) in the given contract snippet is/are}
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+pragma solidity 0.8.4;
+
+contract test {
+
+    // Assume other required functionality is correctly implemented
+    // Contract admin set to deployer in constructor (not shown)
+    address admin;
+
+    modifier onlyAdmin {
+        require(tx.origin == admin);
+        _;
+    }
+
+    function emergencyWithdraw() external payable onlyAdmin {
+        msg.sender.transfer(address(this).balance);
+    }
+}
+\end{lstlisting}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Incorrect use of \verb|transfer()| instead of using \verb|send()|
+    \item Potential man-in-the-middle attack on admin address authentication
+    \item Assumption on contract balance might cause a revert
+    \item Missing event for critical \verb|emergencyWithdraw()| function
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam4_q8]{here}.\\
+
+\pagebreak
+
+\textbf{9. The given contract snippet is vulnerable because of}
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+pragma solidity 0.8.4;
+
+contract test {
+
+    // Assume other required functionality is correctly implemented
+
+    uint256 private constant MAX_FUND_RAISE = 100 ether;
+    mapping (address => uint256) contributions;
+
+    function contribute() external payable {
+        require(address(this).balance != MAX_FUND_RAISE);
+        contributions[msg.sender] += msg.value;
+    }
+}
+\end{lstlisting}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Integer overflow leading to wrapping
+    \item Overly permissive function visibility of \verb|contribute()|
+    \item Incorrect use of \verb|msg.sender|
+    \item Use of strict equality (\verb|!=|) may break the \verb|MAX_FUND_RAISE| constraint
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam4_q9]{here}.\\
+
+\textbf{10. In the given contract snippet, the require check will}
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+pragma solidity 0.8.4;
+
+contract test {
+
+    // Assume other required functionality is correctly implemented
+
+    function callMe (address target) external {
+        (bool success, ) = target.call("");
+        require(success);
+    }
+}
+\end{lstlisting}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Pass only if target is an existing contract address
+    \item Pass for a non-existent contract address
+    \item Pass always
+    \item Fail always
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam4_q10]{here}.\\
+
+\pagebreak
+
+\textbf{11. The security concern(s) in the given contract snippet is/are}
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+pragma solidity 0.8.4;
+
+contract test {
+
+    // Assume other required functionality is correctly implemented
+    // Assume admin is set correctly to contract deployer in constructor
+    address admin;
+
+    function setAdmin (address _newAdmin) external {
+        admin = _newAdmin;
+    }
+}
+\end{lstlisting}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Missing access control on critical function
+    \item Missing zero-address validation
+    \item Single-step change of critical address
+    \item Missing event for critical function
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam4_q11]{here}.\\
+
+\pagebreak
+
+\textbf{12. The security concern(s) in the given contract snippet is/are}
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+pragma solidity 0.8.4;
+
+contract test {
+
+    // Assume other required functionality is correctly implemented
+
+    address admin;
+    address payable pool;
+
+   constructor(address _admin) {
+        admin = _admin;
+    }
+
+    modifier onlyAdmin {
+        require(msg.sender == admin);
+        _;
+    }
+
+    function setPoolAddress(address payable _pool) external onlyAdmin {
+        pool = _pool;
+    }
+
+    function addLiquidity() payable external {
+        pool.transfer(msg.value);
+    }
+}
+\end{lstlisting}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Uninitialized pool storage variable which assumes \verb|setPoolAddress()| will be called before \verb|addLiquidity()|
+    \item Incorrect use of modifier \verb|onlyAdmin| on \verb|setPoolAddress()|
+    \item Missing zero-address validation for \verb|_pool| in \verb|setPoolAddress()|
+    \item Transaction order dependence risk from admin front-running with pool address change
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam4_q12]{here}.\\
+
+\pagebreak
+
+\textbf{13. The security concern(s) in the given proxy-based implementation contract snippet is/are}
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+pragma solidity 0.8.4;
+import "https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/proxy/utils/Initializable.sol";
+
+contract test is Initializable {
+
+    // Assume other required functionality is correctly implemented
+
+    address admin;
+    uint256 rewards = 10;
+
+    modifier onlyAdmin {
+        require(msg.sender == admin);
+        _;
+    }
+
+    function initialize (address _admin) external {
+        require(_admin != address(0));
+        admin = _admin;
+    }
+
+    function setRewards(uint256 _rewards) external onlyAdmin {
+        rewards = _rewards;
+    }
+}
+\end{lstlisting}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Imported contracts are not upgradeable
+    \item Multiple \verb|initialize()| calls possible which allows anyone to reset the admin
+    \item rewards will be 0 in the proxy contract before \verb|setRewards()| is called by it
+    \item All the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam4_q13]{here}.\\
+
+\pagebreak
+
+\textbf{14. The security concern(s) in the given contract snippet is/are}
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+pragma solidity 0.8.4;
+
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/IERC20.sol";
+
+contract test {
+
+    // Assume other required functionality is correctly implemented
+
+    address admin;
+    address token;
+
+    constructor(address _admin, address _token) {
+        require(_admin != address(0));
+        require(_token != address(0));
+        admin = _admin;
+        token = _token;
+    }
+
+    modifier onlyAdmin {
+        require(msg.sender == admin);
+        _;
+    }
+
+    function payRewards(address[] calldata recipients, uint256[] calldata amounts) external onlyAdmin {
+        for (uint i; i < recipients.length; i++) {
+            IERC20(token).transfer(recipients[i], amounts[i]);
+        }
+    }
+}
+\end{lstlisting}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Potential out-of-gas exceptions due to unbounded external calls within loop
+    \item\verb|ERC20 approve()| race condition
+    \item Unchecked return value of \verb|transfer()| (assuming it returns a boolean/other value and does not revert on failure)
+    \item Potential reverts due to mismatched lengths of recipients and amounts arrays
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam4_q14]{here}.\\
+
+\textbf{15. The vulnerability/vulnerabilities present in the given contract snippet is/are}
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+pragma solidity 0.8.4;
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/security/ReentrancyGuard.sol";
+
+contract test {
+
+ // Assume other required functionality is correctly implemented
+ // For e.g. users have deposited balances in the contract
+
+    mapping (address => uint256) balances;
+
+    function withdrawBalance() external {
+        msg.sender.call{value: balances[msg.sender]}("");
+        balances[msg.sender] = 0;
+    }
+}
+\end{lstlisting}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Reentrancy
+    \item Integer overflow leading to wrappingProvides support for different roles with different authorization levels
+    \item Integer underflow leading to wrapping
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam4_q15]{here}.\\
+
+\textbf{16. The security concern(s) in the given contract snippet is/are}
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+pragma solidity 0.8.4;
+
+contract test {
+// Assume other required functionality is correctly implemented
+// Assume that hash is the hash of a message computed elsewhere in contract
+// Assume that the contract does not make use of chainID or nonces in its logic
+
+function verify(address signer, bytes32 memory hash, bytes32 sigR, bytes32 sigS, uint8 sigV) internal view returns (bool) {
+   return signer == ecrecover(hash, sigV, sigR, sigS);
+}
+\end{lstlisting}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Signature malleability risk of \verb|ecrecover|
+    \item Missing use of nonce in message hash may allow replay attacks across transactions
+    \item Missing use of \verb|chainID| in message hash may allow replay attacks across chains
+    \item Missing zero-address check for \verb|ecrecover| return value may allow invalid signatures
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam4_q16]{here}.

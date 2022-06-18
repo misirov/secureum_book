@@ -1,0 +1,85 @@
+\section{RACE 4 Quiz Solutions}
+
+\textbf{1. \texttt{InSecureum} implements}\label{sec:race4_q1}\\
+
+\textbf{Solution: A \& B.}
+
+The decimals value follows the standard but it typically returns \verb|18| (\verb|8| is atypical), imitating the relationship between Ether and Wei.\\
+
+The \verb|decreaseAllowance| and \verb|increaseAllowance| functions were introduced in the \verb|OpenZeppelin ERC20| implementation to mitigate frontrunning issues of the standard approve, but they are not part of the \verb|ERC20| standard.\\
+
+The \verb|transfer| function is part of the standard though.\\
+
+\textbf{2. In \texttt{InSecureum}}\label{sec:race4_q2}\\
+
+\textbf{Solution: A \& C.}
+
+Since \verb|decimals()| returns a constant hardcoded value without accessing storage other non-calldata information it can indeed be declared as \verb|pure|.\\
+
+Generally, functions prefixed with underscores should be internal or should not have the prefix.
+Making \verb|_burn()| external would currently allow anyone to burn anyone else's balance.
+And the fact that \verb|_mint()| is currently external allows anyone to mint as many InSecureum tokens as they wish.\\
+
+\textbf{3. \texttt{InSecureum transferFrom()}}\label{sec:race4_q3}\\
+
+\textbf{Solution: A, B \& C.}
+
+The subtraction within the \verb|unchecked| block effectively allows anyone to steal anyone else's full token balance since subtracting from an allowance of 0 will cause an integer underflow and the allowance value will wrap since \linebreak\verb|0 - 1 == type(uint256).max|).\\
+
+The fact that the function won't revert when subtracting from the allowance due to the \verb|unchecked| block, can by itself be seen as an incorrect allowance check.
+The other check, skipping allowance subtraction when an ``infinite approval'' was given by setting the allowance to the maximum value of \verb|uint256|, appears to be correct.
+Since the special handling for unlimited approvals prevents unnecessary storage updates, it is indicative of an optimization.\\
+
+\pagebreak
+
+\textbf{4. In \texttt{InSecureum}}\label{sec:race4_q4}\\
+
+\textbf{Solution: C \& D.}
+
+Neither function make use of the \verb|unchecked| block which would allow integer overflows to happen in this version of \verb|Solidity|.\\
+
+The \verb|decreaseAllowance| function does indeed not allow reducing the allowance to zero since the requirement enforces that the \verb|subtractedValue| must always be smaller than \verb|currentAllowance|.
+It would be better to use \verb|>=| here to allow allowance reductions to zero.
+That requirement does make \verb|Solidity|'s own integer underflow check for \verb|currentAllowance - subtractedValue| redundant, so it could indeed be optimised with \verb|unchecked{}|.\\
+
+\textbf{5. \texttt{InSecureum \_transfer()}}\label{sec:race4_q5}\\
+
+\textbf{Solution: D.}
+
+All of the addresses \verb|_transfer()| uses are checked to make sure they're not zero-addresses.
+Neither integer overflows nor underflows are possible with this \verb|Solidity| version without the use of \verb|unchecked{}|.\\
+
+\textbf{6. \texttt{InSecureum \_mint()}}\label{sec:race4_q6}\\
+
+\textbf{Solution: A \& C.}
+
+The \verb|_mint| function is currently not ensuring that the receiving address is non-zero.
+The event emission appears to be correctly following \verb|IERC20|:
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+event Transfer(address indexed from, address indexed to, uint256 value);
+\end{lstlisting}
+
+This mint implementation overwrites the account's current balance instead of adding to it.\\
+
+\textbf{7. \texttt{InSecureum \_burn()}}\label{sec:race4_q7}\\
+
+\textbf{Solution: B.}
+
+It correctly applies zero-address validation on the account to burn from.
+The event permission is incorrect, \verb|from| and \verb|to| need to be switched around to follow the \verb|IERC20| interface:
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+event Transfer(address indexed from, address indexed to, uint256 value);
+\end{lstlisting}
+
+The balance update is correct and although an \verb|unchecked| block is used, no underflow can happen thanks to the requirement before.\\
+
+\pagebreak
+
+\textbf{8. \texttt{InSecureum \_approve()}}\label{sec:race4_q8}\\
+
+\textbf{Solution: B \& C.}
+
+Although no zero-address validation is missing the error messages have been confused with each other.
+The update of allowances is currently incorrect since it only adds the amount to the current allowance instead of setting it to the amount overwriting the old value.\\

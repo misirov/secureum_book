@@ -1,0 +1,387 @@
+\section{Solidity 101 Quiz Solutions}
+
+\textbf{1. \texttt{OpenZeppelin SafeERC20} is generally considered safer to use than \texttt{ERC20} because}\label{sec:exam3_q1}\\
+
+\textbf{Solution: B.}
+
+\verb|OpenZeppelin SafeERC20| consists of wrappers around \verb|ERC20| operations that throw on failure when the token contract implementation returns \verb|false|.
+Tokens that return no value and instead revert or throw on failure are also supported with non-reverting calls assumed to be successful.
+Adds \verb|safeTransfer|, \verb|safeTransferFrom|, \verb|safeApprove|, \verb|safeDecreaseAllowance| and\linebreak\verb|safeIncreaseAllowance|.\\
+
+\textbf{2. The OpenZeppelin library that provides \texttt{onlyOwner} modifier}\label{sec:exam3_q2}\\
+
+\textbf{Solution: A \& C.}
+
+\verb|OpenZeppelin Ownable| provides a basic access control mechanism, where there is an account (an owner) that can be granted exclusive access to specific functions.
+By default, the owner account will be the one that deploys the contract.
+This can later be changed with \verb|transferOwnership|.
+This module is used through inheritance.
+It will make available the modifier \verb|onlyOwner|, which can be applied to your functions to restrict their use to the owner.\\
+
+\textbf{3. \texttt{OpenZeppelin ECDSA}}\label{sec:exam3_q3}\\
+
+\textbf{Solution: D.}
+
+\verb|OpenZeppelin ECDSA| provides functions for recovering and managing Ethereum account ECDSA signatures.
+These are often generated via \verb|web3.eth.sign|, and are a 65 byte array (of type bytes in \verb|Solidity|) arranged the following way:
+\begin{lstlisting}[style=defaultStyle]
+[[v (1)], [r (32)], [s (32)]]
+\end{lstlisting}
+
+The data signer can be recovered with \verb|ECDSA.recover|, and its address compared to verify the signature.
+Most wallets will hash the data to sign and add the prefix `\verb|\x19Ethereum Signed Message:\n|', so when attempting to recover the signer of an Ethereum signed message hash, you'll want to use \verb|toEthSignedMessageHash|.\\
+
+Externally Owned Accounts (EOA) can sign messages with their associated private keys, but currently contracts cannot.\\
+
+\pagebreak
+
+\textbf{4. Which of the following is/are true about \texttt{Solidity} compiler \texttt{0.8.0}?}\label{sec:exam3_q4}\\
+
+\textbf{Solution: A, C \& D.}
+
+Some of the breaking changes of \verb|Solidity v.0.8.0|:\\
+
+ABI coder v2 is activated by default.
+You can choose to use the old behaviour using \verb|pragma abicoder v1;|.
+The pragma \verb|pragma experimental ABIEncoderV2;| is still valid, but it is deprecated and has no effect.
+If you want to be explicit, please use \verb|pragma abicoder v2;| instead.\\
+
+Arithmetic operations revert on underflow and overflow.
+You can use \verb|unchecked| to use the previous wrapping behaviour.\\
+
+Failing assertions and other internal checks like division by zero or arithmetic overflow do not use the invalid opcode but instead the revert opcode.
+More specifically, they will use error data equal to a function call to \verb|Panic(uint256)| with an error code specific to the circumstances.
+This will save gas on errors while it still allows static analysis tools to distinguish these situations from a revert on invalid input, like a failing \verb|require|.\\
+
+Exponentiation is right associative, i.e., the expression \verb|a**b**c| is parsed as $a^{b^c}$ (\verb|a**(b**c)|).
+Before \verb|0.8.0|, it was parsed as $\left(a^b\right)^c$ (\verb|(a**b)**c|).
+This is the common way to parse the exponentiation operator.\\
+
+\textbf{5. EVM memory}\label{sec:exam3_q5}\\
+
+\textbf{Solution: A \& B.}
+
+EVM memory is linear and can be addressed at byte level and accessed with \verb|MSTORE|/\verb|MSTORE8|/\verb|MLOAD| instructions.
+All locations in memory are initialized as zero.\\
+
+\verb|Solidity| reserves four 32-byte slots, with specific byte ranges (inclusive of endpoints) : \verb|0x60| - \verb|0x7f| (32 bytes): zero slot (The zero slot is used as initial value for dynamic memory arrays and should never be written to)\\
+
+\textbf{6. \texttt{Dappsys} provides}\label{sec:exam3_q6}\\
+
+\textbf{Solution: A \& C.}
+
+\verb|Dappsys DSProxy| implements a proxy deployed as a standalone contract which can then be used by the owner to execute code.\\
+
+\verb|Dappsys DSMath| provides arithmetic functions for the common numerical primitive types of \verb|Solidity|.
+You can safely add, subtract, multiply, and divide uint numbers without fear of integer overflow.
+You can also find the minimum and maximum of two numbers.
+Additionally, this package provides arithmetic functions for two new higher level numerical concepts called \verb|wad| (18 decimals) and \verb|ray| (27 decimals).
+These are used to represent fixed-point decimal numbers.\\
+
+\verb|Dappsys DSAuth| provides a flexible and updatable auth pattern which is completely separate from application logic.\\
+
+\textbf{7. Libraries are contracts}\label{sec:exam3_q7}\\
+
+\textbf{Solution: A, B \& D.}
+
+Libraries are deployed only once at a specific address and their code is reused using the \verb|DELEGATECALL| opcode.
+This means that if library functions are called, their code is executed in the context of the calling contract.
+They use the \verb|library| keyword.\\
+
+Libraries are restricted in the following ways: They cannot have state variables, they cannot inherit nor be inherited, they cannot receive Ether.\\
+
+Library functions can only be called directly (i.e. without the use of \verb|DELEGATECALL|) if they do not modify the state (i.e. if they are \verb|view| or \verb|pure| functions), because libraries are assumed to be stateless.\\
+
+\textbf{8.  ERC20 \texttt{transferFrom(address sender, address recipient, uint256 amount)} (that follows the \texttt{ERC20} spec strictly)}\label{sec:exam3_q8}\\
+
+\textbf{Solution: A, B \& D.}
+
+\texttt{transferFrom(address sender, address recipient, uint256 amount)}\linebreak moves amount tokens from \verb|sender| to \verb|recipient| using the allowance mechanism.
+\verb|amount| is then deducted from the caller's allowance.
+Returns a boolean value indicating whether the operation succeeded.
+Emits a Transfer event.\\
+
+\textbf{9. \texttt{ERC777} may be considered as an improved version of \texttt{ERC20} because}\label{sec:exam3_q9}\\
+
+\textbf{Solution: A, B \& C.}
+
+Like \verb|ERC20|, \verb|ERC777| is a standard for fungible tokens with improvements such as getting rid of the confusion around decimals, minting and burning with proper events, among others, but its killer feature is receive hooks.\\
+
+A hook is simply a function in a contract that is called when tokens are sent to it, meaning accounts and contracts can react to receiving tokens.
+This enables a lot of interesting use cases, including atomic purchases using tokens (no need to do \verb|approve| and \verb|transferFrom| in two separate transactions), rejecting reception of tokens (by reverting on the hook call), redirecting the received tokens to other addresses, among many others.\\
+
+Furthermore, since contracts are required to implement these hooks in order to receive tokens, no tokens can get stuck in a contract that is unaware of the \verb|ERC777| protocol, as has happened countless times when using \verb|ERC20|s.\\
+
+\textbf{10. WETH is}\label{sec:exam3_q10}\\
+
+\textbf{Solution: D.}
+
+WETH stands for Wrapped Ether.\\
+For protocols that work with \verb|ERC20| tokens but also need to handle Ether, WETH contracts allow converting Ether to its \verb|ERC20| equivalent WETH (called wrapping) and vice-versa (called unwrapping).
+WETH can be created by sending Ether to a WETH smart contract where the Ether is stored and in turn receiving the WETH \verb|ERC20| token at a 1:1 ratio.
+This WETH can be sent back to the same smart contract to be ``unwrapped'' i.e. redeemed back for the original Ether at a 1:1 ratio.
+The most widely used WETH contract is \verb|WETH9| which holds more than 7 million Ether for now.\\
+
+\textbf{11. \texttt{OpenZeppelin SafeCast}}\label{sec:exam3_q11}\\
+
+\textbf{Solution: B.}
+
+\verb|OpenZeppelin SafeCast| are Wrappers over \verb|Solidity|'s \verb|uintXX|/\verb|intXX| casting operators with added overflow checks.
+Downcasting from \verb|uint256|/\verb|int256| in \verb|Solidity| does not revert on overflow.
+This can easily result in undesired exploitation or bugs, since developers usually assume that overflows raise errors.
+\verb|SafeCast| restores this intuition by reverting the transaction when such an operation overflows.\\
+
+\textbf{12. \texttt{OpenZeppelin ERC20Pausable}}\label{sec:exam3_q12}\\
+
+\textbf{Solution: A, \& B.}
+
+Not C, because it inherits these modifiers from \verb|Pausable| and doesn't implement them.\\
+
+\verb|OpenZeppelin ERC20Pausable| implements \verb|ERC20| token with pausable token transfers, minting and burning.
+Useful for scenarios such as preventing trades until the end of an evaluation period, or having an emergency switch for freezing all token transfers in the event of a large bug.\\
+
+The emergency stop mechanism using functions \verb|pause| and \verb|unpause| that can be triggered by an authorized account.
+This module is used through inheritance.
+It will make available the modifiers \verb|whenNotPaused| and \verb|whenPaused|, which can be applied to the functions of your contract.
+Only the functions using the modifiers will be affected when the contract is paused or unpaused.\\
+
+\pagebreak
+
+\textbf{13. \texttt{CREATE2}}\label{sec:exam3_q13}\\
+
+\textbf{Solution: B \& C.}
+
+\verb|OpenZeppelin Create2| makes usage of the \verb|CREATE2| EVM opcode easier and safer.
+\verb|CREATE2| can be used to compute in advance the address where a smart contract will be deployed.
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+deploy(uint256 amount, bytes32 salt, bytes bytecode) -> address \\ Deploys a contract using CREATE2
+\end{lstlisting}
+
+\textbf{14. Name collision error with inheritance happens when the following pairs have the same name within a contract}\label{sec:exam3_q14}\\
+
+\textbf{Solution: A, B \& D.}
+
+Name Collision Error is an error when any of the following pairs in a contract have the same name due to inheritance
+
+\begin{itemize}
+    \item a function and a modifier
+    \item a function and an event
+    \item an event and a modifier
+\end{itemize}
+
+\textbf{15. \texttt{OpenZeppelin}'s (role-based) \texttt{AccessControl} library}\label{sec:exam3_q15}\\
+
+\textbf{Solution: B \& C.}
+
+\verb|OpenZeppelin AccessControl| provides a general role based access control mechanism.
+Multiple hierarchical roles can be created and assigned each to multiple accounts.
+Roles can be used to represent a set of permissions.
+\verb|hasRole| is used to restrict access to a function call.
+Roles can be granted and revoked dynamically via the \verb|grantRole| and \verb|revokeRole| functions which can only be called by the role's associated admin accounts.\\
+
+\textbf{16. \texttt{OpenZeppelin}'s proxy implementations}\label{sec:exam3_q16}\\
+
+\textbf{Solution: A \& B.}
+
+\verb|OpenZeppelin Proxy| is an abstract contract that provides a fallback function that delegates all calls to another contract using the EVM instruction \verb|delegatecall|.
+We refer to the second contract as the implementation behind the proxy, and it has to be specified by overriding the virtual \verb|_implementation| function.\\
+
+\verb|OpenZeppelin ERC1967Proxy| implements an upgradeable proxy.
+It is upgradeable because calls are delegated to an implementation address that can be changed.\\
+
+\pagebreak
+
+\textbf{17. Which of the following is/are true for a function \texttt{f} that has a modifier \texttt{m}?}\label{sec:exam3_q17}\\
+
+\textbf{Solution: B.}
+
+Function Modifiers can be used to change the behaviour of functions in a declarative way.
+For example, you can use a modifier to automatically check a condition prior to executing the function.
+The function's control flow continues after the ``\verb|_|'' in the preceding modifier.
+Multiple modifiers are applied to a function by specifying them in a whitespace-separated list and are evaluated in the order presented.
+The modifier can choose not to execute the function body at all and in that case the return variables are set to their default values just as if the function had an empty body.
+The `\verb|_|' symbol can appear in the modifier multiple times.
+Each occurrence is replaced with the function body.\\
+
+\textbf{18. Zero address check is typically recommended because}\label{sec:exam3_q18}\\
+
+\textbf{Solution: B.}
+
+\verb|address(0)| which is 20-bytes of 0's is treated specially in \verb|Solidity| contracts because the private key corresponding to this address is unknown.
+Ether and tokens sent to this address cannot be retrieved and setting access control roles to this address also won't work (no private key to sign transactions).
+Therefore zero addresses should be used with care and checks should be implemented for user-supplied address parameters.\\
+
+\textbf{19. \texttt{Solidity} supports}\label{sec:exam3_q19}\\
+
+\textbf{Solution: A, B \& D.}
+
+There's no such thing as ``contract overloading''.\\
+
+\verb|Solidity| supports multiple inheritance including polymorphism.
+There's also function overloading because a contract can have multiple functions of the same name but with different parameter types.
+
+\textbf{20. \texttt{OpenZeppelin ERC721}}\label{sec:exam3_q20}\\
+
+\textbf{Solution: A, B \& D.}
+
+C is not correct since approval can only give or take away one single token, so changing approval doesn't allow stealing more than what was already approved.\\
+
+\verb|OpenZeppelin ERC721| omplements the popular \verb|ERC721| Non-Fungible Token Standard.\\
+
+\verb|safeTransferFrom()|: Safely transfers \verb|tokenId| token from \verb|from| to \verb|to|, checking first that contract recipients are aware of the \verb|ERC721| protocol to prevent tokens from being forever locked.
+One of the requirements is that \verb|from| cannot be the zero address.\\
+
+\verb|setApprovalForAll(address operator, bool _approved)|: Approve or remove \verb|operator| as an operator for the caller.
+Operators can call \verb|transferFrom| or \verb|safeTransferFrom| for any token owned by the caller.\\
+
+\textbf{21. Function visibility}\label{sec:exam3_q21}\\
+
+\textbf{Solution: C.}
+
+The \verb|uint256| takes a full slot, the bools (each 1 byte) and the address (20 bytes) can packed into the same slot.\\
+
+State variables of contracts are stored in storage in a compact way such that multiple values sometimes use the same storage slot.
+Except for dynamically-sized arrays and mappings, data is stored contiguously item after item starting with the first state variable, which is stored in slot 0.\\
+
+For each state variable, a size in bytes is determined according to its type.
+Multiple, contiguous items that need less than 32 bytes are packed into a single storage slot if possible.
+If a value type does not fit the remaining part of a storage slot, it is stored in the next storage slot.\\
+
+\textbf{22. Which of the following is/are generally true about storage layouts?}\label{sec:exam3_q22}\\
+
+\textbf{Solution: A, B \& C.}
+
+In the case of mappings, the slots are unique for each key.
+They're not consecutive.\\
+
+Ordering of storage variables and struct members affects how they can be packed tightly.
+For example, declaring your storage variables in the order of \verb|uint128|, \verb|uint128|, \verb|uint256| instead of \verb|uint128|, \verb|uint256|, \verb|uint128|, as the former will only take up two slots of storage whereas the latter will take up three.\\
+
+The elements of structs and arrays are stored after each other, just as if they were given as individual values.\\
+In the case of Dynamic Arrays, if the storage location of the array ends up being a slot $p$ after applying the storage layout rules, this slot stores the number of elements in the array (byte arrays and strings are an exception).
+Array data is located starting at \verb|keccak256(p)| and it is laid out in the same way as statically-sized array data would: One element after the other, potentially sharing storage slots if the elements are not longer than 16 bytes.\\
+
+For mappings, the slot stays empty, but it is still needed to ensure that even if there are two mappings next to each other, their content ends up at different storage locations.
+The value corresponding to a mapping key $k$ is located at \verb|keccak256(h(k).p)| where `\verb|.|' is concatenation and `\verb|h|' is a function that is applied to the key depending on its type.\\
+
+\textbf{23. Assuming all contracts \texttt{C1}, \texttt{C2} and \texttt{C3} define explicit constructors in \texttt{contract C1 is C2, C3}  and both \texttt{C2} and \texttt{C3} don't inherit contracts, the number \& order of constructor(s) executed is/are}\label{sec:exam3_q23}\\
+
+\textbf{Solution: B.}
+
+The constructors of all the base contracts will be called following the C3-linearization rules.\\
+
+\textbf{24. \texttt{OpenZeppelin SafeMath}}\label{sec:exam3_q24}\\
+
+\textbf{Solution: B.}
+
+It is not A, because it does not prevent them at compile, but at runtime.
+It can be argued it's not B since it's a recommendation and not a requirement.\\
+
+\verb|OpenZeppelin SafeMath| provides mathematical functions that protect your contract from overflows and underflows.\\
+
+Until \verb|Solidity| version \verb|0.8.0| which introduced checked arithmetic by default, arithmetic was unchecked and therefore susceptible to overflows and underflows which could lead to critical vulnerabilities.
+The recommended best-practice for such contracts is to use \verb|OpenZeppelin|'s \verb|SafeMath| library for arithmetic.\\
+
+\textbf{25. Which of the following is/are not allowed?}\label{sec:exam3_q25}\\
+
+\textbf{Solution: C.}
+
+Base functions can be overridden by inheriting contracts to change their behavior if they are marked as \verb|virtual|.
+The overriding function must then use the \verb|override| keyword in the function header.\\
+
+A contract can have multiple functions of the same name but with different parameter types.
+This process is called ``overloading''.\\
+
+Function modifiers can override each other.
+This works in the same way as function overriding (except that there is no overloading for modifiers).\\
+
+\textbf{26. Which of the following is/are true about abstract contracts and interfaces?}\label{sec:exam3_q26}\\
+
+\textbf{Solution: A, C \& D.}
+
+Note that A isn't necessarily correct since abstract classes can have all functions defined.\\
+
+Contracts need to be marked as \verb|abstract| when at least one of their functions is not implemented.
+They use the \verb|abstract| keyword.
+
+Interfaces cannot have any functions implemented.\\
+
+Functions without implementation have to be marked \verb|virtual| outside of interfaces.
+In interfaces, all functions are automatically considered virtual.
+Functions with \verb|private| visibility cannot be virtual.\\
+
+
+\textbf{27. Storage layout}\label{sec:exam3_q27}\\
+
+\textbf{Solution: A, C \& D.}
+
+Not B, because it's 256-bit slots, not Byte.\\
+
+Storage is a key-value store that maps 256-bit words to 256-bit words and is accessed with EVM's \verb|SSTORE|/\verb|SLOAD| instructions.
+All locations in storage are initialized as zero.\\
+
+For each state variable, a size in bytes is determined according to its type.
+Multiple, contiguous items that need less than 32 bytes are packed into a single storage slot if possible.
+Value types use only as many bytes as are necessary to store them.\\
+
+\textbf{28. Which of the following EVM instruction(s) do(es) not touch EVM storage?}\label{sec:exam3_q28}\\
+
+\textbf{Solution: B \& D.}
+
+Storage is a key-value store that maps 256-bit words to 256-bit words and is accessed with EVM's \verb|SSTORE|/\verb|SLOAD| instructions.
+All locations in storage are initialized as zero.\\
+
+EVM memory is linear and can be addressed at byte level and accessed with \verb|MSTORE|/\verb|MSTORE8|/\verb|MLOAD| instructions.
+All locations in memory are initialized as zero.\\
+
+The Stack is made up of 1024 256-bit elements. EVM instructions can operate with the top 16 stack elements.
+Most EVM instructions operate with the stack (stack-based architecture) and there are also stack-specific operations e.g. \verb|PUSH|, \verb|POP|, \verb|SWAP|, \verb|DUP|, etc\dots\\
+
+\textbf{29. Proxied contracts}\label{sec:exam3_q29}\\
+
+\textbf{Solution: B \& C.}
+
+\verb|OpenZeppelin Initializable| aids in writing upgradeable contracts, or any kind of contract that will be deployed behind a proxy.
+Since a proxied contract cannot have a constructor, it is common to move constructor logic to an external initializer function, usually called \verb|initialize|.
+It then becomes necessary to protect this initializer function so it can only be called once.
+The \verb|initializer| modifier provided by this contract will have this effect.\\
+
+To avoid leaving the proxy in an uninitialized state, the \verb|initializer| function should be called as early as possible by providing the encoded function call as the \verb|_data| argument.
+When used with inheritance, manual care must be taken to not invoke a parent initializer twice, or to ensure that all initializers are idempotent.
+This is not verified automatically as constructors are by \verb|Solidity|.\\
+
+\textbf{30. \texttt{OpenZeppelin}'s \texttt{ReentrancyGuard} library mitigates reentrancy risk in a contract}\label{sec:exam3_q30}\\
+
+\textbf{Solution: B.}
+
+\verb|OpenZeppelin ReentrancyGuard| prevents reentrant calls to a function.
+Inheriting from \verb|ReentrancyGuard| will make the \verb|nonReentran|t modifier available, which can be applied to functions to make sure there are no nested (reentrant) calls to them.\\
+
+\textbf{31. EVM inline assembly has}\label{sec:exam3_q31}\\
+
+\textbf{Solution: A, C \& D.}
+
+Inline assembly is a way to access the Ethereum Virtual Machine at a low level.
+This bypasses several important safety features and checks of \verb|Solidity|.
+You should only use it for tasks that need it, and only if you are confident with using it.
+The language used for inline assembly in \verb|Solidity| is called \verb|Yul|.
+
+You can access \verb|Solidity| variables and other identifiers in inline assembly by using their name.
+Local variables of value type are directly usable in inline assembly.
+Local variables that refer to memory/calldata evaluate to the address of the variable in memory/calldata and not the value itself.\\
+
+\textbf{32. If \texttt{OpenZeppelin}'s \texttt{isContract(address)} returns \texttt{false} for an address then}\label{sec:exam3_q32}\\
+
+\textbf{Solution: B.}
+
+Returns \verb|true| if account is a contract.
+It is unsafe to assume that an address for which this function returns false is an externally-owned account (EOA) and not a contract.
+Among others, \verb|isContract| will return \verb|false| for the following types of addresses:
+
+\begin{itemize}
+    \item an externally-owned account
+    \item a contract in construction
+    \item an address where a contract will be created
+    \item an address where a contract lived, but was destroyed
+\end{itemize}

@@ -1,0 +1,373 @@
+\section{Ethereum 101 Quiz}
+
+\textbf{1. Which of the following EVM components is/are non-volatile across transactions?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Stack
+    \item Memory
+    \item Storage
+    \item Calldata
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q1]{here}.\\
+
+\textbf{2. The number of transactions in a Ethereum block depends on}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Nothing.
+        It is a constant
+    \item Gas used by transactions
+    \item Block gas limit
+    \item Block difficulty
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q2]{here}.\\
+
+\pagebreak
+
+\textbf{3. EVM Stores}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Most significant byte in the smallest memory address
+    \item Most significant byte in the largest memory address
+    \item In Big-endian order
+    \item In Little-endian order
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q3]{here}.\\
+
+\textbf{4. Ethereum's threat model is characterised by}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Trusted miners and users
+    \item Trusted users, untrusted miners
+    \item Trusted miners, untrusted users
+    \item Everyone is untrusted
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q4]{here}.\\
+
+\textbf{5. Ethereum smart contracts do not run into halting problems because}
+
+\begin{enumerate}[label=\Alph*.]
+    \item EVM is not Turing Complete
+    \item EVM is Turing Complete
+    \item EVM is Turing Complete but is bounded by gas sent in transaction
+    \item EVM is Turing Complete but is bounded by the stack depth
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q5]{here}.\\
+
+\pagebreak
+
+\textbf{6. Which of the following operation(s) touch(es) storage?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|SWAP|
+    \item\verb|SLOAD|
+    \item\verb|DUP|
+    \item\verb|PUSH|
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q6]{here}.\\
+
+\textbf{7. The most gas-expensive operation is}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|SLOAD|
+    \item\verb|SSTORE|
+    \item\verb|CREATE|
+    \item\verb|SELFDESTRUCT|
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q7]{here}.\\
+
+\textbf{8. Transaction \texttt{T1} attempts to write to storage values \texttt{S1} and \texttt{S2} of contract \texttt{C}.
+Transaction \texttt{T2} attempts to read the same storage values \texttt{S1} and \texttt{S2}.
+However, \texttt{T1} reverts due to an exception after writing \texttt{S2}. Which or the following is/are TRUE?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|T2| reads the value of \verb|S1| updated by \verb|T1|
+    \item\verb|T2| reads the value of \verb|S1| prior to \verb|T1|'s attempted update
+    \item\verb|T2| also reverts because of the dependency on \verb|T1|
+    \item This scenario is not possible
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q8]{here}.\\
+
+\pagebreak
+
+\textbf{9. The gas tracking website \url{https://etherscan.io/gastracker} says that Low gas cost is 40 gwei.
+This affects}
+
+\begin{enumerate}[label=\Alph*.]
+    \item The transaction \verb|gasPrice|
+    \item The transaction \verb|gasLimit|
+    \item The transaction \verb|value|
+    \item Both B \& C
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q9]{here}.\\
+
+\textbf{10. Security of Ethereum DApps depends on}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Security of their smart contracts
+    \item Security of their off-chain components
+    \item Security of Ethereum
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q10]{here}.\\
+
+\textbf{11. A \texttt{nonce} is present in}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Ethereum transaction
+    \item Ethereum account
+    \item Both A \& B
+    \item Neither A nor B
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q11]{here}.\\
+
+\textbf{12. Miners are responsible for setting}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Transaction gas price
+    \item Block gas limit
+    \item Both A \& B
+    \item Neither A nor B
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q12]{here}.\\
+
+\pagebreak
+
+\textbf{13. Which of the following information CANNOT be obtained in the EVM?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Block difficulty
+    \item Transaction logs
+    \item Balance of an account
+    \item Block hash of any block
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q13]{here}.\\
+
+\textbf{14. Miners are incentivized to validate and create new blocks by}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Block rewards
+    \item Altruism
+    \item Transaction fees
+    \item Their belief in decentralization
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q14]{here}.\\
+
+\textbf{15. Smart contracts on Ethereum}
+
+\begin{enumerate}[label=\Alph*.]
+    \item May be deployed by anyone
+    \item May be deployed only through the DApp store
+    \item May have some form of access control
+    \item Are guaranteed to be secure
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q15]{here}.\\
+
+\textbf{16. Hardfork on Ethereum}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Has never happened
+    \item Happened only once after the DAO attack
+    \item Happens with backwards-incompatible protocol changes
+    \item Happens when developers and miners disagree on changes
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q16]{here}.\\
+
+\pagebreak
+
+\textbf{17. Which call instruction could be used to allow modifying the caller account’s state?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|CALL|
+    \item\verb|CALLCODE|
+    \item\verb|DELEGATECALL|
+    \item\verb|STATICCALL|
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q17]{here}.\\
+
+\textbf{18. The length of addresses on Ethereum is}
+
+\begin{enumerate}[label=\Alph*.]
+    \item 256 bits
+    \item 20 bytes
+    \item Depends on the Externally-Owned-Account or Contract address
+    \item Configurable
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q18]{here}.\\
+
+\textbf{19. Which of the following statements is/are TRUE about gas?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Unused gas is returned to the transaction destination account
+    \item Gas used by the transaction is credited to the beneficiary address in block header
+    \item Unused gas is credited to the beneficiary address in block header
+    \item Both A \& B
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q19]{here}.\\
+
+\textbf{20. The high-level languages typically used for writing Ethereum smart contracts are}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|Go|
+    \item\verb|C++|
+    \item\verb|Viper|
+    \item\verb|Solidity|
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q20]{here}.\\
+
+\pagebreak
+
+\textbf{21. Ethereum nodes talk to each other via}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Peer-to-Peer network
+    \item Client-Server network
+    \item Satellite network
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q21]{here}.\\
+
+\textbf{22. EVM is not a von Neumann architecture because}
+
+\begin{enumerate}[label=\Alph*.]
+    \item It was co-founded by Vitalik Buterin, not John von Neumann
+    \item Program instructions are stored separately from data
+    \item Program instructions are stored in a ROM not RAM
+    \item It is quasi Turing complete
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q22]{here}.\\
+
+\textbf{23. User \texttt{A} sends transaction \texttt{T1} from address \texttt{A1} with \texttt{gasPrice} \texttt{G1} and later transaction \texttt{T2} from address \texttt{A2} with \texttt{gasPrice} \texttt{G2}}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|T1| will be always included in an earlier block than \verb|T2|
+    \item Inclusion/Ordering of these transactions depends only on gas prices \verb|G1| and \verb|G2|
+    \item Inclusion/Ordering of these transactions depends only on network congestion
+    \item Inclusion/Ordering of these transactions depends on miners
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q23]{here}.\\
+
+\textbf{24. The types of accounts on Ethereum are}
+
+\begin{enumerate}[label=\Alph*.]
+    \item All Accounts are the same
+    \item Permissioned Accounts and Permissionless Accounts
+    \item Externally-Owned-Accounts and Contract Accounts
+    \item User Accounts and Admin Accounts
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q24]{here}.\\
+
+\pagebreak
+
+\textbf{25. The number of decimals in Ether is}
+
+\begin{enumerate}[label=\Alph*.]
+    \item 0
+    \item 1
+    \item 18
+    \item Configurable
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q25]{here}.\\
+
+\textbf{26. The difference(s) between Bitcoin and Ethereum is/are}
+
+\begin{enumerate}[label=\Alph*.]
+    \item The underlying tokens: Bitcoin vs Ether
+    \item Smart contract support
+    \item UTXO vs Accounts
+    \item Nakamoto Consensus
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q26]{here}.\\
+
+\textbf{27. Security Audits for smart contracts are performed because}
+
+\begin{enumerate}[label=\Alph*.]
+    \item They are required for listing DApp on the DApp store
+    \item They are required for deployment on Ethereum
+    \item They help remove vulnerabilities and reduce risk
+    \item They are required by exchanges to list tokens
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q27]{here}.\\
+
+\textbf{28. The number of modified Merkle-Patricia trees in an Ethereum block is}
+
+\begin{enumerate}[label=\Alph*.]
+    \item One
+    \item Three
+    \item Three plus number of contract accounts
+    \item Three plus number of transactions included in the block
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q28]{here}.\\
+
+\pagebreak
+
+\textbf{29. EVM opcodes}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Are multi-byte instructions
+    \item Are single byte instructions
+    \item Take operands in registers
+    \item Take operands on stack
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q29]{here}.\\
+
+\textbf{30. Gas for EVM opcodes}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Is constant and the same for all opcodes
+    \item May be changed over time to prevent DoS attacks
+    \item Depend on the gas price
+    \item Depend on the miners
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q30]{here}.\\
+
+\textbf{31. Ethereum Virtual Machine is a}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Register-based virtual machine
+    \item Stack-based virtual machine
+    \item Heap-based virtual machine
+    \item Stackless virtual machine
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q31]{here}.\\
+
+\textbf{32. Which of the following statement(s) is/are FALSE?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item EVM can get the block number only of the current block
+    \item EVM can get the block hash only of the current block
+    \item EVM can get the account balance only of the current account
+    \item EVM can get the code hash of only the current account
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam1_q32]{here}.\\

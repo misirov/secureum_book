@@ -1,0 +1,95 @@
+\section{RACE 5 Quiz Solutions}
+
+\textbf{1. \texttt{InSecureum balanceOf}}\label{sec:race5_q1}\\
+
+\textbf{Solution: D.}
+
+Since the \verb|_balances| state variable is only accessed once and immediately returned, caching doesn't make sense.\\
+
+State mutability can't be changed to \verb|pure| since the function accesses a state variable, that requires at least \verb|view|.\\
+
+It can't be changed to \verb|external| because it is currently being called internally by the \verb|balanceOfBatch()| function.\\
+
+\textbf{2. In \texttt{InSecureum}, array lengths mismatch check is missing in}\label{sec:race5_q2}\\
+
+\textbf{Solution: A, B, C \& D.}
+
+The public function \verb|balanceOfBatch()| receives a list of \verb|accounts| and a list of \verb|id|s, both of which items get passed on to \verb|balanceOf(accounts[i], ids[i]);|.
+To ensure that neither array is accessed out-of-bounds, it should be checked whether both lists are of the same length.\\
+
+Neither the internal function \verb|_safeBatchTransferFrom()| nor its public caller function \verb|safeBatchTransferFrom()| check the length of passed ids and amounts.
+Therefore the check is missing.\\
+
+The internal functions \verb|_mintBatch()| and \verb|_burnBatch()| are currently never called, but a contract extending \verb|InSecureum| might.
+It would make sense to check the lengths of passed \verb|id|s and \verb|amount|s in them, so that public functions calling them do not need to remember to do so.\\
+
+\textbf{3. The security concern(s) with \texttt{InSecureum \_safeTransferFrom()} is/are}\label{sec:race5_q3}\\
+
+\textbf{Solution: A, B \& C.}
+
+It is prefixed with an underscore, which is usually an indication of an \verb|internal| visibility, and it's also called by a similarly named public \verb|safeTransferFrom()| function that applies more input validation before calling it.
+This validation ensures that the sender actually has approval for the transfer of funds, which would be bypassed by this function being \verb|public|.
+It should instead be \verb|internal| allowing an inheriting contract to internally call it.\\
+
+The new \verb|fromBalance| is calculated within an \verb|unchecked{}| block, bypassing integer underflow prevention measures of \verb|Solidity| version \verb|0.8.0^|.
+Since the \verb|fromBalance| isn't checked for whether there's a sufficient balance for a transfer, this effectively allows sending unlimited amounts to the specified recipient.\\
+
+Neither \verb|safeTransferFrom()| nor \verb|_safeTransferFrom()| are checking whether the to address is non-zero, making it possible to accidentally burn tokens.\\
+
+\textbf{4. The security concern(s) with \texttt{InSecureum \_safeBatchTransferFrom()} is/are}\label{sec:race5_q4}\\
+
+\textbf{Solution: A \& C.}
+
+Array length mismatch check is missing.\\
+
+There's no usage of an \verb|unchecked{}| block, therefore an integer underflow cannot happen with this \verb|Solidity| version.\\
+
+The new value of \verb|fromBalance| is calculated but it's never actually updated in storage.
+This effectively allows sending the same tokens unlimited amount of times.\\
+
+\textbf{5. The security concern(s) with \texttt{InSecureum \_mintBatch()} is/are}\label{sec:race5_q5}\\
+
+\textbf{Solution: A, B \& C.}
+
+Array length mismatch check is missing.\\
+
+Comparing the emission of the \verb|TransferBatch| event to other occurrences, it appears that \verb|id|s and \verb|amount|s have been accidentally swapped.\\
+
+The zero-address check incorrectly ensures that the sender is non-zero (which would never be possible anyway) instead of ensuring that the receiving account is non-zero.
+This effectively allows minting to the zero-address, burning all minted tokens immediately.\\
+
+\textbf{6. The security concern(s) with \texttt{InSecureum \_burn()} is/are}\label{sec:race5_q6}\\
+
+\textbf{Solution: D.}
+
+The zero-address validation exists and is correctly checking the value of \verb|from|.\\
+
+There's no usage of an \verb|unchecked{}| block, therefore an integer underflow cannot happen with this \verb|Solidity| version.\\
+
+The balance appears to be correctly updated after subtraction.\\
+
+\pagebreak
+
+\textbf{7. The security concern(s) with \texttt{InSecureum}\\\texttt{\_doSafeTransferAcceptanceCheck()} is/are}\label{sec:race5_q7}\\
+
+\textbf{Solution: B \& C.}
+
+The \verb|isContract()| function is correctly called on \verb|to|, which is the receiving address (that is potentially a contract) that this function is supposed to check support of \verb|ERC1155|, before tokens are sent to it, since they'd otherwise be stuck in a contract not supporting this standard.\\
+
+Comparing \verb|_doSafeTransferAcceptanceCheck()| and\\\verb|_doSafeBatchTransferAcceptanceCheck()| shows a clear discrepancy when checking the return value, with the batch function's implementation correctly checking support for the \verb|ERC1155| standard.
+This function is in fact currently doing the opposite, ensuring that tokens are only sent to contracts that do NOT support it.\\
+
+The \verb|isContract()| function currently returns \verb|true| if the passed address is in fact NOT a contract (has a code length of 0).
+It should instead return true only when the address has a code length larger than 0, showing that there's currently a contract residing at account.\\
+
+\textbf{8. The security concern(s) with \texttt{InSecureum isContract()} implementation is/are}\label{sec:race5_q8}\\
+
+\textbf{Solution: B \& C.}
+
+A visibility of \verb|internal| allowing inheriting contracts to use it appears appropriate.\\
+
+The comparison should indeed be "bigger-than-zero" instead of "equals-zero".
+That is so because when an address is not a contract, it has a code length equal to 0.
+However, when the code length is bigger than 0, that means that a contract is currently residing in that address.
+
+Ethereum not only has Contract accounts but also Externally Owned Accounts (EOA), which do not have any contract code but an off-chain public-private keypair instead.\\

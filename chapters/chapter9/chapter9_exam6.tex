@@ -1,0 +1,183 @@
+\section{Audit Techniques \& Tools 101 Quiz}
+
+\textbf{1. Which of the below is/are accurate?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Audits identify all security vulnerabilities and guarantee bug-free code.
+    \item Audits cover only smart contracts but never the offchain code.
+    \item Audits suggest fixes for issues identified and aim to reduce risk.
+    \item None of the above.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam6_q1]{here}.\\
+
+\textbf{2. Audit reports from audit firms tipically include}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Finding likelihood/difficulty, impact and severity.
+    \item Exploit scenarios and recommended fixes.
+    \item Formal verification of all findings with proofs and counterexamples.
+    \item All of the above.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam6_q2]{here}.\\
+
+\textbf{3. These audit techniques are especially well-suited for smart contracts (compared to Web2 programs)}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Formal verification because contracts are relatively smaller with specific properties.
+    \item Fuzzing because anyone can send random inputs to contracts on blockchain.
+    \item Static source-code analysis because contracts are expected to be open source.
+    \item High-coverage testing because contract states and transitions are relatively fewer.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam6_q3]{here}.\\
+
+\pagebreak
+
+\textbf{4. The following kinds of findings may be expected during audits}
+
+\begin{enumerate}[label=\Alph*.]
+    \item True positives after confirmation from the project team.
+    \item False positives due to assumptions from missing specification and threat model.
+    \item False positives due to limitations of time and expertise.
+    \item None of the above.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam6_q4]{here}.\\
+
+\textbf{5. Which of the following is/are true?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Audited projects always have clear/complete specification and documentation of all contract properties.
+    \item Manual analysis is typically required for detecting application logic vulnerabilities.
+    \item Automated tools like Slither and MythX have no false negatives.
+    \item The project team always fixes all the findings identified in audits.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam6_q5]{here}.\\
+
+\textbf{6. Automated tools for smart contract analysis}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Are sufficient therefore making manual analysis unnecessary.
+    \item Have no false positives whatsoever.
+    \item Are best-suited for application-level vulnerabilities.
+    \item None of the above.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam6_q6]{here}.\\
+
+\textbf{7. Which of the following is/are true?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Slither supports detectors, printers, tools and custom analyses.
+    \item Echidna is a symbolic analyzer tool.
+    \item MythX is a combination of static analysis, symbolic checking and fuzzing tools.
+    \item None of the above.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam6_q7]{here}.\\
+
+\pagebreak
+
+\textbf{8. Which of the following is/are correct about false positives?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item They are findings that are not real concerns/vulnerabilities after further review.
+    \item They are real vulnerabilities but are falsely claimed by auditors as benign.
+    \item They are possible with automated tools.
+    \item None of the above.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam6_q8]{here}.\\
+
+\textbf{9. Audit findings}
+
+\begin{enumerate}[label=\Alph*.]
+    \item May include both specific vulnerabilities and generic recommendations.
+    \item May not all be fixed by the project team for reasons of relevancy and acceptable trust/threat model.
+    \item Always have demonstrable proof-of-concept excploit code on mainnet.
+    \item None of the above.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam6_q9]{here}.\\
+
+\textbf{10. Which of the following is/are typicial manual review approach(es)?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Asset flow.
+    \item Symbolic checking.
+    \item Inferring constraints.
+    \item Evaluating assumptions.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam6_q10]{here}.\\
+
+\textbf{11. Access control analysis is a crytical part of manual review for the reason(s) that}
+
+\begin{enumerate}[label=\Alph*.]
+    \item It is the easiest to perform because smart contracts never have access control
+    \item It is the fastest to perform because there are always only two roles: users and admins.
+    \item It is fundamental to security because privileged roles (of which there may be many) may be misused/compromised.
+    \item None of the above.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam6_q11]{here}.\\
+
+\pagebreak
+
+\textbf{12. Which of the following is/are true about vulnerability difficulty and impact?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Difficulty indicates how hard it was for auditors to detect the issue.
+    \item Difficulty is an objective measure that can always be quantified.
+    \item Impact is tipically classified as High if there is loss/lock of funds.
+    \item None of the above.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam6_q12]{here}.\\
+
+\textbf{13. Application-level security constraints}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Are always clearly/completely specified and documented.
+    \item Have to be typically inferred from the code or discussions with project team.
+    \item Typically require manual analysis.
+    \item None of the above.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam6_q13]{here}.\\
+
+\textbf{14. Which of the following is/are typically true?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Static analysis analyzes program properties by actually executing the program.
+    \item Fuzzing uses valid, expected and deterministic inputs.
+    \item Symbolic checking enumerates individual states/transitions or efficient state space traversal.
+    \item None of the above.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam6_q14]{here}.\\
+
+\textbf{15. Which of the following is/are generally true about asset flow analysis?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Analyzes the flow of Ether or tokens managed by smart contracts.
+    \item Assets should be withdrawn only by authorized addresses.
+    \item The timing aspects of asset withdrawals/deposits is irrelevant.
+    \item The type and quantity of asset withdrawals/deposits is irrelevant.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam6_q15]{here}.\\
+
+\textbf{16. Which of the following is/are generally true about control and data flow analyses?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Interprocedural control flow is typically indicated by a call graph.
+    \item Intraprocedural control flow is dictated by conditionals (if/else), loops (for/while/do/continue/break) and return statements.
+    \item Interprocedural data flow is evaluated by analyzing the data used as argument values for function parameters at call sites.
+    \item Intraprocedural data flow is evaluated by analyzing the assignment and use of variables/constants along control flow paths within functions
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam6_q16]{here}.\\

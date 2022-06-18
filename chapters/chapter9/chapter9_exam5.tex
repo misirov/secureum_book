@@ -1,0 +1,148 @@
+\section{Security Pitfalls \& Best Practices 201 Quiz}
+
+ All questions in this quiz are based on the \verb|InSecureumToken| contract shown below.
+
+This is the same contract you see for all the 8 questions in this quiz.
+
+The \verb|InSecureumToken| contract implements a token contract which allows users to buy tokens by depositing Ether (at a certain conversion ratio), and transfer tokens.
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+pragma solidity 0.7.0;
+
+contract InSecureumToken {
+
+    mapping(address => uint) private balances;
+    
+    uint public decimals = 10**18; // decimals of the token
+    uint public totalSupply; // total supply
+    uint MAX_SUPPLY = 100 ether; // Maximum total supply
+
+    event Mint(address indexed destination, uint amount);
+    
+    function transfer(address to, uint amount) public {
+        // save the balance in local variables
+        // so that we can re-use them multiple times
+        // without paying for SLOAD on avery access
+        uint balance_from = balances[msg.sender];
+        uint balance_to = balances[to];
+        require(balance_from >= amount);
+        balances[msg.sender] = balance_from - amount;
+        balances[to] = safeAdd(balance_to, amount);
+    }
+
+    /// @notice Allow users to buy token. 1 ether = 10 tokens
+    /// @dec Users can send more ether than token to be bought, to donate a fee to the protocol team
+    function buy (uint desired_tokens) public payable {
+        // Check if enough ether has been sent
+        uint required_wei_sent = (desired_tokens / 10) * decimals;
+        require(msg.value >= required_wei_sent);
+        
+        // Mint tokens
+        totalSupply = safeAdd(totalSupply, desired_tokens);
+        balances[msg.sender] = safeAdd(balances[msg.sender], desired_tokens);
+        emit Mint(msg.sender, desired_tokens);
+    }
+    
+    /// @notice Add two values. Revert if overflow
+    function safeAdd(uint a, uint b) pure internal returns(uint) {
+        if (a + b < a) {
+            revert();
+        }
+        return a + b;
+    }
+}
+\end{lstlisting}
+
+\pagebreak
+
+\textbf{1. The \texttt{InSecureumToken} contract strictly follow the specification of}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|ERC20|.
+    \item\verb|ERC777|.
+    \item\verb|ERC721|.
+    \item None of the above.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam5_q1]{here}.\\
+
+\textbf{2. To avoid lock of funds, the following feature(s) MUST be implemented before contract deployment}
+
+\begin{enumerate}[label=\Alph*.]
+    \item A \verb|transferFrom()| function.
+    \item A \verb|burn()| function.
+    \item A way to withdraw/exchange/use Ether from the contract.
+    \item None of the above.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam5_q2]{here}.\\
+
+\textbf{3. Which of the following assertion(s) is/are true (without affecting the security posture of the contract)?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item \verb|buy()| does not need \verb|payable| keyword.
+    \item \verb|balances| must be \verb|private|.
+    \item \verb|transfer()| can be \verb|external|.
+    \item \verb|safeAdd()| can be \verb|public|.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam5_q3]{here}.\\
+
+\pagebreak
+
+\textbf{4. The total supply is limited by}
+
+\begin{enumerate}[label=\Alph*.]
+    \item \verb|10**18|.
+    \item \verb|100 * 10**18|.
+    \item \verb|100|.
+    \item None of the above.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam5_q4]{here}.\\
+
+\textbf{5. The following issue(s) is/are present in the codebase}
+
+\begin{enumerate}[label=\Alph*.]
+    \item An integer underflow allows one to drain Ether.
+    \item Unsafe rounding allows one to receive new tokens for free.
+    \item A division by zero allows one to trap/freeze the system.
+    \item None of the above.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam5_q5]{here}.\\
+
+\textbf{6. The following issue(s) is/are present in the codebase}
+
+\begin{enumerate}[label=\Alph*.]
+    \item A front-running allows one to pay less than expected for tokens.
+    \item A lack of access control allows one to receive tokens for free.
+    \item Incorrect balance update allows one to receive new tokens for free.
+    \item None of the above.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam5_q6]{here}.\\
+
+\textbf{7. The following issue(s) is/are present in the codebase}
+
+\begin{enumerate}[label=\Alph*.]
+    \item A reentrancy allows one to drain Ether.
+    \item A reentrancy allows one to drain the tokens.
+    \item A reentrancy allows one to receive new tokens for free.
+    \item None of the above.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam5_q7]{here}.\\
+
+\pagebreak
+
+\textbf{8. The following issue(s) is/are present in the codebase}
+
+\begin{enumerate}[label=\Alph*.]
+    \item An integer overflow allows one to drain Ether.
+    \item An integer overflow allows one to receive new tokens for free.
+    \item An integer overflow allows one to trap/freeze the system.
+    \item None of the above.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam5_q8]{here}.\\

@@ -1,0 +1,225 @@
+\section{RACE-X: Certora Quiz Solutions}
+
+\textbf{1. When is the expression $p\Rightarrow q$ false?}\label{sec:raceXcertora_q1}\\
+
+\textbf{Solution: D.}
+
+\textbf{2. Is the following expression true? $p\wedge q\Rightarrow p$}\label{sec:raceXcertora_q2}\\
+
+\textbf{Solution: C.}
+
+\textbf{3. Is the following expression true? $(p\wedge(q\vee\neg p))\wedge\neg q$}\label{sec:raceXcertora_q3}\\
+
+\textbf{Solution: B.}
+
+\textbf{4. Is the following expression true? $\neg (\neg p\vee\neg q\vee\neg r)\Leftrightarrow p\wedge q\wedge r$}\label{sec:raceXcertora_q4}\\
+
+\textbf{Solution: A.}
+
+\textbf{5. Is the following expression true? $\neg((\neg p\vee\neg q)\vee (\neg p\wedge\neg q))$}\label{sec:raceXcertora_q5}\\
+
+\textbf{Solution: C.}
+
+\textbf{6. Is the following expresison true? $\neg((p\wedge q)\vee(\neg p\wedge\neg q))$}\label{sec:raceXcertora_q6}\\
+
+\textbf{Solution: C.}
+
+\textbf{7. Given the expression: $M:p\wedge\vee\neg p$\\
+Which of the following expressions implies the above given expression $M$?}\label{sec:raceXcertora_q7}\\
+
+\textbf{Solution: A, B, C \& D.}
+
+\pagebreak
+
+\textbf{8. Given the expression: $M:p\wedge\wedge\neg p$\\
+Which of the following expressions implies the above given expression $M$?}\label{sec:raceXcertora_q8}\\
+
+\textbf{Solution: A, B, C \& D.}
+
+\textbf{9. Is the following expression true? $(p\Rightarrow (q\Rightarrow r))\Rightarrow((p\Rightarrow q)\Rightarrow r)$}\label{sec:raceXcertora_q9}\\
+
+\textbf{Solution: C.}
+
+\textbf{10. Is the following expression true? $(()p\Rightarrow q)\Rightarrow r)\Rightarrow(p\Rightarrow (q\Rightarrow r))$}\label{sec:raceXcertora_q10}\\
+
+\textbf{Solution: A.}
+
+\textbf{11. Given the below four properties for \href{https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol}{OpenZeppelin's ERC20 implementation}, answer questions 11 to 13}\\
+
+\textbf{P1}: Forall user: \verb|balanceOf(user)| can only change on \verb|mint()|, \verb|burn()|, \verb|transfer()|, \verb|transferFrom()|\\
+\textbf{P2}: \verb|totalSupply()| is the sum of \verb|balanceOf()| over all users\\
+\textbf{P3}: Forall user: \verb|balanceOf(user) <= totalSupply()|\\
+\textbf{P4}: Forall user: \verb|balanceOf(user)| can only change on operation performed when \verb|msg.sender == user| or when \verb|allowance(user, msg.sender)| is not zero\\
+
+\textbf{Which of the below properties are correct properties of \texttt{ERC20}?}\label{sec:raceXcertora_q11}\\
+
+\textbf{Solution: A, B \& C.}
+
+\textbf{12. Given the four properties for \href{https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol}{OpenZeppelin's ERC20 implementation} shown in question 11,\\ and given the following buggy version of transferFrom:}
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {
+   require(_to != address(0));
+   require(_value <= balances[_from]);
+   require(_value <= allowed[_from][msg.sender]);
+   balances[_from] = balances[_from].add(_value);
+   balances[_to] = balances[_to].sub(_value);
+   allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
+   emit Transfer(_from, _to, _value);
+   return true;
+ }
+\end{lstlisting}
+
+\textbf{Which of the below properties are violated?}\label{sec:raceXcertora_q12}\\
+
+\textbf{Solution: D.}
+
+\textbf{13. Given the four properties for \href{https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol}{OpenZeppelin's ERC20 implementation} shown in question 11,\\ Is there an implication between P3 and P2?}\label{sec:raceXcertora_q13}\\
+
+\textbf{Solution: Correct is A.}
+
+\textbf{14. Assuming a correct implementation of \texttt{transferFrom}, as in \href{https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol}{OpenZeppelin's ERC20 implementation}, and given the following pseudo unit-test code}
+
+\begin{lstlisting}[language=Solidity, style=Solstyle]
+uint256  bFrom = balances[from];
+uint256 bTo = balances[to];
+transferFrom(from, to, x);
+assert($exp$);
+\end{lstlisting}
+
+\textbf{Which of the following expressions are valid choices (should always hold) for \texttt{\$exp\$}?}\label{sec:raceXcertora_q14}\\
+
+\textbf{Solution: B \& C.}
+
+\textbf{15. The below contract (same contract for questions 15 to 17) has a bug:}
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+contract test {
+   // Assume other required functionality is correctly implemented
+   uint256 private constant MAX_FUND_RAISE = 100 ether;
+   mapping (address => uint256) contributions;
+
+    function contribute() external payable {
+       require(address(this).balance != MAX_FUND_RAISE);
+       contributions[msg.sender] += msg.value;
+   }
+}
+\end{lstlisting}
+
+\textbf{Which of the following invariants should hold on a correct implementation of the contribute function?}\\
+
+\textbf{P1}: Forall user: \verb|address(this).balance <= contributions[user]|\\
+\textbf{P2}: Forall user: \verb|contributions[user] <= address(this).balance|\\
+\textbf{P3}: Forall user: \verb|contributions[user] <= MAX_FUND_RAISE|\\
+\textbf{P4}: \verb|address(this).balance <= MAX_FUND_RAISE|\label{sec:raceXcertora_q15}\\
+
+\textbf{Solution: B, C \& D.}
+
+\textbf{16. Following the same contract of question 15, which of the following invariant(s) that is/are supposed to hold is/are violated due to the buggy implementation?}
+
+\textbf{P1}: Forall user: \verb|address(this).balance <= contributions[user]|\\
+\textbf{P2}: Forall user: \verb|contributions[user] <= address(this).balance|\\
+\textbf{P3}: Forall user: \verb|contributions[user] <= MAX_FUND_RAISE|\\
+\textbf{P4}: \verb|address(this).balance <= MAX_FUND_RAISE|\label{sec:raceXcertora_q16}\\
+
+\textbf{Solution: C \& D.}
+
+\pagebreak
+
+\textbf{17. Following the same contract of question 15, the revert characteristic (conditions in which the function should revert) of a correct implementation of \texttt{contribute} is}\label{sec:raceXcertora_q17}\\
+
+\textbf{Solution: B.}
+
+\textbf{18. In the below contract (same contract for questions 18 \& 19)}
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+pragma solidity 0.7.0;
+
+contract InSecureumToken {
+
+mapping(address => uint) private balances;
+uint public decimals = 10**18; // decimals of the token
+uint public totalSupply; // total supply
+uint MAX_SUPPLY = 100 ether; // Maximum total supply
+event Mint(address indexed destination, uint amount);
+
+function balanceOf(address u) public returns (uint256) {
+   return balances[u];
+}
+
+function ethBalance(address u) public returns (uint256) {
+   return u.balance;
+}
+
+function transfer(address to, uint amount) public {
+   // save the balance in local variables
+   // so that we can re-use them multiple times
+   // without paying for SLOAD on every access
+   uint balance_from = balances[msg.sender];
+   uint balance_to = balances[to];
+   require(balance_from >= amount);
+   balances[msg.sender] = balance_from - amount;
+   balances[to] = safeAdd(balance_to, amount);
+}
+
+/// @notice Allow users to buy a token. 1 ether = 10 tokens
+/// @dev Users can send more ether than token to be bought, to donate a fee to the protocol team.
+function buy(uint desired_tokens) public payable {
+    // Check if enough ether has been sent
+    uint required_wei_sent = (desired_tokens / 10) * decimals;
+    require(msg.value >= required_wei_sent);
+    // Mint the tokens
+    totalSupply = safeAdd(totalSupply, desired_tokens);
+    balances[msg.sender] = safeAdd(balances[msg.sender], desired_tokens);
+    emit Mint(msg.sender, desired_tokens);
+}
+
+/// @notice Add two values. Revert if overflow
+function safeAdd(uint a, uint b) pure internal returns(uint) {
+    if (a + b < a) {
+        revert();
+    }
+    return a + b;
+}
+}
+\end{lstlisting}
+
+\textbf{Given the following two properties:}
+\textbf{P1}: \verb|totalSupply()| is the sum of \verb|balanceOf()| over all users.\\
+\textbf{P2}: Monotonicity of \verb|totalSupply| vs the contract's ether balance:
+\begin{enumerate}[label=(\alph*)]
+    \item\verb|totalSupply| is increased iff ($\Leftrightarrow$) \verb|this.balance| is increased and
+    \item\verb|totalSupply| is decreased iff ($\Leftrightarrow$) \verb|this.balance| is decreased
+\end{enumerate}
+
+\textbf{Which of the existing issues in the code violates which property?}\label{sec:raceXcertora_q18}\\
+
+\textbf{Solution: B \& C.}
+
+Ethereum state is made up of objects called ``accounts", with each account having a 20-byte address and state transitions being direct transfers of value and information between accounts.\\
+
+\textbf{19. Following the same contract of question 18 and assuming a correct implementation of \texttt{buy()} and \texttt{transfer()}, which properties should hold?}\label{sec:raceXcertora_q19}\\
+
+\textbf{Solution: B.}
+
+\textbf{20. In \href{https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/ERC721.sol}{OpenZeppelin’s implementation of ERC721}, which of the following properties are correct specification assuming \texttt{user != 0}?}\label{sec:raceXcertora_q20}\\
+
+\textbf{Solution: C.}
+
+\textbf{21. In \href{https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/ERC721.sol}{OpenZeppelin’s implementation of ERC721}, which of the following is necessarily correct after a successful (non-reverting) call to \texttt{transferFrom(from, to, tokenId)}?}\label{sec:raceXcertora_q21}\\
+
+\textbf{Solution: A \& C.}
+
+\pagebreak
+
+\textbf{22. In \href{https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/extensions/ERC721Enumerable.sol}{OpenZeppelin’s implementation of ERC721 Enumerable}, which of the following expressions is true?}\label{sec:raceXcertora_q22}\\
+
+\textbf{Solution: A \& C.}
+
+\textbf{23. Based on the lecture on \href{https://www.youtube.com/watch?v=VGSsPIsbb6U}{"Auditing and Formal Verification: Better together"} by Certora's CEO Mooly Sagiv, which of the following is generally accepted?}\label{sec:raceXcertora_q23}\\
+
+\textbf{Solution: C \& D.}
+
+\textbf{24. Based on the lecture on \href{https://www.youtube.com/watch?v=VGSsPIsbb6U}{"Auditing and Formal Verification: Better together"} by Certora's CEO Mooly Sagiv, the takeaways are}\label{sec:raceXcertora_q24}\\
+
+\textbf{Solution: A, B \& C.}

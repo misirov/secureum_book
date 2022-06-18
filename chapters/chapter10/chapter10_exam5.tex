@@ -1,0 +1,60 @@
+\section{Security Pitfalls \& Best Practices 201 Quiz Solutions}
+
+\textbf{1. The \texttt{InSecureumToken} contract strictly follow the specification of}\label{sec:exam5_q1}\\
+
+\textbf{Solution: D.}
+
+Since decimals was defined as \verb|uint| (same as \verb|uint256|) and not as \verb|uint8| as \verb|ERC20| or \verb|ERC777| standardized, it can't strictly be either of them.
+And since this is clearly a fungible token contract, it can't be \verb|ERC721|.\\
+
+\textbf{2. To avoid lock of funds, the following feature(s) MUST be implemented before contract deployment}\label{sec:exam5_q2}\\
+
+\textbf{Solution: C.}
+
+Contracts that accept Ether via \verb|payable| functions but without withdrawal mechanisms will lock up that Ether.
+Remove \verb|payable| attribute or add a withdraw function.\\
+
+\textbf{3. Which of the following assertion(s) is/are true (without affecting the security posture of the contract)?}\label{sec:exam5_q3}\\
+
+\textbf{Solution: C \& D.}
+
+\verb|buy()| cannot function without being \verb|payable|.\\
+There's no reason the visibility of balances needs to be \verb|private|.\\
+\verb|transfer()| can be \verb|external| since it's not called internally.\\
+\verb|safeAdd()| can be \verb|public| since it is a \verb|pure| function.\\
+
+\textbf{4. The total supply is limited by}\label{sec:exam5_q4}\\
+
+\textbf{Solution: D.}
+
+It would be B, but \verb|MAX_SUPPLY| isn't actually used anywhere in the code.\\
+
+\textbf{5. The following issue(s) is/are present in the codebase}\label{sec:exam5_q5}\\
+
+\textbf{Solution: B.}
+
+It's impossible to get any Ether out of this contract, so no draining.\\
+It divides \verb|desired_tokens| first and only then multiplies by the decimals, this causes any amount of tokens below 10 to result in 0 \verb|required_wei_sent|.\\
+There are no divisions here that could allow a division by 0.\\
+
+\pagebreak
+
+\textbf{6. The following issue(s) is/are present in the codebase}\label{sec:exam5_q6}\\
+
+\textbf{Solution: C.}
+
+No requests made before/after a function call would be able to change the token price.\\
+All of the functions are intended to be used by users, so no "access control" would be possible without excluding users.\\
+A user can send all of their tokens to themselve, which will double their balance due to the pre-loaded variable reuse.\\
+
+\textbf{7. The following issue(s) is/are present in the codebase}\label{sec:exam5_q7}\\
+
+\textbf{Solution: D.}
+
+No reentrancies are possible since no external calls are made.\\
+
+\textbf{8. The following issue(s) is/are present in the codebase}\label{sec:exam5_q8}\\
+
+\textbf{Solution: D.}
+
+While it is indeed possible to exploit an overflow at the multiplication\linebreak (\verb|(desired_tokens / 10) * decimals|), it doesn't allow you to receive FREE tokens (although it makes them a bargain).\\

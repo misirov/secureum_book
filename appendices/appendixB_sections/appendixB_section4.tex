@@ -1,0 +1,208 @@
+\section{Security Pitfalls \& Best Practices 101}
+
+\textit{(See \url{https://secureum.substack.com/p/security-pitfalls-and-best-practices-101} for the original article.)}\\
+
+\begin{enumerate}
+\item\textbf{Solidity versions}: Using very old versions of Solidity prevents benefits of bug fixes and newer security checks. Using the latest versions might make contracts susceptible to undiscovered compiler bugs. Consider using one of these versions: \verb|0.7.5|, \verb|0.7.6| or \verb|0.8.4|. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#incorrect-versions-of-solidity}{here})
+
+\item\textbf{Unlocked pragma}: Contracts should be deployed using the same compiler version/flags with which they have been tested. Locking the pragma (for e.g. by not using \verb|^| in \verb|pragma solidity 0.5.10|) ensures that contracts do not accidentally get deployed using an older compiler version with unfixed bugs. (see \href{https://swcregistry.io/docs/SWC-103}{here})
+
+\item\textbf{Multiple Solidity pragma}: It is better to use one Solidity compiler version across all contracts instead of different versions with different bugs and security checks. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#different-pragma-directives-are-used}{here})
+
+\item\textbf{Incorrect access control}: Contract functions executing critical logic should have appropriate access control enforced via address checks (e.g. owner, controller etc.) typically in modifiers. Missing checks allow attackers to control critical logic. (see \href{https://docs.openzeppelin.com/contracts/3.x/api/access}{here} and \href{https://dasp.co/\#item-2}{here})
+
+\item\textbf{Unprotected withdraw function}: Unprotected (\verb|external|/\verb|public|) function calls sending Ether/tokens to user-controlled addresses may allow users to withdraw unauthorized funds. (see \href{https://swcregistry.io/docs/SWC-105}{here})
+
+\item\textbf{Unprotected call to selfdestruct}: A user/attacker can mistakenly/intentionally kill the contract. Protect access to such functions. (see \href{https://swcregistry.io/docs/SWC-106}{here})
+
+\item\textbf{Modifier side-effects}: Modifiers should only implement checks and not make state changes and external calls which violates the \href{https://solidity.readthedocs.io/en/develop/security-considerations.html\#use-the-checks-effects-interactions-pattern}{checks-effects-interactions} pattern. These side-effects may go unnoticed by developers/auditors because the modifier code is typically far from the function implementation. (see \href{https://consensys.net/blog/blockchain-development/solidity-best-practices-for-smart-contract-security/}{here})
+
+\item\textbf{Incorrect modifier}: If a modifier does not execute "\verb|_|" or \verb|revert|, the function using that modifier will return the default value causing unexpected behavior. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#incorrect-modifier}{here})
+
+\item\textbf{Constructor names: }Before \verb|solc 0.4.22|, constructor names had to be the same name as the contract class containing it. Misnaming it wouldn’t make it a constructor which has security implications. \verb|Solc 0.4.22| introduced the \verb|constructor| keyword. Until \verb|solc 0.5.0|, contracts could have both old-style and new-style constructor names with the first defined one taking precedence over the second if both existed, which also led to security issues. \verb|Solc 0.5.0| forced the use of the \verb|constructor| keyword. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#multiple-constructor-schemes}{here} and \href{https://swcregistry.io/docs/SWC-118}{here})
+
+\item\textbf{Void constructor: }Calls to base contract constructors that are unimplemented leads to misplaced assumptions. Check if the constructor is implemented or remove call if not. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#void-constructor}{here})
+
+\item\textbf{Implicit constructor callValue check}: The creation code of a contract that does not define a constructor but has a base that does, did not revert for calls with non-zero callValue when such a constructor was not explicitly payable. This is due to a compiler bug introduced in \verb|v0.4.5| and fixed in \verb|v0.6.8|. Starting from Solidity 0.4.5 the creation code of contracts without explicit payable constructor is supposed to contain a callvalue check that results in contract creation reverting, if non-zero value is passed. However, this check was missing in case no explicit constructor was defined in a contract at all, but the contract has a base that does define a constructor. In these cases it is possible to send value in a contract creation transaction or using inline assembly without revert, even though the creation code is supposed to be non-payable. (see \href{https://docs.soliditylang.org/en/v0.8.9/bugs.html}{here})
+
+\item\textbf{Controlled delegatecall: }\verb|delegatecall()| or \verb|callcode()| to an address controlled by the user allows execution of malicious contracts in the context of the caller’s state. Ensure trusted destination addresses for such calls. (see \href{https://swcregistry.io/docs/SWC-112}{here})
+
+\item\textbf{Reentrancy vulnerabilities}: Untrusted external contract calls could callback leading to unexpected results such as multiple withdrawals or out-of-order events. Use check-effects-interactions pattern or reentrancy guards. (see \href{https://swcregistry.io/docs/SWC-107}{here})
+
+\item\textbf{ERC777 callbacks and reentrancy: }ERC777 tokens allow arbitrary callbacks via hooks that are called during token transfers. Malicious contract addresses may cause reentrancy on such callbacks if reentrancy guards are not used. (see \href{https://quantstamp.com/blog/how-the-dforce-hacker-used-reentrancy-to-steal-25-million}{here})
+
+\item\textbf{Avoid transfer()/send()as reentrancy mitigations}: Although\linebreak\verb|transfer()| and \verb|send()| have been recommended as a security best-practice to prevent reentrancy attacks because they only forward 2300 gas, the gas repricing of opcodes may break deployed contracts. Use \verb|call()| instead, without hardcoded gas limits along with checks-effects-interactions pattern or reentrancy guards for reentrancy protection. (see \href{https://consensys.net/diligence/blog/2019/09/stop-using-soliditys-transfer-now/}{here} and \href{https://swcregistry.io/docs/SWC-134}{here})
+
+\item\textbf{Private on-chain data}: Marking variables \verb|private| does not mean that they cannot be read on-chain. Private data should not be stored unencrypted in contract code or state but instead stored encrypted or off-chain. (see \href{https://swcregistry.io/docs/SWC-136}{here})
+
+\item\textbf{Weak PRNG}: PRNG relying on \verb|block.timestamp|, \verb|now| or \verb|blockhash |can be influenced by miners to some extent and should be avoided. (see \href{https://swcregistry.io/docs/SWC-120}{here})
+
+\item\textbf{Block values as time proxies: }\verb|block.timestamp| and \verb|block.number |are not good proxies (i.e. representations, not to be confused with smart contract proxy/implementation pattern) for time because of issues with synchronization, miner manipulation and changing block times. (see \href{https://swcregistry.io/docs/SWC-116}{here})
+
+\item\textbf{Integer overflow/underflow}: Not using OpenZeppelin’s SafeMath (or similar libraries) that check for overflows/underflows may lead to vulnerabilities or unexpected behavior if user/attacker can control the integer operands of such arithmetic operations. \verb|Solc v0.8.0| introduced default overflow/underflow checks for all arithmetic operations. (see \href{https://swcregistry.io/docs/SWC-101}{here} and \href{https://blog.soliditylang.org/2020/10/28/solidity-0.8.x-preview/}{here})
+
+\item\textbf{Divide before multiply: }Performing multiplication before division is generally better to avoid loss of precision because Solidity integer division might truncate. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#divide-before-multiply}{here})
+
+\item\textbf{Transaction order dependence}: Race conditions can be forced on specific Ethereum transactions by monitoring the mempool. For example, the classic ERC20 \verb|approve()| change can be front-run using this method. Do not make assumptions about transaction order dependence. (see \href{https://swcregistry.io/docs/SWC-114}{here})
+
+\item\textbf{ERC20 approve() race condition}: Use \verb|safeIncreaseAllowance()| and \verb|safeDecreaseAllowance()| from OpenZeppelin’s \verb|SafeERC20| implementation to prevent race conditions from manipulating the allowance amounts. (see \href{https://swcregistry.io/docs/SWC-114}{here})
+
+\item\textbf{Signature malleability}: The \verb|ecrecover| function is susceptible to signature malleability which could lead to replay attacks. Consider using OpenZeppelin’s\href{https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/cryptography/ECDSA.so}{ECDSA library}. (see \href{https://swcregistry.io/docs/SWC-117}{here}, \href{https://swcregistry.io/docs/SWC-121}{here} and \href{https://medium.com/cryptronics/signature-replay-vulnerabilities-in-smart-contracts-3b6f7596df57}{here})
+
+\item\textbf{ERC20 transfer() does not return boolean: }Contracts compiled with \verb|solc > 0.4.22| interacting with such functions will revert. Use OpenZeppelin’s SafeERC20 wrappers. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#incorrect-erc20-interface}{here} and \href{https://medium.com/coinmonks/missing-return-value-bug-at-least-130-tokens-affected-d67bf08521ca}{here})
+
+\item\textbf{Incorrect return values for ERC721 ownerOf()}: Contracts compiled with \verb|solc > 0.4.22| interacting with ERC721 \verb|ownerOf()| that returns a \verb|bool| instead of \verb|address| type will revert. Use OpenZeppelin’s ERC721 contracts. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#incorrect-erc721-interface}{here})
+
+\item\textbf{Unexpected Ether and this.balance}: A contract can receive Ether via \verb|payable| functions, \verb|selfdestruct(), coinbase |transaction or pre-sent before creation. Contract logic depending on \verb|this.balanc|e can therefore be manipulated. (see \href{https://github.com/sigp/solidity-security-blog\#3-unexpected-ether-1}{here} and \href{https://swcregistry.io/docs/SWC-132}{here})
+
+\item \textbf{fallback vs receive()}: Check that all precautions and subtleties of \verb|fallback|/\verb|receive| functions related to visibility, state mutability and Ether transfers have been considered. (see \href{https://docs.soliditylang.org/en/latest/contracts.html\#fallback-function}{here} and \href{https://docs.soliditylang.org/en/latest/contracts.html\#receive-ether-function}{here})
+
+\item\textbf{Dangerous strict equalities}: Use of strict equalities with tokens/Ether can accidentally/maliciously cause unexpected behavior. Consider using \verb|>| or \verb|<=| instead of \verb|==| for such variables depending on the contract logic. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#dangerous-strict-equalities}{here})
+
+\item\textbf{Locked Ether}: Contracts that accept Ether via \verb|payable| functions but without withdrawal mechanisms will lock up that Ether. Remove \verb|payable| attribute or add withdraw function. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#contracts-that-lock-ether}{here})
+
+\item\textbf{Dangerous usage of tx.origin}: Use of \verb|tx.origin| for authorization may be abused by a MITM malicious contract forwarding calls from the legitimate user who interacts with it. Use \verb|msg.sender| instead. (see \href{https://swcregistry.io/docs/SWC-115}{here})
+
+\item\textbf{Contract check}: Checking if a call was made from an Externally Owned Account (EOA) or a contract account is typically done using \verb|extcodesize| check which may be circumvented by a contract during construction when it does not have source code available. Checking if\linebreak\verb|tx.origin == msg.sender |is another option. Both have implications that need to be considered. (see \href{https://consensys.net/blog/blockchain-development/solidity-best-practices-for-smart-contract-security/}{here})
+
+\item\textbf{Deleting a mapping within a struct}: Deleting a \verb|struct| that contains a \verb|mapping| will not delete the \verb|mapping| contents which may lead to unintended consequences. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#deletion-on-mapping-containing-a-structure}{here})
+
+\item\textbf{Tautology or contradiction}: Tautologies (always true) or contradictions (always false) indicate potential flawed logic or redundant checks. e.g. \verb|x > 0| which is always true if \verb|x| is \verb|uint|. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#tautology-or-contradiction}{here})
+
+\item\textbf{Boolean constant}: Use of Boolean constants (\verb|true|/\verb|false|) in code (e.g. conditionals) is indicative of flawed logic. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#misuse-of-a-boolean-constant}{here})
+
+\item\textbf{Boolean equality}: Boolean variables can be checked within conditionals directly without the use of equality operators to \verb|true|/\verb|false|. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#boolean-equality}{here})
+
+\item\textbf{State-modifying functions}: Functions that modify state (in assembly or otherwise) but are labelled \verb|constant|/\verb|pure|/\verb|view| revert in \verb|solc >0.5.0| (work in prior versions) because of the use of \verb|STATICCALL| opcode. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#constant-functions-using-assembly-code}{here})
+
+\item\textbf{Return values of low-level calls}: Ensure that return values of low-level calls (\verb|call|/\verb|callcode|/\verb|delegatecall|/\verb|send|/etc.) are checked to avoid unexpected failures. (see \href{https://swcregistry.io/docs/SWC-104}{here})
+
+\item\textbf{Account existence check for low-level calls}: Low-level calls\linebreak\verb|call|/\verb|delegatecall|/\verb|staticcall| return true even if the account called is non-existent (per EVM design). Account existence must be checked prior to calling if needed. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#low-level-calls}{here})
+
+\item\textbf{Dangerous shadowing: }Local variables, state variables, functions, modifiers, or events with names that shadow (i.e. override) builtin Solidity symbols e.g. \verb|now |or other declarations from the current scope are misleading and may lead to unexpected usages and behavior. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#builtin-symbol-shadowing}{here})
+
+\item\textbf{Dangerous state variable shadowing}: Shadowing state variables in derived contracts may be dangerous for critical variables such as contract owner\verb| |(for e.g. where modifiers in base contracts check on base variables but shadowed variables are set mistakenly) and contracts incorrectly use base/shadowed variables. Do not shadow state variables. (see \href{https://swcregistry.io/docs/SWC-119}{here})
+
+\item\textbf{Pre-declaration usage of local variables}: Usage of a variable before its declaration (either declared later or in another scope) leads to unexpected behavior in \verb|solc < 0.5.0 |but \verb|solc > 0.5.0| implements C99-style scoping rules where variables can only be used after they have been declared and only in the same or nested scopes. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#pre-declaration-usage-of-local-variables}{here})
+
+\item\textbf{Costly operations inside a loop}: Operations such as state variable updates (use SSTOREs) inside a loop cost a lot of gas, are expensive and may lead to out-of-gas errors. Optimizations using local variables are preferred. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#costly-operations-inside-a-loop}{here})
+
+\item\textbf{Calls inside a loop: }Calls to external contracts inside a loop are dangerous (especially if the loop index can be user-controlled) because it could lead to DoS if one of the calls reverts or execution runs out of gas. Avoid calls within loops, check that loop index cannot be user-controlled or is bounded. (see \href{https://swcregistry.io/docs/SWC-113}{here})
+
+\item\textbf{DoS with block gas limit}: Programming patterns such as looping over arrays of unknown size may lead to DoS when the gas cost of execution exceeds the block gas limit. (see \href{https://swcregistry.io/docs/SWC-128}{here})
+
+\item\textbf{Missing events}: Events for critical state changes (e.g. owner and other critical parameters) should be emitted for tracking this off-chain. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#missing-events-access-control}{here})
+
+\item\textbf{Unindexed event parameters}: Parameters of certain events are expected to be indexed (e.g. ERC20 Transfer/Approval events) so that they’re included in the block’s bloom filter for faster access. Failure to do so might confuse off-chain tooling looking for such indexed events. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#unindexed-erc20-event-oarameters}{here})
+
+\item\textbf{Incorrect event signature in libraries}: Contract types used in events in libraries cause an incorrect event signature hash. Instead of using the type `address` in the hashed signature, the actual contract name was used, leading to a wrong hash in the logs. This is due to a compiler bug introduced in \verb|v0.5.0| and fixed in \verb|v0.5.8|. (see \href{https://docs.soliditylang.org/en/v0.8.1/bugs.html}{here})
+
+\item\textbf{Dangerous unary expressions}: Unary expressions such as \verb|x =+ 1| are likely errors where the programmer really meant to use \verb|x += 1|. Unary \verb|+| operator was deprecated in \verb|solc v0.5.0|. (see \href{https://swcregistry.io/docs/SWC-129}{here})
+
+\item\textbf{Missing zero address validation}: Setters of address type parameters should include a zero-address check otherwise contract functionality may become inaccessible or tokens burnt forever. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#missing-zero-address-validation}{here})
+
+\item\textbf{Critical address change}: Changing critical addresses in contracts should be a two-step process where the first transaction (from the old/current address) registers the new address (i.e. grants ownership) and the second transaction (from the new address) replaces the old address with the new one (i.e. claims ownership). This gives an opportunity to recover from incorrect addresses mistakenly used in the first step. If not, contract functionality might become inaccessible. (see \href{https://github.com/OpenZeppelin/openzeppelin-contracts/issues/1488}{here} and \href{https://github.com/OpenZeppelin/openzeppelin-contracts/issues/2369}{here})
+
+\item\textbf{assert()/require() state change}: Invariants in \verb|assert()| and \verb|require()| statements should not modify the state per best practices. (see \href{https://swcregistry.io/docs/SWC-110}{here})
+
+\item\textbf{require() vs assert()}: \verb|require()| should be used for checking error conditions on inputs and return values while \verb|assert()| should be used for invariant checking. Between \verb|solc 0.4.10 |and \verb|0.8.0|, \verb|require()| used \verb|REVERT| (\verb|0xfd|) opcode which refunded remaining gas on failure while \verb|assert()| used INVALID (\verb|0xfe|) opcode which consumed all the supplied gas. (see \href{https://docs.soliditylang.org/en/v0.8.1/control-structures.html\#error-handling-assert-require-revert-and-exceptions}{here})
+
+\item\textbf{Deprecated keywords}: Use of deprecated functions/operators such as \verb|block.blockhash()| for \verb|blockhash()|, \verb|msg.gas| for \verb|gasleft(), throw| for \verb|revert()|, \verb|sha3()| for \verb|keccak256()|, \verb|callcode()| for \verb|delegatecall(),| \verb|suicide()| for \verb|selfdestruct(), constant |for\verb| view |or\verb| var |for\linebreak\verb| actual type name| should be avoided to prevent unintended errors with newer compiler versions. (see \href{https://swcregistry.io/docs/SWC-111}{here})
+
+\item\textbf{Function default visibility}\verb|: |Functions without a visibility type specifier are \verb|public| by default in \verb|solc < 0.5.0|. This can lead to a vulnerability where a malicious user may make unauthorized state changes. \verb|solc > 0.5.0| requires explicit function visibility specifiers. (see \href{https://swcregistry.io/docs/SWC-100}{here})
+
+\item\textbf{Incorrect inheritance order}: Contracts inheriting from multiple contracts with identical functions should specify the correct inheritance order i.e. more general to more specific to avoid inheriting the incorrect function implementation. (see \href{https://swcregistry.io/docs/SWC-125}{here})
+
+\item\textbf{Missing inheritance}: A contract might appear (based on name or functions implemented) to inherit from another interface or abstract contract without actually doing so. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#missing-inheritance}{here})
+
+\item\textbf{Insufficient gas griefing}: Transaction relayers need to be trusted to provide enough gas for the transaction to succeed. (see \href{https://swcregistry.io/docs/SWC-126}{here})
+
+\item\textbf{Modifying reference type parameters}: Structs/Arrays/Mappings\linebreak passed as arguments to a function may be by value (memory) or reference (storage) as specified by the data location (optional before \verb|solc 0.5.0|). Ensure correct usage of memory and storage in function parameters and make all data locations explicit. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#modifying-storage-array-by-value}{here})
+
+\item\textbf{Arbitrary jump with function type variable: }Function type variables should be carefully handled and avoided in assembly manipulations to prevent jumps to arbitrary code locations. (see \href{https://swcregistry.io/docs/SWC-127}{here})
+
+\item\textbf{Hash collisions with multiple variable length arguments}: Using \verb|abi.encodePacked()| with multiple variable length arguments can, in certain situations, lead to a hash collision. Do not allow users access to parameters used in \verb|abi.encodePacked()|, use fixed length arrays or use \verb|abi.encode()|. (see \href{https://swcregistry.io/docs/SWC-133}{here} and \href{https://docs.soliditylang.org/en/v0.5.3/abi-spec.html\#non-standard-packed-mode}{here})
+
+\item\textbf{Malleability risk from dirty high order bits}: Types that do not occupy the full 32 bytes might contain “dirty higher order bits” which does not affect operation on types but gives different results with \verb|msg.data|. (see \href{https://docs.soliditylang.org/en/v0.8.1/security-considerations.html\#minor-details}{here})
+
+\item\textbf{Incorrect shift in assembly}: Shift operators (\verb|shl(x, y)|, \verb|shr(x, y)|, \verb|sar(x, y)|) in Solidity assembly apply the shift operation of \verb|x| bits on \verb|y |and not the other way around, which may be confusing. Check if the values in a shift operation are reversed. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#incorrect-shift-in-assembly}{here})
+
+\item\textbf{Assembly usage}: Use of EVM assembly is error-prone and should be avoided or double-checked for correctness. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#assembly-usage}{here})
+
+\item\textbf{Right-To-Left-Override control character (U+202E)}: Malicious actors can use the Right-To-Left-Override unicode character to force RTL text rendering and confuse users as to the real intent of a contract. \verb|U+202E| character should not appear in the source code of a smart contract. (see \href{https://swcregistry.io/docs/SWC-130}{here})
+
+\item\textbf{Constant state variables}: Constant state variables should be declared constant to save gas. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#state-variables-that-could-be-declared-constant}{here})
+
+\item\textbf{Similar variable names}: Variables with similar names could be confused for each other and therefore should be avoided. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#variable-names-too-similar}{here})
+
+\item\textbf{Uninitialized state/local variables}: Uninitialized state/local variables are assigned zero values by the compiler and may cause unintended results e.g. transferring tokens to zero address. Explicitly initialize all state/local variables. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#uninitialized-state-variables}{here} and \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#uninitialized-local-variables}{here})
+
+\item\textbf{Uninitialized storage pointers: }Uninitialized local storage variables can point to unexpected storage locations in the contract, which can lead to vulnerabilities. \verb|Solc 0.5.0| and above disallow such pointers. (see \href{https://swcregistry.io/docs/SWC-109}{here})
+
+\item\textbf{Uninitialized function pointers in constructors: }Calling uninitialized function pointers in constructors of contracts compiled with \verb|solc| versions \verb|0.4.5-0.4.25| and \verb|0.5.0-0.5.7| lead to unexpected behavior because of a compiler bug. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#uninitialized-function-pointers-in-constructors}{here})
+
+\item\textbf{Long number literals}: Number literals with many digits should be carefully checked as they are prone to error. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#too-many-digits}{here})
+
+\item\textbf{Out-of-range enum: }\verb|Solc < 0.4.5 |produced unexpected behavior with out-of-range enums\verb|. |Check enum conversion or use a newer compiler.\verb| |(see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#dangerous-enum-conversion}{here})
+
+\item\textbf{Uncalled public functions}: \verb|Public| functions that are never called from within the contracts should be declared \verb|external| to save gas. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#public-function-that-could-be-declared-external}{here})
+
+\item\textbf{Dead/Unreachable code}: Dead code may be indicative of programmer error, missing logic or potential optimization opportunity, which needs to be flagged for removal or addressed appropriately. (see \href{https://en.wikipedia.org/wiki/Dead\_code}{here})
+
+\item\textbf{Unused return values}: Unused return values of function calls are indicative of programmer errors which may have unexpected behavior. (see \href{https://github.com/crytic/slither/wiki/Detector-Documentation\#unused-return}{here})
+
+\item\textbf{Unused variables}: Unused state/local variables may be indicative of programmer error, missing logic or potential optimization opportunity, which needs to be flagged for removal or addressed appropriately. (see \href{https://swcregistry.io/docs/SWC-131}{here})
+
+\item\textbf{Redundant statements}: Statements with no effects that do not produce code may be indicative of programmer error or missing logic, which needs to be flagged for removal or addressed appropriately. (see \href{https://swcregistry.io/docs/SWC-135}{here})
+
+\item\textbf{Storage array with signed Integers with ABIEncoderV2}: Assigning an array of signed integers to a storage array of different type can lead to data corruption in that array. This is due to a compiler bug introduced in \verb|v0.4.7| and fixed in \verb|v0.5.10|. (see \href{https://docs.soliditylang.org/en/v0.8.9/bugs.html}{here})
+
+\item\textbf{Dynamic constructor arguments clipped with ABIEncoderV2}: A contract's constructor which takes structs or arrays that contain dynamically sized arrays reverts or decodes to invalid data when ABIEncoderV2 is used. This is due to a compiler bug introduced in \verb|v0.4.16| and fixed in \verb|v0.5.9|. (see \href{https://docs.soliditylang.org/en/v0.8.9/bugs.html}{here})
+
+\item\textbf{Storage array with multiSlot element with ABIEncoderV2}: Storage arrays containing structs or other statically sized arrays are not read properly when directly encoded in external function calls or in\linebreak\verb|abi.encode()|. This is due to a compiler bug introduced in \verb|v0.4.16| and fixed in \verb|v0.5.10|. (see \href{https://docs.soliditylang.org/en/v0.8.9/bugs.html}{here})
+
+\item\textbf{Calldata structs with statically sized and dynamically encoded members with ABIEncoderV2}: Reading from calldata structs that contain dynamically encoded, but statically sized members can result in incorrect values. This is due to a compiler bug introduced in \verb|v0.5.6| and fixed in \verb|v0.5.11|. (see \href{https://docs.soliditylang.org/en/v0.8.9/bugs.html}{here})
+
+\item\textbf{Packed storage with ABIEncoderV2: }Storage structs and arrays with types shorter than 32 bytes can cause data corruption if encoded directly from storage using ABIEncoderV2. This is due to a compiler bug introduced in \verb|v0.5.0| and fixed in \verb|v0.5.7|. (see \href{https://docs.soliditylang.org/en/v0.8.9/bugs.html}{here})
+
+\item\textbf{Incorrect loads with Yul optimizer and ABIEncoderV2}: The Yul optimizer incorrectly replaces \verb|MLOAD| and \verb|SLOAD| calls with values that have been previously written to the load location. This can only happen if ABIEncoderV2 is activated and the experimental Yul optimizer has been activated manually in addition to the regular optimizer in the compiler settings. This is due to a compiler bug introduced in \verb|v0.5.14| and fixed in \verb|v0.5.15|. (see \href{https://docs.soliditylang.org/en/v0.8.9/bugs.html}{here})
+
+\item\textbf{Array slice dynamically encoded base type with ABIEncoderV2}: Accessing array slices of arrays with dynamically encoded base types (e.g. multi-dimensional arrays) can result in invalid data being read. This is due to a compiler bug introduced in \verb|v0.6.0| and fixed in \verb|v0.6.8|. (see \href{https://docs.soliditylang.org/en/v0.8.9/bugs.html}{here})
+
+\item\textbf{Missing escaping in formatting with ABIEncoderV2: }String literals containing double backslash characters passed directly to external or encoding function calls can lead to a different string being used when ABIEncoderV2 is enabled. This is due to a compiler bug introduced in \verb|v0.5.14| and fixed in \verb|v0.6.8|. (see \href{https://docs.soliditylang.org/en/v0.8.9/bugs.html}{here})
+
+\item\textbf{Double shift size overflow}: Double bitwise shifts by large constants whose sum overflows 256 bits can result in unexpected values. Nested logical shift operations whose total shift size is \verb|2**256| or more are incorrectly optimized. This only applies to shifts by numbers of bits that are compile-time constant expressions. This happens when the optimizer is used and \verb|evmVersion > Constantinople. |This is due to a compiler bug introduced in \verb|v0.5.5| and fixed in \verb|v0.5.6|. (see \href{https://docs.soliditylang.org/en/v0.8.9/bugs.html}{here})
+
+\item\textbf{Incorrect byte instruction optimization: }The optimizer incorrectly handles byte opcodes whose second argument is 31 or a constant expression that evaluates to 31. This can result in unexpected values. This can happen when performing index access on \verb|bytesNN| types with a compile time constant value (not index) of 31 or when using the byte opcode in inline assembly. This is due to a compiler bug introduced in \verb|v0.5.5| and fixed in \verb|v0.5.7|. (see \href{https://docs.soliditylang.org/en/v0.8.9/bugs.html}{here})
+
+\item\textbf{Essential assignments removed with Yul Optimizer} : The Yul optimizer can remove essential assignments to variables declared inside \verb|for| loops when Yul's \verb|continue| or \verb|break| statement is used mostly while using inline assembly with \verb|for| loops and \verb|continue| and \verb|break| statements. This is due to a compiler bug introduced in \verb|v0.5.8|/\verb|v0.6.0| and fixed in \verb|v0.5.16|/\verb|v0.6.1|. (see \href{https://docs.soliditylang.org/en/v0.8.9/bugs.html}{here})
+
+\item\textbf{Private methods overridden}: While private methods of base contracts are not visible and cannot be called directly from the derived contract, it is still possible to declare a function of the same name and type and thus change the behaviour of the base contract's function. This is due to a compiler bug introduced in \verb|v0.3.0| and fixed in \verb|v0.5.17|. (see \href{https://docs.soliditylang.org/en/v0.8.9/bugs.html}{here})
+
+\item\textbf{Tuple assignment multi stack slot components}: Tuple assignments with components that occupy several stack slots, i.e. nested tuples, pointers to external functions or references to dynamically sized calldata arrays, can result in invalid values. This is due to a compiler bug introduced in \verb|v0.1.6| and fixed in \verb|v0.6.6|. (see \href{https://docs.soliditylang.org/en/v0.8.9/bugs.html}{here})
+
+\item\textbf{Dynamic array cleanup}: When assigning a dynamically sized array with types of size at most 16 bytes in storage causing the assigned array to shrink, some parts of deleted slots were not zeroed out. This is due to a compiler bug fixed in \verb|v0.7.3|. (see \href{https://docs.soliditylang.org/en/v0.8.9/bugs.html}{here})
+
+\item\textbf{Empty byte array copy}: Copying an empty byte array (or string) from memory or calldata to storage can result in data corruption if the target array's length is increased subsequently without storing new data. This is due to a compiler bug fixed in \verb|v0.7.4|. (see \href{https://docs.soliditylang.org/en/v0.8.9/bugs.html}{here})
+
+\item\textbf{Memory array creation overflow}: The creation of very large memory arrays can result in overlapping memory regions and thus memory corruption. This is due to a compiler bug introduced in \verb|v0.2.0| and fixed in \verb|v0.6.5|. (see \href{https://solidity.ethereum.org/2020/04/06/memory-creation-overflow-bug/}{here})
+
+\item\textbf{Calldata using for}: Function calls to internal library functions with calldata parameters called via “\verb|using for”| can result in invalid data being read. This is due to a compiler bug introduced in \verb|v0.6.9| and fixed in \verb|v0.6.10|. (see \href{https://docs.soliditylang.org/en/v0.8.9/bugs.html}{here})
+
+\item\textbf{Free function redefinition}: The compiler does not flag an error when two or more free functions (functions outside of a contract) with the same name and parameter types are defined in a source unit or when an imported free function alias shadows another free function with a different name but identical parameter types. This is due to a compiler bug introduced in \verb|v0.7.1| and fixed in \verb|v0.7.2|. (see \href{https://docs.soliditylang.org/en/v0.8.9/bugs.html}{here})
+
+\item\textbf{Unprotected initializers in proxy-based upgradeable contracts}: Proxy-based upgradeable contracts need to use \verb|public| initializer functions instead of constructors that need to be explicitly called only once. Preventing multiple invocations of such initializer functions (e.g. via \verb|initializer| modifier from OpenZeppelin’s \verb|Initializable| library) is a must. (see \href{https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable\#initializers}{here} and \href{https://github.com/crytic/slither/wiki/Upgradeability-Checks\#initializer-is-not-called}{here})
+
+\item\textbf{Initializing state-variables in proxy-based upgradeable contracts}: This should be done in initializer functions and not as part of the state variable declarations in which case they won’t be set. (see \href{https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable\#avoid-initial-values-in-field-declarations}{here})
+
+\item\textbf{Import upgradeable contracts in proxy-based upgradeable contracts}: Contracts imported from proxy-based upgradeable contracts should also be upgradeable where such contracts have been modified to use initializers instead of constructors. (see \href{https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable\#use-upgradeable-libraries}{here})
+
+\item\textbf{Avoid selfdestruct or delegatecall in proxy-based upgradeable contracts}: This will cause the logic contract to be destroyed and all contract instances will end up delegating calls to an address without any code. (see \href{https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable\#potentially-unsafe-operations}{here})
+
+\item\textbf{State variables in proxy-based upgradeable contracts}: The declaration order/layout and type/mutability of state variables in such contracts should be preserved exactly while upgrading to prevent critical storage layout mismatch errors. (see \href{https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable\#modifying-your-contracts}{here})
+
+\item\textbf{Function ID collision between proxy/implementation in proxy-based upgradeable contracts}: Malicious proxy contracts may exploit function ID collision to invoke unintended proxy functions instead of delegating to implementation functions. Check for function ID collisions. (see \href{https://github.com/crytic/slither/wiki/Upgradeability-Checks\#functions-ids-collisions}{here} and \href{https://forum.openzeppelin.com/t/beware-of-the-proxy-learn-how-to-exploit-function-clashing/1070}{here})
+
+\item\textbf{Function shadowing between proxy/contract in proxy-based upgradeable contracts}: Shadow functions in proxy contract prevent functions in logic contract from being invoked. (see \href{https://github.com/crytic/slither/wiki/Upgradeability-Checks\#functions-shadowing}{here})
+
+\end{enumerate}

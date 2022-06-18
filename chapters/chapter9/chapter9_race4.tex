@@ -1,0 +1,224 @@
+\section{RACE 4 Quiz}
+
+\textbf{All 8 questions in this quiz are based on the \texttt{InSecureum} contract.
+This is the same contract you will see for all the 8 questions in this quiz.
+\texttt{InSecureum} is adapted from a widely used \texttt{ERC20} contract.}
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+pragma solidity 0.8.10;
+
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/IERC20.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/Context.sol";
+
+contract InSecureum is Context, IERC20, IERC20Metadata {
+    mapping(address => uint256) private _balances;
+    mapping(address => mapping(address => uint256)) private _allowances;
+    uint256 private _totalSupply;
+    string private _name;
+    string private _symbol;
+
+    constructor(string memory name_, string memory symbol_) {
+        _name = name_;
+        _symbol = symbol_;
+    }
+
+    function name() public view virtual override returns (string memory) {
+        return _name;
+    }
+
+    function symbol() public view virtual override returns (string memory) {
+        return _symbol;
+    }
+
+    function decimals() public view virtual override returns (uint8) {
+        return 8;
+    }
+
+    function totalSupply() public view virtual override returns (uint256) {
+        return _totalSupply;
+    }
+
+    function balanceOf(address account) public view virtual override returns (uint256) {
+        return _balances[account];
+    }
+
+    function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
+        _transfer(_msgSender(), recipient, amount);
+        return true;
+    }
+
+    function allowance(address owner, address spender) public view virtual override returns (uint256) {
+        return _allowances[owner][spender];
+    }
+
+    function approve(address spender, uint256 amount) public virtual override returns (bool) {
+        _approve(_msgSender(), spender, amount);
+        return true;
+    }
+
+    function transferFrom(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) public virtual override returns (bool) {
+        uint256 currentAllowance = _allowances[_msgSender()][sender];
+        if (currentAllowance != type(uint256).max) {
+            unchecked {
+                _approve(sender, _msgSender(), currentAllowance - amount);
+            }
+        }
+        _transfer(sender, recipient, amount);
+        return true;
+    }
+
+    function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
+        _approve(_msgSender(), spender, _allowances[_msgSender()][spender] + addedValue);
+        return true;
+    }
+
+    function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
+        uint256 currentAllowance = _allowances[_msgSender()][spender];
+        require(currentAllowance > subtractedValue, "ERC20: decreased allowance below zero");
+        _approve(_msgSender(), spender, currentAllowance - subtractedValue);
+        return true;
+    }
+
+    function _transfer(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) internal virtual {
+        require(sender != address(0), "ERC20: transfer from the zero address");
+        require(recipient != address(0), "ERC20: transfer to the zero address");
+        uint256 senderBalance = _balances[sender];
+        require(senderBalance >= amount, "ERC20: transfer amount exceeds balance");
+        unchecked {
+            _balances[sender] = senderBalance - amount;
+        }
+        _balances[recipient] += amount;
+        emit Transfer(sender, recipient, amount);
+    }
+
+    function _mint(address account, uint256 amount) external virtual {
+        _totalSupply += amount;
+        _balances[account] = amount;
+        emit Transfer(address(0), account, amount);
+    }
+
+    function _burn(address account, uint256 amount) internal virtual {
+        require(account != address(0), "ERC20: burn from the zero address");
+        require(_balances[account] >= amount, "ERC20: burn amount exceeds balance");
+        unchecked {
+            _balances[account] = _balances[account] - amount;
+        }
+        _totalSupply -= amount;
+        emit Transfer(address(0), account, amount);
+    }
+
+    function _approve(
+        address owner,
+        address spender,
+        uint256 amount
+    ) internal virtual {
+        require(spender != address(0), "ERC20: approve from the zero address");
+        require(owner != address(0), "ERC20: approve to the zero address");
+        _allowances[owner][spender] += amount;
+        emit Approval(owner, spender, amount);
+    }
+}
+\end{lstlisting}
+
+\vfill
+
+\textbf{1. \texttt{InSecureum} implements}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Atypical \verb|decimals| value
+    \item Non-standard \verb|decreaseAllowance| and \verb|increaseAllowance|
+    \item Non-standard \verb|transfer|
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:race4_q1]{here}.\\
+
+\pagebreak
+
+\textbf{2. In \texttt{InSecureum}}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|decimals()| can have \verb|pure| state mutability instead of \verb|view|
+    \item\verb|_burn()| can have \verb|external| visibility instead of \verb|internal|
+    \item\verb|_mint()| should have \verb|internal| visibility instead of \verb|external|
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:race4_q2]{here}.\\
+
+\textbf{3. \texttt{InSecureum transferFrom()}}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Is susceptible to an integer underflow
+    \item Has an incorrect allowance check
+    \item Has an optimisation indicative of unlimited approvals
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:race4_q3]{here}.\\
+
+\textbf{4. In \texttt{InSecureum}}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|increaseAllowance| is susceptible to an integer overflow
+    \item\verb|decreaseAllowance| is susceptible to an integer overflow
+    \item\verb|decreaseAllowance| does not allow reducing allowance to zero
+    \item\verb|decreaseAllowance| can be optimised with \verb|unchecked{}|
+\end{enumerate}
+
+Find the solution \hyperref[sec:race4_q4]{here}.\\
+
+\textbf{5. \texttt{InSecureum \_transfer()}}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Is missing a zero-address validation
+    \item Is susceptible to an integer overflow
+    \item Is susceptible to an integer underflow
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:race4_q5]{here}.\\
+
+\textbf{6. \texttt{InSecureum \_mint()}}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Is missing zero-address validation
+    \item Has an incorrect event emission
+    \item Has an incorrect update of account balance
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q6]{here}.\\
+
+\pagebreak
+
+\textbf{7. \texttt{InSecureum \_burn()}}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Is missing a zero-address validation
+    \item Has an incorrect event emission
+    \item Has an incorrect update of account balance
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q7]{here}.\\
+
+\textbf{8. \texttt{InSecureum \_approve()}}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Is missing a zero-address validation
+    \item Has incorrect error messages
+    \item Has an incorrect update of allowance
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:race4_q8]{here}.\\

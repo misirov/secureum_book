@@ -1,0 +1,582 @@
+\chapter{Audit Techniques \& Tools 101}
+
+\section*{Intro}
+Welcome to the sixth module of the securium boot camp this one is about order techniques and tools 101, the central focus of this bootcamp on smart contact security auditing in this module we will cover the various technical and non-technical aspects of smart contact auditing starting with the high level \verb|view| of what our audits, the entire context around that we will, then review the widely used tools in this space developed by teams from Trail of Bits consensus diligence and others. We will cover high level aspects of these tools without getting too much into their operational or technical details which is autoscope and for which I would highly encourage you to install these tools and experiment with them during this module finally we will review the audit process, the various aspects around that one will need to understand to become a smart contact security auditor, so let's dive in.
+\section{Audit}
+Audit is an external security assessment of a project code base. In contrast to a review or assessment done internally by the project team itself. 
+
+This external assessment performed by a third party external to the project is typically requested and paid for by the project team.
+
+It's meant to detect and report security issues with their underlying vulnerabilities \verb|severity| difficulty potential exploit scenarios and recommended fixes this includes both common security pitfalls and best practices and also deeper application logic and economic vulnerabilities in the context of smart contracts.
+
+It may also provide subjective insights into code quality documentation and testing the scope depth format of audit reports varies across auditing teams, but they generally cover these similar aspects.
+
+\section{Scope}
+
+As for the ordered scope for Ethereum-based smart contract projects the scope is typically restricted to the on-chain smart contract code and sometimes includes the off-chain components that interact with the smart contracts as well
+
+But for this module, the boot camp as a whole we are focusing only on smart contract security auditing.
+
+\section{Goal}
+
+The goal of audits is to assess project code along with any associated specification and documentation and alert the project team of potential security related issues that need to be addressed to improve the security posture, decrease the attack surface and mitigate risk.
+
+This typically happens before smart contracts are deployed on the main net before launch, so that vulnerabilities can be fixed and verified to avoid exposure.
+
+\section{Non-Goal}
+
+Along with the goals we should also discuss what the non-goals of audits are, this is perhaps even more important to level set the expectations.
+
+Audit is not a security warranty of bug-free code by any stretch of imagination. 
+
+It is a best effort endeavoured by trained security experts who are operating within reasonable constraints of time understanding expertise and of course decidability, so just because the project has been audited does not mean that it will not have any vulnerabilities. 
+
+It should certainly have fewer vulnerabilities than before the audit assuming the reported vulnerabilities were fixed correctly. 
+
+The constraints are also critical and real, especially that of time and understanding. For now we can assume that most auditors are self-trained, with some help from peers with their experience in smart contact development or security in the web2 space being applied to web3. 
+
+The expertise of auditors also significantly affects the effectiveness of audits and we'll talk more about these and forthcoming slides.
+
+\section{Target}
+
+Who is the target for audits currently security firms or teams \verb|execute| audits for their clients who pay for their services audit engagements are therefore geared or targeted towards priorities of clients that's the project owners and not project users or investors.
+
+The goal of audits therefore is not to alert potential project users of any inherent risk that may be evaluated during the audit that is not the business or technical goal of audits. 
+
+This is often a point of discussion when it comes to audit firms their incentives and what they should be doing or not doing and also in the context of where potential project users should look for unbiased security risk posture of the projects that they're interested in. Nevertheless this is the current state of most audits today where their clients are projects and not users or investors of such projects.
+
+\section{Need}
+
+Let's start with the fundamental question of why we even have audits in the web3 space the reasons are simple, but multi-fold and mostly related to talent market supply demand and some unique characteristics of the web3 space. 
+
+Smart contract-based projects do not have sufficient in-house Ethereum smart contract security expertise and presumably not even the time to perform internal security assessments given the base of innovation in the space therefore they rely on external experts who have the domain expertise in those areas. 
+
+The reason most projects don't have that expertise is because the demand for it is orders of magnitude higher than the supply which itself is because we are still very early in the web3 life cycle, this is also the biggest motivation for this boot camp as even, 
+
+If projects have some expertise in house given the risk and value at stake they would still benefit from an unbiased external team with superior and either supplementary or complementary security skill sets that can review the assumptions design specification and implementation of the project code base. So these aspects hopefully justify at a high level the need for security audits in the current landscape.
+
+\section{Types}
+
+Now what are the types of audits there aren't any standard categories, but we can consider some broad classifications based on the nature of such audits audits depend on the scope nature status of projects and based on that they generally fall into the following categories. 
+
+We can think of new and repeat audits new audits are for new projects that are just being launched for the first time. Repeat audits on the other hand are for existing projects that have had an audit or two before, but is being revised there's a new version of this project coming up with new features or optimizations for which a repeat order is being performed.
+
+Then, there is a fixed audit for reviewing the fixes made to the findings from a current or prior audit. 
+
+Then we can think of a retainer audit where the audit is constantly reviewing project updates or providing guidance in a continuous manner instead of discrete engagements. 
+
+Finally, we can think of incident audits which review and exploit incident root cause the incident identify the underlying vulnerabilities that led to the incident and propose fixes, this one is more of an instant response unlike the traditional audits described are also very likely other variants of these as well, but this should give a general idea of the types of audits which affect the scope and nature of engagements as well.
+
+\section{Timeline}
+
+The timeline or the time spread for audits depends on the scope nature status and more importantly the complexity of the project to be assessed and also the type of audit 
+
+This may vary from a few days for a fix or retainer audit to several weeks for a new repeat or instant audit that we discussed in the previous line this may even \verb|require| months for projects with complex smart contracts with lots of external dependencies. 
+
+The timeline should certainly depend on the anticipated value at risk in those smart contracts and their criticality, but that is generally hard to guess ahead of time the timeline aspect is therefore a subjective one and there aren't reasonable objective measures to make decisions it's usually decided by simple metrics such as the number of files in that project the lines of code external dependencies or Oracles or complex mathematical libraries some measures of complexity of code or the application functionality in general and even familiarity of the auditing team with such contracts from earlier engagements.
+
+\section{Effort}
+
+The audit effort from a resources perspective typically involves more than one auditor simultaneously for getting independent, redundant or supplementary complementary assessments of the project the more than one approach is generally preferred to deal with any blind spots of individual auditors stemming from expertise their experience or even just luck.
+
+\section{Cost}
+
+The cost of an audit is an often discussed and debated topic it depends on the type and scope of audits and typically costs in the range of several thousands of dollars per week depending on the complexity of the project, the market demand and supply for audits at that point in time and certainly the strength and reputation of the auditing firm.
+
+\section{Pre-Reqs}
+
+The prerequisites for an audit are the things that should be factored in discussed agreed upon and made available before an audit begins. 
+
+This should typically include the following 10 things clear definition of the scope of the project to be assessed typically in the form of a specific commit hash of the project files on a GitHub repository
+
+Which could be a public or a private repository, if the project is still in stealth mode
+
+The team behind the project which could be public or anonymous and is engaged throughout this process 
+
+The specification of the project's design and architecture which is critical to security as we have discussed in earlier modules 
+
+The documentation of the project's implementation and associated business logic 
+
+And specifically from a security perspective the trust and threat models and specific areas of concern from the project team itself 
+
+It should also include all prior testing done tools used and reports from any other audits completed 
+
+The timeline effort and cost payments for the specific engagement must also be agreed upon
+
+The engagement dynamics or channels for questions clarifications findings communication and reports should also be agreed upon to prevent surprises. 
+
+Finally, there should be single points of contact on both sides to make all this possible and seamless.
+
+\section{Limitations}
+
+Audits are generally considered as necessary for now at least for the reasons we have touched upon earlier, but audits are certainly not sufficient they can't guarantee \verb|zero| vulnerabilities or exploits after the order they have limitations.
+
+This is because of three main reasons the first one is residual risk, there is risk reduction from an audit, but residual risk exists because of several factors such as the limited amount of audit time or effort limited insights into project specification implementation where in many cases there doesn't even exist a concrete written out specification, the documentation of the implementation itself doubles the specification residual risk could come from limited security expertise in the new and fast evolving technologies or the limited audit scope where an audit may not cover all the contracts or all the latest versions or their dependencies making the deployed contracts different from the ones audited residual risk could arise from significant project complexity and limitations of automated and manual analysis for all these reasons and maybe more audits can't and should not guarantee fully secure code that is free from any vulnerabilities or potential exploits such an expectation is unreasonable and any such positioning is misleading at best 
+
+Second not all audits are equal the quality of audits greatly depends on the expertise and experience of auditors effort invested given the project complexity quality and tools and processes used getting an order from a widely reputed security firm is not the same as getting it from someone else this affects residual risk to a great degree
+
+Third, audits provide only a project security snapshot over a brief period of time this is typically a few weeks or sometimes even less however smart contracts need to evolve over time to add new features fix bumps or even optimize, this is sometimes done during or after an audit in code that is eventually deployed which reduces some of the benefits of the prior audit done because the changes introduced could have vulnerabilities themselves on the flip side relying on audits after every change is also impractical, so these tensions between security and shipping unfortunately exist even in web 3 similar to web 2, but arguably have a more significant impact in web 3 given the risk versus reward and other unique aspects of web 3 that we have discussed earlier.
+
+So for these three broad reasons audits are considered necessary, but not sufficient by any means.
+
+\section{Reports}
+
+Audits typically end with a detailed audit report provided by the audit form to the project team. Projects sometimes publish such reports on their websites or GitHub repositories audit firms may also publish some of these with approval from the projects. 
+
+Such reports include details of the scope, goals, effort, timeline, approach use for, the audit tools and techniques used. 
+
+The finding summary the vulnerability details, if any found vulnerability classification as per the audit forms categorization because there isn't yet a standardized categorization vulnerability, severity, difficulty, likelihood as per OWASP or the firm's own rating and ranking, any potential exploit scenarios for the vulnerabilities which demonstrate how easy or hard it is for attackers and almost always the suggested fixes for the vulnerabilities.
+
+They also include less critical informational notes recommendations suggestions on programming or software engineering best practices which may lead to security issues in certain scenarios.
+
+Overall an audit report is a comprehensive structured document that captures a lot of these aspects in different levels of detail most audits provide a report at the end or there may even be interim reports shared as well depending on the duration and complex and while the format scope and level of details of these reports differ across audit firms they generally capture some or most of these categories of information and we'll go into the details of each of these concepts in the forthcoming slides.
+
+\section{Classification}
+
+The vulnerabilities found during the audit, if any are typically classified into different categories which make it helpful for the project team or even others to understand the nature of the vulnerability the potential impact severity impacted project components functionality and exploit scenarios and like we just discussed there isn't yet a standardized categorization and each audit form uses its own, so for example let's take a look at the classification used by Trail of Bits.
+
+\begin{itemize}
+\item There's access control which is related to authorization of users and assessment of rights auditing and logging related to 
+\item Auditing of actions logging of problems 
+\item Authentication related to the authentication of users in the context of the application 
+\item Configuration of servers devices or software and in our case the smart contracts or off-chain components 
+\item Cryptography related to protecting the privacy or integrity of data 
+\item Data exposure related to unintended exposure of sensitive information 
+\item Data validation related to improper reliance on the structure or values of data 
+\item Denial of service or DoS related to causing system failure or inaccessibility 
+\item Error reporting related to reporting of error conditions 
+\item Patching related to keeping software up to date using patches in our case smart contracts that we have discussed earlier 
+\item Session management related to identification of authenticated users. 
+\item Finally, timing which is related to race conditions locking your order of operations
+\end{itemize}
+
+And, if none of these categories fit for the vulnerability, then it's typically categorized under undefined behavior that is figured by the program because of such a vulnerability we have broadly discussed these categories in the earlier modules of security and other audit forms may use a slightly different classification, but usually, there is a good overlap.
+
+\section{Difficulty}
+
+According to Owasp likelihood or difficulty which are semantically opposite terms by the way that's low likelihood is the equivalent of high difficulty. 
+
+This is a rough measure of how likely or difficult this particular vulnerability is to be uncovered and exploited by the attacker and OWASP proposes three likelihood levels of low medium and high some audit firms use OWASP, but others use their own terminology at ranking because does not apply very well to web 3 in general given the nature of risks vulnerabilities and even extent of impact from their exploits.
+
+So Trailer of Bits for example classifies every finding into four difficulty levels 
+
+First one is low this means that the vulnerability may be easily exploited because public knowledge exists about this vulnerability type as it is related to a common security pitfall or a missing best practice at a \verb|Solidity| or EVM level which further implies that it may be easily exploited
+
+The second is medium which means that attackers typically need an in-depth knowledge of the complex system to exploit this vulnerability, this may be something application specific that is related to its business logic and not a commonly seen or known \verb|Solidity| or EVM level vulnerability
+
+The third one is high which means that an attacker must have privileged insider access to the system may need to know extremely complex technical details of that system or must discover some other weakness in order to exploit this issue this could imply that one of the trusted actors in the context of the application such as one of the privileged roles must be either malicious or compromised and potentially even with some insider details about some design or implementation to exploit this vulnerability
+
+And finally, there is the undeterminate category which means that the difficulty of exploit was not determined during the engagement of the audit this could happen given the nature of the vulnerability the context of the application or even simply because the operational aspects of the audit engagement did not allow this to be determined irrespective of this subjective difficulty level determination the relative classification across the three or four categories is what is more important, this aspect should also be consistently applied to all the findings within the scope of the audit.
+
+\section{Impact}
+
+The other aspect of vulnerabilities that is important to recognize is impact and as per OWASP the impact of vulnerability estimates the magnitude of the technical and business impact on the system, if the vulnerability were to be exploited OWASP again proposes three levels of low medium and high, but this again needs to be revisited for web 3 because the impact from smart contract vulnerabilities and their exploits is generally very high and also the business or reputational aspects are very different in web 3 from a traditional web 2 sense 
+
+High impact is typically reserved for vulnerabilities causing loss of funds or locking of funds that may be triggered by any unauthorized user 
+
+Medium impact is reserved for vulnerabilities that affect the application in some significant way, but do not immediately lead to loss of funds anything else is considered a 
+
+Low impact these are again subjective in nature, but what matters more is that they make sense in a relative manner, so the high impact should be greater than a medium impact should be greater than a low impact in some reasonable justifiable way and also
+
+This should be applied consistently across the audit these difficulty and impact ratings again are different across different audit forms with some of them being more stricter than others in classifying the vulnerabilities, this aspect of impact is perhaps the most noticed and discussed aspect as reported for vulnerabilities in the audit reports this is discussed and debated even between the audit firm, the project team given the subjective nature of this classification and something that gets paid a lot of attention even by the community at large when they are looking at high impact vulnerabilities reported in audits of the projects that they are interested in.
+
+\section{Severity}
+
+According to OWASP the likelihood and impact estimates are combined to calculate an overall severity for every risk, this is done by figuring out, if the likelihood and impact are low medium or high, then combining them into a three by three severity matrix. 
+
+So with the notation of likelihood hyphen impact is equal to severity the matrix looks like this a low likelihood and a low impact results in a severity that is an informational note a low likelihood a medium impact results in a low severity low high results in high medium low results in low and, so on as shown here, 
+
+so this is what is recommended by OWASP, but different firms end up using different severity levels payloads for example does not use this OWASP recommendation and uses five civility levels instead there's an informational severity where the issue does not pose an immediate risk, but is relevant to security best practices or helps with defensive depth, 
+
+there is a low severity where the risk is relatively small or is not a risk that the customer has indicated as being important medium risk where individual users information is addressed and exploitation would be bad for client reputation and, so on there's a high civility where it affects a large number of users it's very bad for the client's reputation and, so on. 
+
+Finally, there's an undetermined severity where the extent of this risk was not determined during the engagement on the other hand consensus diligence uses a different classification it uses minor to indicate that the issues are subjective in nature where, there are typically suggestions around best practices or readability medium severity are for issues that are objective in nature, but are not security vulnerabilities and major severity is for issues that are security vulnerabilities that may not be directly exportable, but they require certain conditions in order to be exploited and finally, there are critical severities where the issues are directly exploitable security vulnerabilities that absolutely need to be fixed, so as we can see, there are clearly different severity considerations across firms, but again what matters more is the relative categorization consistency justification, the clarity.
+
+\section{Checklist}
+
+A checklist for projects to get ready for an audit is helpful, so that audit firms can assume some level of readiness from projects when audit starts. Trail of Bits for example recommends a checklist that has three broad categories test review and document 
+
+For test what is recommended is to enable an address every compiler warning and to also increase the unit and feature test coverage 
+
+For reviews what is recommended is for the project teams to perform an internal review to address common security pitfalls and best practices 
+
+For documentation what is recommended is one to describe what your product does who uses it why and how it delivers the functionality add comments about intended behavior in line with the code label and describe your tests and results both positive and negative tests and results four include past reviews and any bugs found five document steps to create a build environment six document external dependencies seven document build process including the debugging and test environment. Finally, eight document the deployment process and its environ. 
+
+Finally, having included the test review and document parts in a checklist what is also more critical is to communicate all the information in suitable ways to the audit form before an audit, so that they have all this information and do not waste their valuable time in discussing requesting duplicating or addressing these aspects.
+
+\section{Analysis Techniques}
+
+The analysis techniques used in audits involve a combination of different methods that are applied to the project core base along with any accompanying specification and documentation 
+
+\begin{enumerate}
+\item Many are automated analysis performed with tools with some level of manual assistance and, there are generally eight broad categories 
+\item There's specification analysis that is completely manual 
+\item There's documentation analysis that's also manual 
+\item There's software testing which is automated 
+\item Static analysis again automated 
+\item Fuzzing 
+\item Combination
+\item And automated technique symbolic checking that's also automated 
+\item And formal verification that is automated with some level of manual assistance 
+\item And finally, there is manual analysis that is entirely manual 
+\end{enumerate}
+
+Let's discuss each of these categories in some detail.
+
+\section{Specification}
+
+Specification as we have discussed earlier describes in detail the what and why aspects of the project and its components or in other words what is the project supposed to do functionally as part of its design and architecture as stemming from the requirements, 
+
+So from a security perspective it specifies what the assets are where they are held who are the actors in this context privileges of the actors who is allowed to access what and when trust relationships threat model potential attack vectors scenarios and mitigations.
+
+Analyzing the specification of a project provides auditors with the above details and lets them evaluate any assumptions made and identify any shortcomings few smart contract projects have detailed specifications at their audit stage at west they have some documentation about what is implemented 
+
+And auditors end up spending a lot of time inferring specification from the documentation or implementation itself which leaves them with less time for deeper vulnerability assessment.
+
+\section{Documentation}
+
+Documentation is a description of what has been implemented based on the design and architectural requirements documentation should detail how something has been designed architected implemented without necessarily addressing the why aspects, the design requirement goals documentation in smart contract projects is typically in the form of README files in the GitHub repository describing individual contact functionality combined with the functional math Spec and individual code comments as discussed earlier documentation in many cases serves as a substitute for missing specification and provides critical insights into the assumptions requirements and goals of the project team understanding the documentation before looking at the code helps auditors save a lot of time in inferring the architecture of the project contract interactions program constraints asset flow actors threat model and risk mitigation measures mismatches between the documentation, the court could indicate either stale or poor documentation software defects or security vulnerabilities therefore given this critical role of documentation the project team is highly encouraged to document thoroughly, so that auditors do not need to waste their time inferring all of our aspects by reading code instead.
+
+\section{Testing}
+
+Ectural requirements documentation should detail how something has been designed architected implemented without necessarily addressing the why aspects, the design requirement goals documentation in smart contract projects is typically in the form of README files in the GitHub repository describing individual contact functionality combined with the functional math Spec and individual code comments as discussed earlier documentation in many cases serves as a substitute for missing specification and provides critical insights into the assumptions requirements and goals of the project team understanding the documentation before looking at the code helps auditors save a lot of time in inferring the architecture of the project contract interactions program constraints asset flow actors threat model and risk mitigation measures mismatches between the documentation, the court could indicate either stale or poor documentation software defects or security vulnerabilities therefore given this critical role of documentation the project team is highly encouraged to document thoroughly, so that auditors do not need to waste their time inferring all of our aspects by reading code instead .
+
+\section{Static Analysis}
+
+Let's now talk about static analysis static analysis is a technique of analyzing program properties without actually executing the program this is in contrast to software testing where programs are actually executed or run with different inputs to examine their behavior and with smart contracts static analysis can be performed on the \verb|Solidity| code directly or on the EVM byte code and is usually a combination of control flow and Data Flow analysis some of the widely used static analysis tools with smart contracts are Slither which is a static analysis tool from Trail of Bits and Maru which is a static analysis tool from ConsenSys Diligence both of which analyze intermediate representations derived from \verb|Solidity| code of smart contracts.
+
+\section{Fuzzing}
+
+Fuzzing or first testing is an automated software testing technique that involves providing invalid unexpected or random data as inputs to software this is in contrast with software testing in general where chosen and valid data is used for testing, so in first thing these invalid unexpected or random data are provided as inputs, then the program is monitored for exceptions such as crashes failing built-in code assertions or potential memory leaks Fuzzing is especially relevant to smart contracts because anyone can interact with them on the blockchain by providing random inputs without necessarily having a valid reason to do, so or any expectation from such an interaction this is in the context of arbitrary Byzantine behavior that we have discussed multiple times earlier the widely used Fuzzing tools for smart contracts are Echidna from Trail of Bits and Harvey from ConsenSys Diligence.
+
+\section{Symbolic Checking}
+
+Symbolic checking is a technique of checking for program correctness by using symbolic inputs to represent a set of states and transitions instead of using real inputs and enumerating all the individual states or transitions separately the related concept of model checking or property checking is a technique for checking whEther a finite state model of a system meets a given specification and in order to solve such a problem algorithmically both the model of the system and its specification are formulated in some precise mathematical language, the problem itself is formulated as a task in logic with the goal of solving that formula, there is decades of research and development in this domain and I would encourage anyone interested to explore the many references available here for smart contracts Manticore from taylor beds and mithril from consistent diligence are two widely used symbolic checkers which we will touch upon in later slides.
+
+\section{Formal Verification}
+
+Formal verification is the act of proving or disproving the correctness of algorithms underlying the system with respect to a certain formal specification of property using formal methods of mathematics formal verification is effective at detecting complex parts which are generally hard to detect manually or using simpler automated tools formal verification needs a specification of the program being verified and techniques to compare the specification with the actual implementation some of the tools in this space are sertora's proverb and change securities forex kEVM from runtime verification is a formal verification framework that models EVM semantics.
+
+\section{Manual Analysis}
+
+Manual analysis is complementary to automated analysis using tools it serves a critical need in smart contact audits today automated analysis using tools is cheap because it typically uses open source software that is free to use automated analysis is also fast deterministic and scalable, but however it's only as good as the properties it is made aware of which is typically limited to those concerning \verb|Solidity| and EVM related constraints manual analysis with humans on the other hand is expensive it's slow it's non-deterministic and it's not scalable because human expertise in smart contract security is a rare and expensive skill set today and we are slower prone to error and also inconsistent manual analysis however is the only way today to infer and evaluate business logic and application level constraints which is where a majority of the serious vulnerabilities are being found.
+
+\section{False Positives}
+
+Let's now talk about the concept of false positives and false negatives which are critical to understand in the context of smart contract audits or security in general compared to true positives which are findings that are indeed vulnerabilities false positives on the other hand are findings which flag the presence of vulnerabilities, but which in fact are not vulnerabilities and such false positives could be due to incorrect assumptions or simplifications in analysis which do not correctly consider all the factors required for the actual presence of vulnerabilities false positives require further manual analysis on findings to investigate, if they are indeed false positives or, if they are too positive and a high number of false positives increases the manual effort required in verification and also lowers the confidence in the accuracy of findings from the earlier automated analysis on the flip side true positives might sometimes be incorrectly classified as false positives which leads to such findings, the vulnerabilities behind those findings being ignored left behind in the code instead of being fixed and may end up getting exploited later.
+
+\section{False Negatives}
+
+On the other hand false negatives are missed findings that should have indicated the presence of other abilities, but which are in fact not reported at all such false negatives again could be due to incorrect assumptions or inaccuracies in analysis which did not correctly consider the minimum factors required for the actual presence of other abilities false negatives per definition are not reported or even realized unless a different analysis reveals their presence or the vulnerabilities are realized only when they're exploited a high number of false negatives lowers the confidence in the effectiveness of the earlier manual or automated analysis compared to this true negatives are missed findings or findings that are analyzed and dismissed which are in fact not vulnerabilities
+
+So these concepts of true positives false positives true and false negatives come up often in smart contract auditing and in security in general and therefore this terminology, the distinction between these types should be well understood.
+
+\section{Audit Firms}
+
+Let's not talk about audit forms, there are several teams or firms that have security expertise with smart contracts and Ethereum and provide auditing services some have a web to origin from the traditional audit space where they provide other security services besides smart contact auditing while some others are specialized specifically in smart contract audits
+
+There are a few others as well that are super specialized in certain formal verification privacy or cryptographic aspects within this space, there are at least 30 + audit firms that are widely cited in this space, this includes the boot camp partners ConsenSys Diligence Sigma Prime and Trail of Bits.
+
+\section{Security Tools}
+
+Having discussed audit techniques at a high level let's now talk a bit about the tooling that is used in this space smart contract security tools are critical in assisting both smart content developers as well as auditors with detecting potentially exploitable vulnerabilities highlighting dangerous programming styles or surfacing common patterns of misuse none of these however replace the need for manual review today to evaluate contract specific business logic and other complex control flow Data Flow and value flow aspects, so these tools at best complement manual analysis today.
+
+\section{Security Tools pt.2}
+
+We can think of tools in the space under different categories such as tools for testing test coverage linting static analysis symbolic checking Fuzzing formal verification visualization disassemblers. 
+
+Finally, monitoring and incident response tools let's now discuss some of the widely used tools in these categories we will only dive into a few of them in some detail and only touch upon the others.
+
+Like I said earlier I would encourage you to explore these tools during this module, so install them most of them are open source and freely available play around with their options to understand how they work how effective they are and how they would fit within your toolbox when you start auditing smart contracts.
+
+\section{Slither Overview}
+
+So let's start with Slither which is a static analysis tool from Trail of Bits and one of the most widely used tools in this space Slither is a static analysis framework written in python 3 for analyzing smart contracts with an in \verb|Solidity| it runs a suite of vulnerability detectors prints visual information about contact details.  
+
+Also provides an API to easily write custom analysis this helps developers and auditors find vulnerabilities enhances their code comprehension and also quickly prototype any custom analysis that they would like it implements 75 + detectors in the publicly available free version and we'll cover these different aspects of Slither in the forthcoming slides.
+
+\section{Slither Features}
+
+At a high level Slither implements vulnerability detectors and contact information printers it claims to have a low rate of false positives, the run time is typically less than one second per contract it is designed to integrate into ci cd frameworks. 
+
+It implements built-in printers that quickly report crucial smart contract information and also supports a detector API to write custom analysis in python it uses an intermediate representation known as slipped ir or Slither as it may be pronounced which enables simple and high precision analysis.
+
+\section{Slither Detectors}
+
+As mentioned Slither implements 75 + detectors each of which detects a particular type of vulnerability scissor can run on Truffle Embark dab Ether line or hard hat applications or on a single \verb|Solidity| file and by default Slither runs all its detectors to run only selected detectors from within its suite.
+
+There is a detect option to specify the names of detectors to run similarly to exclude certain detectors one can use the exclude option to specify the names of detectors to exclude two specific examples of detectors are reentrancy heat and unprotected-upgrade one can also exclude detectors based on the severity level associated with them
+
+So for example to exclude all those detectors that are classified as informational or low severity one can use the exclude informational or exclude law options on this tool one can list all available detectors using the list detectors option, so I would encourage you to take a look at this tool, the various options and configurations that it supports.
+
+\section{Slither Printers}
+
+Besides the detectors like we mentioned Slither has a concept of printers that allow printing different types of contract information using the print options this helps in contract comprehension and gives us visibility into a lot of different aspects of the contract that's being analyzed the various print options include things like the control flow graph the call graph the contract summary data dependencies of variables summary of the functions inheritance relationships between contracts modifiers \verb|require| and \verb|assert| calls and storage order of the state variables
+
+There are also many other details even from the Slither intermediate representation and at the EVM level all these could be very helpful in quickly understanding the contract structure getting a snapshot and zooming in on key aspects that are relevant from a security perspective.
+
+\section{Slither Upgradability}
+
+We've discussed in the security modules about how, there are many security challenges with Proxy-based upgradability and a lot of them were inspired by checks implemented by Slither along with documentation from OpenZeppelin on this topic Slither has a specific tool called the Slither check upgradeability, which reviews contracts that use the delegateCall Proxy pattern to detect potential security issues with upgradability.
+
+These include initialized state variables missing or extra state variables and different state variable ordering between the Proxy and implementation contracts or different versions of the implementation contracts itself this also includes missing initialize function initialize function that is present, but that can be called multiple times because of the missing initializer modifier. 
+
+Finally, function id collision and shadow all these upgradeability aspects are conveniently packaged into a smaller tool which makes it very handy for checking that aspect.
+
+\section{Slither Code Similarity}
+
+Slither has a code similarity detector which can be used to detect similar \verb|Solidity| functions this uses machine learning to detect similar and vulnerable \verb|Solidity| functions it uses a pre-trained model using Etherscan verified contracts that is generated from more than 60 000 smart contracts and more than 850 000 functions this can be a useful tool to detect vulnerabilities from code clones forks or copies.
+
+\section{Slither Flat}
+
+Slither also has a contract flattening tool Slither flat which produces a flattened version of the code base and it supports three strategies most denied one file and local import most derived is for exporting all the most derived contracts one file helps us export all the contracts in one standalone file. 
+
+Finally, local import exports every contract in one separate file this tool handles circular dependency and also supports many compilation platforms such as Truffle hard hat Ether line and others.
+
+\section{Slither-Format}
+
+Slither also has a formatting tool, Slither format which automatically generates patches or fixes for a few of its detectors patches are compatible with git the detectors supported with this tool are a new state Saltzer version \verb|pragma| naming convention \verb|external| function constable states and \verb|constant| function the patches generated by this tool should be carefully reviewed before applying just, so that you're comfortable with what those patches look like and, there are no bugs in it.
+
+\section{Slither ERC Conformance}
+
+Slither has an ERC conformance tool called Slither check ERC which takes conformance for various ERC standards such as \verb|ERC20| \verb|ERC721| \verb|ERC777|\verb|ERC165|\verb|ERC223| . Finally, \verb|ERC1820| some of which we have discussed in the security 201 module examples of these checks are to see, if functions are present return the correct type have \verb|view| mutability and, if events are present emitted and parameters of such events are indexed as per the ERC Spec this is again handy for consolidating all ERC specific checks into one single two.
+
+\section{Slither-Prop}
+
+And finally Slither also has a property generation tool called the Slither prop which generates code properties or invariants that can, then be used for testing with unit tests or Echidna and completely automatically the \verb|ERC20| scenarios that can be tested with this tool are things like checking for correct open transfer the possible functionality or that no one can incorrectly mint or burn tokens.
+
+\section{Slither New Detectors}
+
+Besides the various detectors printers and tools of Slither that we just discussed Slither also supports an extensible architecture that allows one to integrate new detectors into the tool the skeleton for such a detector implementation has things like arguments help impact confidence and link to the wiki for that detector. Finally, a placeholder for the most important part of the detector logic itself this extensible architecture can help with creating application specific detectors and also enables the community to contribute new detectors to the Slither codebase, so those are all the Slither features that we're going to cover here and as we see it is an extensive tool with support for 75 + detectors and multiple other helpful features as well for reasons of which it's widely referenced and used across projects in the space.
+
+\section{Manticore}
+
+Let's now move on to another tool from Trail of Bits called Manticore which is a symbolic execution tool this again helps with analysis of Ethereum smart contracts and complements Manticore can \verb|execute| a program with symbolic inputs and explore all possible states it can reach it can automatically produce concrete inputs that result in any desirable program state it can detect crashes and other failures in smart contracts provide instrumentation capabilities. Finally, a programmatic interface to its analysis engine via python API similar to slytherin.
+
+\section{Echidna}
+
+Another tool from Trail of Bits is Echidna which is a Fuzzing tool and complements Slither and Manticore again for use with smart contract audience this is written in haskell and it performs grammar based Fuzzing campaigns based on a contracts ABI to falsify user defined predicates or even \verb|Solidity| assertions in the smart contract code.
+
+\section{Echidna Features}
+
+Ekita has many notable features such as it generates inputs tailored to the actual code has an optional corpus collection of predefined campaigns it supports mutations and coverage guidance for deeper bugs it can be powered by the Slither prop tool to extract useful information before the Fuzzing campaign it has source code integration to help identify which lines are covered after the Fuzzing campaign it has support for multiple user interfaces automatic test case minimization for quick triage. Finally, seamless integration into the development workflow among other things.
+
+\section{Echidna Usage}
+
+As for Echidna's usage I would recommend looking up ekinda's documentation and available tutorials on trailer bit website for such details, but at a high level the usage involves three aspects first one is executing the test runner where the core Echidna functionality is part of an executable called a kidnap test that takes a contract and a list of invariants as inputs for each invariant it generates random call sequences to the contract and checks, if the invariant holds, if it can find some way to falsify the invariant it prints the call sequence that does so, these are typically referred to as outer examples in this terminology, if it can't find out examples, then we have some assurance that the contract is safe with respect to that invariant the second aspect is that of writing invariants invariants are expressed as \verb|Solidity| functions with names that begin with Echidna underscore they have no arguments and they return a \verb|boolean|, the third aspect is that of collecting and visualizing coverage after finishing the Fuzzing campaign Echidna can save that coverage maximizing corpus in a special directory which will contain two entries a directory with JSON files that can be replayed by Echidna later and a plain text file that contains a copy of the source code with coverage annotations.
+
+\section{Eth Security Toolbox}
+
+Trailerbits has combined the three tools we just discussed into tools package which is a Docker container package called eat security toolbox where they are pre-installed and pre-configured and as you can imagine this makes it very handy and very easy to start off with using these tools, so the heat security toolbox has Slither Echidna and Manticore and besides these three also has Rattle and no tools which we will touch upon in coming slides.
+
+\section{Ethersplay}
+
+Ethersplay is a Binary Ninja plugin from trailer pets that enables an EVM disassembler and related analysis tools for those who aren't aware binary ninja is a widely used extensible reverse engineering platform which can disassemble a binary and display it in various ways, so Ethers play effectively extends that to work with EVM bytecode this takes EVM byte code in raw library format as input and generates a control flow graph of all functions it can also be used to display manticore's coverage.
+
+\section{PyEVMasm}
+
+Pi EVM asim is another security tool from Trail of Bits which provides an assembler and disassembler library for the Ethereum virtual machine EVM this includes a command line utility for doing the assembling and disassembling and also includes a python API for extensibility.
+
+\section{Rattle}
+
+Rattle is another security tool from trailer pits it is an EVM binary static analysis framework that is designed to work with deployed smart contracts it takes EVM byte strings as inputs and uses a flow sensitive analysis to recover the control flow graph in static analysis terminology flow sensitive refers to an analysis that considers the control flow of statements similarly, there is context sensitive and path sensitive analysis as well Rattle further converts the control flow graph into a single static assignment form or SSA form with infinite registers and optimizes this SSA by removing stacked instructions of dupes swaps pushes and pops remember that EVM is a stack based machine and. There are typically many such stacked instructions in the bytecode as operands are pushed onto the stack and results are popped Rattle by converting the byte code instructions from a stack machine to SSA form removes more than 60 percent of all EVM instructions and because of that it presents a user-friendly interface for analyzing smart contract bytecode for anyone interested in programming language analysis I would encourage them to look up these concepts of SSA and sensitivity and, so on.
+
+\section{EVM CFG Builder}
+
+EVM CFG builder is another tool from Trail of Bits this is used to extract the control flow graph from EVM bytecode this tool helps us reliably recover control flow graph or CFG from the EVM byte code and also recovers function names and their attributes such as payable \verb|view| \verb|pure| etc it outputs the CFG to a DOT file, this EVM CFG builder tool is used by Ethers play Manticore and some other tools from Trail of Bits.
+
+\section{Crytic Compile}
+
+Critic compile is another tool from Trail of Bits it is a smart contract compilation library that is used in the security tools from trailer pets it supports Truffle mbar Ether scan Brownie Waffle Hardhat and other development environments, this plugin is used in the critic family of tools from Trail of Bits that includes Slither Echidna and.
+
+\section{Solc-Select}
+
+Select is a security helper tool gained from Trail of Bits, this is a script that is used to quickly switch between different \verb|Solidity| compiler versions sourcing select manages installing and setting different salsi compiler versions using a wrapper around salsi which picks the right version according to what was said via solve \verb|c| select \verb|Solidity| compiler the solc binaries are downloaded from the official series language repository, this tool is very helpful while analyzing different smart contact projects because, there is often a need to switch between different \verb|Solidity| compiler versions depending on which version is being used by the project that is being analyzed, so this tool is very handy in such situations and helps us work with other security tools that depend on the \verb|Solidity| compiler version.
+
+\section{Etheno}
+
+Ethanol is a testing tool referred to as the Ethereum testing Swiss Army knife again from Trail of Bits it's a JSON RPC multiplexer analysis tool wrapper and test integration tool all bundled into one for multiplexing it runs a JSON RPC server that can multiplex calls to one or more Ethereum clients with an API for filtering modifying such JSON RPC calls it enables differential testing by sending JSON RPC sequences to multiple Ethereum clients and further helps with the deployment and interaction with multiple networks at the same time for the analysis tool wrapping part it provides a JSON RPC client for advanced analysis tools such as maticore which makes it much easier to work with such tools because, there is now no need for custom scripts for those students and for integration with best frameworks such as Ganache and Truffle it helps run a local test network with a single command and enables the use of Truffle migrations to bootstrap anti-core analysis, so for all these reasons it is referred to as the Swiss Army knife for Ethereum testing.
+
+\section{MythX}
+
+Now moving on to tools from ConsenSys Diligence MythX may be considered as their flagship tool MythX is a powerful security analysis service that finds vulnerabilities in Ethereum smart contact code during the development lifecycle it is a paid API based service that uses several tools in the backend, these include Maru a static analyzer Mythril a symbolic analyzer, the third one being Harvey which is a gray box fuzzer and in combination among these three tools mithix implements a total of 46 + detectors while Maru and Harvey are closed source as of now vitriol is open source and we'll talk more about different aspects of MythX in the forthcoming slides.
+
+\section{MythX Process}
+
+So how does the MythX process work remember that widex is an API based service, so MythX does not run locally on the user's machines, but it runs in the cloud, so the first step is for the project to submit the code to the mythex service the analysis requests are encrypted with TLS, the code one submits can only be accessed by them and one is expected to submit both the source code, the compiled byte code of the smart contract for best results the second step is to activate the full suite of analysis techniques behind with \verb|x| and here the longer MythX surrounds the more security weaknesses it can detect, this is because the precision of the symbolic checker, the Fuzzing components of with \verb|x| can get better with more iterations the third and final step is to receive a detailed analysis report from the defects service, this report lists all the weaknesses found in the submitted code including the exact location of those issues, these reports that are generated can only be accessed by the submitter MythX here offers three scan modes quick standard and deep for differing levels of analysis depth and provides a user-friendly dashboard for analyzing the results returned.
+
+\section{MythX Tools}
+
+Now let's talk about the tools used by the MythX service when a project submits their code to the mythex API it gets analyzed by multiple microservices in parallel where three tools cooperate to return a more comprehensive set of results in the execution time decided by the type of scan chosen the first of the three tools is a static analyzer called Maru that passes the solarity asd for the project the second tool is a symbolic analyzer called Mythril that detects all the possible vulnerable states in the contract. Finally, the third tool is Harvey which is a grey box fuzzer that detects vulnerable execution paths in the smart contract compared to traditional black box Fuzzing gray box Fuzzing is guided by coverage information which is made possible by using program instrumentation to trace the code coverage reached by each input during Fuzzing, so these three tools are used in combination by the MythX service to provide a comprehensive analysis of the vulnerabilities within the smart contract being analyzed.
+
+\section{MythX Coverage}
+
+The coverage that is provided by MythX extends to most of the smart contract weaknesses found in the smart contract weakness registry referred to as the SWC registry which we will talk more about in one of the forthcoming slides, this comprehensive coverage addresses 46 + detectors as of today.
+
+\section{MythX SaaS}
+
+With \verb|x| is based on a security as a service or sas platform with the premise that this sas approach is better because of three main reasons the first reason is that with this approach one can expect higher performance compared to running the security tools locally because the compute power in the cloud is typically much much higher than what may typically be expected at the user's end on a laptop or a desktop, the second aspect is that we can expect a higher vulnerability coverage with three tools than running any single standalone the third benefit is from continuous improvements to security analysis technology with new or improved security tests methodologies and tools that can be adopted as the smart contract security landscape evolves with different types of vulnerabilities and exploit vectors emerging as the compiler revisions change new coding patterns emerge new dependencies start getting used new protocols start getting used and even the Ethereum protocol upgrades over time, so for these three reasons the sas or API based approach of mythex is considered as being better than running any one of those tools locally on the user's end.
+
+\section{MythX Privacy}
+
+It's understandable that project teams may have concerns uploading their smart contract code to a sas service like with \verb|x|, so methox provides a privacy guarantee the smart contract code submitted using their sas APIs first one is that the code analysis requests are encrypted with TLS and to provide comprehensive reports and improve performance the MythX service stores some of the contract data in its database including parts of the source code and byte code, but that data never leaves their secure server and is not shared with any outside parties it keeps the results of the analysis it retains them, so that it can be retrieved later, but the reports can be accessed only by the project team, the service enforces authorized access to such results.
+
+\section{MythX Performance}
+
+Performance is usually a concern with security tools that perform deep analysis such as with symbolic checking or Fuzzing because they may \verb|require| a lot of compute resources and proportionately longer amounts of time for retrading through their analysis to get good coverage and position, so in this case with \verb|x| can be configured for three types of scans depending on the time expectation quick scans run for five minutes standard scans run for 30 minutes while deep scans run for 90 minutes and as you can imagine standard scan gives better results than quick scans and deep scans better than standard ones, so one can customize this the type of scans according to the development phase and time available, so for example quick scans can be perhaps run by developers during their code comments and standard scans can be run at certain project milestones while deep scans that take a much longer time can be run on the nightly builds when you have more time.
+
+\section{MythX Versions}
+
+With \verb|x| comes in different versions, so that it can be accessed via multiple ways, there is a command line interface version that provides a unified tool access to methox, there is with xjs which is a library to integrate detects in javascript or typescript projects, there is a python library pythex to integrate methods in python projects and finally, there is a visual studio code extension for mythex that allows a project to scan smart contracts and \verb|view| the results directly from the code editor.
+
+\section{MythX Pricing}
+
+As for pricing MythX has four pricing plans the first one is an on-demand pricing plan that costs 9.99 for three scans and all three scan modes quick standard and deep are available as part of this plan the second pricing plan is a development plan that costs 49 a month this gives access to quick and standard scan modes only and it allows 500 scans a month the third one is a professional plan which costs 249 a month and gives access to all scan mods and 10 000 scans a month and finally, there is an enterprise pricing plan that allows for custom pricing where custom plans can be decided between a project team and ConsenSys Diligence that meets the team's specific needs.
+
+\section{Scribble}
+
+Let's now move on to another tool from ConsenSys Diligence called Scribble scribble is a verification language and a runtime verification tool that translates high level specifications into \verb|Solidity| code it allows one to annotate a \verb|Solidity| smart contract with specific properties, there are four principles or goals with Scribble one that specifications should be easy to understand by developers and smart contract security auditors two specifications should be simple to reason about three specifications should be efficiently checked using off-the-shelf analysis tools and four a small number of core specification constructs should be sufficient to express and reason about more advanced constructs, so Scribble transforms annotations made within smart contract code using its specification language into concrete assertions, then with those instrumented contracts that are equivalent to the original ones one can use other tools from consistent diligent such as Mythril Harvey litex to leverage these assertions for performing deeper checks, so Scribble is a relatively newer tool from ConsenSys Diligence and sounds very powerful in its capabilities, so I would strongly encourage everyone to take a look at the documentation of Scribble take a look at the motivations, the underlying concepts driving this tool and also test it out to explore all its capabilities.
+
+\section{Fuzzing-as-a-Service}
+
+Fuzzing as a service is a service that has been recently launched by ConsenSys Diligence where projects can submit their smart contracts along with embedded inline specifications or properties written using the Scribble language that we just talked about these contracts are run through the Harvey fuzzer which uses the specified properties to optimize Fuzzing campaigns and any violations from such Fuzzing are reported back from the servers for the project to fix.
+
+\section{Karl}
+
+Call is another security tool from ConsenSys Diligence, this can be used to monitor the Ethereum blockchain for newly deployed smart contracts that may be vulnerable, this can be done in real time carl checks for security vulnerabilities using the victory detection engine also from consistent diligence, this can be an interesting monitoring tool for detecting vulnerable deployed smart contracts, but not during security auditing or reviews for projects that have yet to be launched.
+
+\section{Theo}
+
+Another security tool from ConsenSys Diligence that is not specifically meant for auditing, but interesting nevertheless is Theo Theo is an exploitation tool with a Metasploit like interface and provides a python REPL console from where one can access a long list of interesting features such as automatic smart contact scanning which generates a list of possible exploits sending transactions to exploit a smart contract transaction pool monitoring Front-running backlining transactions and many others.
+
+\section{Visual Auditor}
+
+A tool that could be very handy in the manual analysis phase of smart contact auditing is the visual auditor this is a visual studio extension again from ConsenSys Diligence that provides security aware syntax and semantic highlighting for Soleil and Vyper languages examples of things that are highlighted include modifiers visibility specifiers security relevant built-ins such as a global transaction origin message data and, so on storage access modifiers indicating, if it is in memory or storage developer notes in comments such as to do's fix me hack etc invocations operations constructor fallback functions state variables it has support for review specific features such as audit annotations and bookmarks exploring dependencies inheritance function signature hashes it supports graph and reporting features such as interactive call graphs with call flow highlightingl diagrams and access to Surya features which we'll talk about in the next slide it also supports code augmentation features where additional information is displayed when hovering over Ethereum account addresses that allow one to download the byte code or source code or open it in the browser hovering over Assembly instructions to show the signatures and hovering over the state variables to show their declaration information, so overall the visual auditor is almost a must have tool while manually reviewing \verb|Solidity| or Vyper code during audits.
+
+\section{Surya}
+
+Surya is a visualization tool from ConsenSys Diligence that helps auditors in understanding and visualizing \verb|Solidity| smart contracts by providing information about their structure and generating call graphs and inheritance graphs that can be very useful it also supports querying the function call graph in many ways to help during the manual inspection of contracts, this is integrated with the visual auditor tool that we discussed in the previous slide studio supports several commands such as graph function trace flatten inheritance dependencies parts generating a report in the markdown format etc.
+
+\section{SWC Registry}
+
+It is always helpful to have a registry of unique vulnerabilities, so that everyone can refer to a single source keep it updated and use them in interesting ways one such effort is the smart contract weakness classification registry or SWC registry this is an implementation of the weakness classification scheme proposed in eip1470 it is loosely aligned to the terminologies and structure used in the common weakness enumeration cwe from \verb|web2| while being specific to smart contracts the goals of this project are three-fold first one is to provide a way to classify security issues in smart contract systems, the second one is to define a common language for describing security issues in smart contract systems architecture design and code. Finally, serve as a way to train and improve smart contact security analysis tools this repository is currently maintained by ConsenSys Diligence and contains 36 entries as of now.
+
+\section{Securify}
+
+Securify is a security scanner developed by chain security it's a static analysis tool for Ethereum smart contracts it's written in data log and supports 38 + vulnerabilities we won't go into the details of this tool over here, but I would encourage you to look it up.
+
+\section{VerX}
+
+Verax is a formal verification tool again from the chain security team that can automatically prove temporal safety properties of Ethereum smart contracts the verifier is based on a combination of three ideas one reduction of temporal safety verification to reachability checking two a symbolic execution engine used to compute precise symbolic states within a transaction and three the concept of delayed abstraction which approximates symbolic states at the end of transactions into abstract states the details of this tool or the concepts behind it are out of scope over here, but I would encourage you to look at their website for documentation and their academic paper for greater details behind the theory of this tool.
+
+\section{Smart Check}
+
+Smart check is a security tool from smart tech it is another static analysis tool for discovering vulnerabilities and other code issues in Ethereum smart contracts written in \verb|Solidity| an interesting implementation aspect here is that it translates \verb|Solidity| source code into an xml based intermediate representation, then checks it against \verb|x| part patterns for context expert stands for xml path language which uses a path notation for navigating through the hierarchical structure of an xml document.
+
+\section{K Framework}
+
+K-Framework is a verification framework from the runtime verification team it includes kEVM which is a model of EVM in the gray framework it is the first executable specification of the EVM that completely passes the official EVM test suites and, so could serve as a platform for building a wide range of verbal analysis tools for EVM again we won't go into any level of details for this framework here because we can't do much justice to such deep frameworks in one slide or a few minutes, but I would strongly encourage you to look at the documentation to get a better understanding of its capabilities.
+
+\section{Certora Prover}
+
+Certora Prover is a formal verification tool from Certora it checks that a smart contract satisfies a set of rules written in a language called specify each rule is checked on all possible transactions not by explicitly enumerating them of course, but rather through symbolic techniques the prover provides complete path coverage for a set of safety rules provided by the user for example a rule might want to check that a bounded number of tokens can be minted in an \verb|ERC20| contract the prover either guarantees that such a rule holds on all paths and all inputs or produces a test input known as a counter example that demonstrates a violation of this rule, this problem addressed by certain approval is going to be undecidable which means that there will always be some pathological programs or rules for which the prover will time out without a definitive answer this proverb takes as input the smart contract either the byte code or the \verb|Solidity| source code along with a set of rules written in the Certora's specification language specified the prover, then automatically determines whether or not the contract satisfies all the rules provided using a combination of two fundamental computer science techniques known as abstract interpretation and constraint solving I would encourage everyone to take a look at their website and documentation to understand how the prover tool works, the technology behind it.
+
+\section{HEVM}
+
+Tab hubs hEVM is an implementation of the EVM made specifically for unit testing and debugging smart contracts it can help run unit tests property tests and also help interactively debug contracts while showing the \verb|Solidity| source code or also run arbitrary EVM code, so with this we have touched upon the various security tools that you may come across in this space, there are likely others that we haven't covered here purely for constraints of time and scope and some like smt checker which we have covered in the soluti module earlier for all these tools the best way to understand their capabilities and specific use cases is to install and experiment with them and I would encourage everyone to do that with some of these tools at least.
+
+\section{CTFs}
+
+Let's now talk about a related concept called capture the flag or CTF as it is popularly known as CTFs are fun and educational challenges where participants have to hack different dummy smart contracts that have vulnerabilities in them they help understand the complexities around how such vulnerabilities may be exploited in the white, the popular CTFs in the space of Ethereum smart contracts include capture the Ether which is a set of 20 challenges created by steve marks which tests knowledge of Ethereum concepts of contracts accounts and math among other things then, there is Ethernot which is a \verb|web3| or \verb|Solidity| based war game from OpenZeppelin that is played in the Ethereum virtual machine and each level is a smart contract that needs to be hacked the game is completely open source and all levels are contributions made by players themselves, then we have dam vulnerable DEFI which is a set of eight DEFI related challenges created by tinker security researcher from open separate depending on the challenge one should either stop the system from working steal as much funds as they can or do some other unexpected things. Finally, we have the paradigm CTF which was a set of 17 challenges created by samson at paradigm, so CTFs can be a fun way to practically test out some of the things that you've learned in these modules, so I would encourage you to take a look at some of these and see how well you do with them.
+
+\section{Security Tools}
+
+In summary smart content security tools are useful in assisting auditors while reviewing smart contracts they automate many of the tasks that can be codified into rules with different levels of coverage correctness and precision these tools are fast cheap scalable and deterministic compared to manual analysis however they are also susceptible to false positives they are therefore especially well suited correctly to detect common security pitfalls and best practices at disability and EVM levels and with varying degrees of manual assistance they can also be programmed to check for application level business logic constraints.
+
+\section{Audit Process}
+
+Let's now talk about the audit process this is critical to understanding the different stages in the life cycle of an order from an auditor's perspective it helps us understand what the auditors do at those different stages how do they focus their efforts at those different stages how do they interact with each other how do they interact with the project team and what the deliverables are at different stages of this audit life cycle, this process is going to be very different for every audit form and very different even perhaps for different audits generalizing, then an audit process can be thought of as a 10-step process as follows the first step is typically to read the specification and documentation of the project to understand the requirements design and architecture behind all the different aspects of the project, then run fast automated tools such as linters or static analyzers to investigate some of the common security pitfalls or missing smart contact best practices that we have discussed the third step would be to manually analyze the code to understand the business logic aspects and detect vulnerabilities in it this could be followed by running slower, but more deeper automated tools such as the symbolic checkers fuzzers or formal verification tools some of which we have discussed in this module, these typically \verb|require| formulation of the properties or constraints beforehand hand holding during the analysis and even some post processing of the results these stages may involve auditors discussing with other auditors the findings from all these about tools or even the manual analysis to identify any false positives or remissing analysis the auditors may also convey the status to the project team for clarifying any questions on the business logic or the threat model or other aspects and all these aspects may be iterated as many times as possible within the duration of the order, so as to leave some time at the end for writing the report and writing the report itself involves summarizing all these about details on the findings and recommendations. Finally, the audit team delivers that report to the project team, then they discuss the findings the civilities, the potential fixes that are possible and there's also a step here where the audit team evaluates fixes from the project team for any of the findings reported, then they verify that those fixes indeed remove the vulnerabilities identified in those findings, so this is how a typical audit process may look like, the different stages in its life cycle let's now dive in to discuss some details about each of these 10 steps.
+
+\section{Read Spec/Docs}
+
+The first step in the audit process is typically reading the specification and documentation for projects that have a specification of the design and architecture of their smart contracts this is indeed the recommended starting point however very few new projects have a specification at least at the audit stage some of them have documentation in parts and to remember some of the key aspects of sophistication and documentation, the differences between the two specification starts with the project's technical and business goals and requirements it describes how the project's design and architecture help achieve those goals, the actual implementation of the smart contracts is a functional manifestation of these goals requirements specification design and architecture and understanding all these is critical in evaluating, if the implementation indeed meets the goals and requirements documentation on the other hand is a description of what has been implemented based on the design and architectural requirements, so while specification answers the why aspect of something needs to be designed architected implemented the way it's been done documentation on the other hand answers the how aspect, if something has been designed architected implemented without necessarily addressing the \verb|y| aspect and leaves it up to the auditors to speculate on the reasons and documentation remember is typically in the form of README files describing individual contact functionality combined with some functional math Spec and individual comments within the code itself encouraging projects to provide a detailed specification and documentation saves a lot of time and effort for the auditors in understanding the project's goal structure and prevents them from making the same assumptions as the implementation which is perhaps a leading cause of vulnerabilities, so the absence of both specification and documentation auditors are forced to infer those aspects such as the goals requirements design and architecture from reading the code itself and using tools such as Surya or the Slither printers that we discussed earlier identifying the key assets actors and actions in the application logic from the code base that is required for understanding the trust and threat models is a complex and involved task all this takes up a lot of time without the presence of a detailed and accurate specification leaving very less time for the auditors to perform deeper and more complex security analysis.
+
+\section{Fast Tools}
+
+Auditors typically also use some fast tools such as linters or static analyzers that perform their analysis and finish running within seconds automated tools such as these as we discussed help investigate common security pitfalls at the \verb|Solidity| or EVM levels and detect missing smart contract best practices such tools implement control flow and Data Flow analysis on smart contracts in the context of their detectors which encode such common pitfalls and best practices evaluating their findings which are usually available within seconds or few minutes is a good starting point to detect common vulnerabilities based on well-known constraints or properties of \verb|Solidity| language EVM or the Ethereum blockchain itself false positives are possible among some of the detector findings which need to be verified manually to check. If there are true or false posters, these tools can also miss certain findings leading to false negatives best examples of static analyzers in this space are Slither and Maru both of which we have touched upon in the earlier slides of this module.
+
+\section{Manual Analysis}
+
+Manual analysis is perhaps the most critical aspect of smart contract audits today manual code review as we've discussed is required to understand business logic and detect vulnerabilities in it automated analyzers can't understand application level logic and infer their constraints and, so are limited to constraints and properties of the \verb|Solidity| language EVM or the Ethereum blockchain itself manual analysis of the code is therefore required to detect security relevant deviations in the implementation from those captured in the specification or documentation and as we have discussed in the absence of specification or documentation auditors will be forced to infer business logic and their implied constraints directly from the code itself or from discussions with the project team and only thereafter evaluate, if those constraints or properties hold in all parts of the code base we'll take a deeper look at different approaches to manual analysis in the last part of this module.
+
+\section{Slow/Deep Tools}
+
+In contrast to the fast tools that we discussed earlier, there are also what may be thought of as slow or deeper tools these are tools in categories of Fuzzing symbolic checking or formal verification running such deeper automated tools fuzzers such as Echidna symbolic checkers such as magic Mythril tool suite such as MythX or formally verifying custom properties with Scribble or certain approval takes more understanding and preparation time to formulate such custom properties, but helps run deeper analysis which may take minutes to run, but helps discover edge cases in application level properties and mathematical errors among other things given that doing, so requires understanding of the project's application logic such tools are recommended to be used at least after an initial manual code review or sometimes after deeper discussions about the specification implementation with the project team itself also analyzing the output of these tools requires significant expertise with the tools themselves their domain specific language and sometimes even their inner workings to interpret their findings evaluating false positives is sometimes challenging with these tools, but the true positives they discover are typically significant and extreme corner cases even by the best manual analysis.
+
+\section{Discuss w/ Auditors}
+
+Brainstorming with other auditors is often helpful given enough eyeballs all bugs are shallow is a premise that is referred to as linus's law, this might apply with auditors too, if they brainstorm on the smart contract implementation assumptions findings and vulnerabilities while some audit firms encourage active or passive discussion there may be others whose approaches to let auditors separately perform the assessment to encourage independent thinking instead of group thinking the premise is that group thinking might bias the auditing to focus only on certain aspects and not others which may lead to missing detection of some vulnerabilities and therefore affects the effectiveness a hybrid approach may be interesting where the auditing initially brainstorms to discuss the project goals specification documentation and implementation, but later firewall themselves to independently pursue the assessments. Finally, come togEther to compile their findings finding a balance between the overhead of such an approach, the benefits of such an overlapping effort may be an interesting consideration.
+
+\section{Discuss w/ Project Team}
+
+Discussion with the project team is another critical part of the audit process having an open communication channel with the project team is useful to understand their scope trust threat models any specific concerns to clarify any assumptions in specification documentation implementation or to discuss interim findings findings may also be shared with the project team immediately on a private repository to discuss impact fixes and other implications without waiting to discuss it at the end of the audit period, if the audit spans multiple weeks it may also help to have a weekly sync up call for such discussions and updating the status a counter point to this is to independently perform the entire assessment, so as to not get biased by the project teams inputs and opinions which may steer the auditors in certain directions potentially without letting them pay attention to other aspects.
+
+\section{Write Report}
+
+An audit report is a tangible deliverable at the end of an audit and therefore report writing becomes a very critical aspect of the entire audit process the audit report is a final compilation of the entire assessment and presents all aspects of the audit including the audit scope coverage timeline team effort summaries tools techniques findings exploit scenarios suggested fixes short-term long-term recommendations and any appendices with further details of tools and rationale an executive summary typically gives an overview of the audit report with highlights low lights illustrating the number type severity of vulnerabilities found and an overall assessment of risk it may also include a description of the smart contracts actors assets roles permissions access control interactions threat model and existing risk mitigation measures the bulk of the report focuses on the findings of the audit their type category likelihood impact severity justifications for these ratings potential exploit scenarios affected parts of smart contracts and potential remediations it may also address subjective aspects of code quality readability auditability and other software engineering best practices related to the documentation code structure function variable naming conventions test coverage etc that do not immediately pose a security risk, but are indicators of anti-patterns and processes influencing the interruption and persistence of security vulnerabilities the audit report should be articulate in terms of all these information and also actionable for the project team to address all raised concerns.
+
+\section{Deliver Report}
+
+The delivery of the audit report is another important aspect in the audit process and perhaps the final milestone when such a report is published and presented to the project unless interim findings or status is shared this will be the first time the project team will have access to the assessment details the delivery typically happens via a shared online document and is accompanied with the readout where the auditors present the report highlights to the project team for any discussion on the findings and their civility ratings the project team typically takes some time to review the audit report and respond back with any counterpoints on finding severities or suggested fixes depending on the prior agreement the project team, the audit form might release the audit report publicly after all required fixes have been made or the project may decide to keep it private for some reason.
+
+\section{Evaluate Fixes}
+
+Evaluating fixes is typically the final stage in the audit process and a very critical stage after the findings are reported to the project team they typically work on any required fixes, then request the audit firm for reviewing such fixes fixes may be applied for a majority of the findings, the review may need to confirm that applied fixes which in some cases could be different from what was recommended that these fixes indeed mitigate the risk reported by the findings some findings may also be contested as not being relevant outside the project's threat model or simply acknowledged as being within the project's acceptable risk model audit firms may evaluate the specific fixes applied and confirm or deny their risk mitigation and unless it is a fix or retainer type of audit this phase typically takes not more than a day or two because it would usually be outside the agreed upon duration of the audit, but most audit firms generally accommodate this to help ensure the security of the project, so these are the 10 steps of an audit process that you can expect to see within an audit or an audit form like mentioned earlier these are generalized opinions, the specifics of these different steps their order the level of effort that is put in each step, the philosophies behind them will surely differ across different audit forms, but nevertheless this is something that's very critical that needs to be paid attention to and understood to appreciate the different steps of the audit process.
+
+\section{Manual Review}
+
+In the final part of this module let's dive deeper into the many approaches to manual review as we mentioned a couple of times the manual review step is perhaps the most critical component of smart contract audits today, so auditors have different approaches to manually reviewing smart contracts for vulnerabilities they may be along the lines of starting with access control starting with asset flow or control flow Data Flow inferring constraints understanding dependencies evaluating assumptions and evaluating security checklists auditors may start with one of these as their preferred approaches, then combine multiple of them for best results these are very subjective aspects, but we will explore them in some detail to understand what they make there.
+
+\section{Access Control}
+
+Starting with access control is very helpful because access control as we've discussed is the most fundamental security primitive it addresses who has authorized access to what or which actors have access to what assets well the overall philosophy might be that smart contracts are permissionless in reality they do indeed have different permissions or roles for different actors who or use them at least during their initial guarded launch the general classification is that of users and admins and sometimes even a role based access control privileged roles typically have control over critical configuration and application parameters including emergency transfers withdrawals of contact funds and such access control is typically enforced in modifiers as we have discussed in the earlier modules and also more generally we are the visibility of functions such as public external versus internal or private which were also discussed in the context of \verb|Solidity| therefore starting with understanding the access control implemented by smart contracts and checking, if they have been applied correctly completely and consistently is a good approach to detecting violations which could be critical vulnerabilities.
+
+\section{Asset Flow}
+
+One can also start with the asset flow assets are Ether or \verb|ERC20| \verb|ERC721| or other tokens managed by smart contracts given that exploits target assets of value it makes sense to start evaluating the flow of assets into outside within and across smart contracts and their dependencies the questions of who when which why where what type and how much are the ones to be asked for who assets should be withdrawn deposited only by authorized specified addresses as per application logic for when assets should be withdrawn deposited only in authorized specified time windows or under authorized specified conditions as per application logic for which assets only those authorized specified types should be withdrawn deposited for why assets should be withdrawn deposited only for authorized specified reasons as per application logic for where assets should be withdrawn deposited only to authorized specified addresses as per the logic for what type assets only of authorized specified types should be withdrawn deposited as per the logic. Finally, for how much assets only in authorized specified amounts should be allowed to be withdrawn deposited again as per the application logic, so these are all the various aspects of asset flow that need to be evaluated.
+
+\section{Control Flow}
+
+Evaluating control flow is a fundamental program analysis approach control flow analyzes the transfer of control that is the execution order across and within smart contracts inter procedural control flow where the procedure is just under the name for a function is typically indicated by a polygraph which shows which functions or callers call which other functions or colleagues across or within smart contracts intra procedural control flow that's within a function is dictated by conditionals the, if else constructs loops for while do continue break constructs and return statements both intra and inter-procedural control flow analysis help track the flow of execution and data in smart contracts and therefore as you can imagine is a fundamental program analysis approach to evaluate security aspects.
+
+\section{Data Flow}
+
+Evaluating Data Flow is another fundamental aspect of program analysis which analyzes the transfer of data across and within smart contracts inter-procedural Data Flow is evaluated by analyzing the data that's the variables and constants used as argument values for function parameters at call sites and their corresponding \verb|return| values intra procedural Data Flow on the other hand is evaluated by analyzing the assignment and use of variables or constants stored in storage memory stack all data locations along the control flow paths within functions both intra and inter procedural Data Flow analysis help track the flow of global or local storage memory changes in smart contracts and given that Data Flows where control flows they work togEther to help with program analysis of smart contracts in helping detect security vulnerabilities.
+
+\section{Inferring Constraints}
+
+Inferring constraints is an approach that is almost always required program constraints are basically rules that should be followed by the program \verb|Solidity| level and EVM level security constraints are well known because they're part of the language and EVM specification however application level constraints are rules that are implicit to the business logic implemented and may not be explicitly described in the specification example of such a constraint may be to mint an \verb|ERC721| token to an address when it makes a certain deposit of \verb|ERC20| tokens to the smart contract and burn it when it withdraws the earlier deposit such business logic specific application level constraints may have to be inferred by auditors while manually analyzing the smart contract code another approach to inferring program constraints without having to understand the application logic is to evaluate what is being done on most program paths related to a particular logic and treat that as a constraint and, if such a constraint is missing on one or few program paths, then that could be an indicator of a vulnerability assuming that the constraint is securely related or those could simply mean that such program paths are exceptional conditions where the constraints do not need to hold.
+
+\section{Dependencies}
+
+Understanding dependencies is another critical approach to manual analysis dependencies exist when the correct compilation or functioning of program code relies on code or data from other smart contracts that were not necessarily developed by the project team explicit program dependencies are captured in the import statements, the inheritance hierarchy for example many projects use the community developed audited and time tested libraries from OpenZeppelin for tokens access control Proxy security etc composability in \verb|web3| as we have discussed is expected and even encouraged via smart contracts interfacing with other protocols and vice versa which results in emergent or implicit dependencies on the state logic of external smart contracts via Oracle's for example this is especially of interesting concern for DEFI protocols that rely on other related protocols for stable points yield generation borrowing lending derivatives Oracles etc assumptions on the functionality and correctness of such dependencies need to be reviewed for potential security impacts.
+
+\section{Assumptions}
+
+A meta level approach is that of evaluating assumptions many security vulnerabilities result from quality assumptions such as who can access what and when under what conditions for what reasons etc identifying the assumptions made by the program code and verifying, if they are indeed correct can be the source of many audit findings some common examples of faulty assumptions are only admins can call these functions initialization functions will only be called once by the contract Deployer which is relevant for upgradable contracts functions will always be called in a certain order as expected by the specification parameters can only have non-zero values or values within a certain threshold for example addresses will never be \verb|zero| value certain addresses or data values can never be attack and control they can never reach program locations where they can be misused in program analysis literature this is known as state analysis or function calls will always be successful and, so checking for \verb|return| values is not required.
+
+\section{Checklists}
+
+And the eighth and final approach to manual analysis is the one we are using in this bootcamp which is that of evaluating security checklists checklists are lists of itemized points that can be quickly and methodically followed and you will reference later by their list number to make sure all listed items have been processed according to the domain of relevance for some context for those who aren't aware of the significance of checklists this checklist-based approach was made popular in the book the catalyst manifesto how to get things right by atul grande who is a noted surgeon writer and public health leader, this idea is best summarized in the review of his book by malcolm gladwell who writes that governor begins by making a distinction between errors of ignorance mistakes we make because we don't know enough and errors of ineptitude mistakes we make because we don't make proper use of what we do failure in the modern world he writes is about the second of these errors and he walks us through a series of examples from medicine showing how the routine tasks of surgeons have now become, so incredibly complicated that mistakes are one kind or another are virtually inevitable it's just too easy for an otherwise competent doctor to misstep or forget to ask a key question or in the stress and pressure of the moment to \verb|fail| to pan properly for every eventuality, then visits with pilots, the people who build skyscrapers and comes back to the solution experts need checklists literally written guides that walk them through the key steps in any complex procedure in the last section of the book govante shows how his research team has taken this idea developed a safe surgery checklist and applied it around the world with staggering \verb|success|, so this glorifying review should hopefully motivate a better appreciation for checklists to apply this to our context consider the mind-boggling complexities of the fast evolving Ethereum infrastructure new platforms new languages new tools new protocols, the risks associated with deploying smart contracts managing billions of dollars, there are, so many things to get right with smart contracts that it is easy to miss a few checks make incorrect assumptions or \verb|fail| to consider potential situations checklists are known to increase retention and have a faster remember the hypothesis therefore is that smart contract security experts need checklist too smart for that security checklist such as the two security modules we have discussed earlier in this bootcamp will help in navigating the vast number of key aspects to be remembered remembered and applied with respect to the pitfalls and best practices they will help in going over the itemized features concepts pitfalls best practices and examples in a methodical manner without missing any items they will also help in referencing specific items of interest, so for example number 42 in security pitfalls and best practices 101 or number 98 which is this slide in audit techniques and tools 101.
+
+\section{Exploit Scenarios}
+
+Presenting proof of concept exploit scenarios could be a part of certain audits remember that exploits are incidents where vulnerabilities are triggered by malicious actors to misuse smart contracts resulting for example in stolen or frozen assets presenting proof of concept of such exploits either in code or written descriptions of hypothetical scenarios make audit findings more realistic and relatable illustrating specific exploit paths and justifying the severity of findings it goes without saying that horrified exploit should always be on a test net kept private and responsibly disclosed to project teams without any risk of being actually executed on live systems resulting in real loss of funds or access descriptive exploit scenarios should make realistic assumptions on roles powers of actors practical reasons for their actions and sequencing of events that trigger vulnerabilities and illustrate the paths to exploitation.
+
+\section{likelihood \& Impact}
+
+We have talked about estimating likelihood impact and severity of the findings likelihood indicates the probability of a vulnerability being discovered by malicious actors and triggered to successfully exploit the underlying weakness impact indicates a magnitude of implications on the technical and business aspects on the system, if the vulnerability were to be exploited severity as per olaf is a combination of likelihood and impact with reasonable evaluations of those two severity estimates from the wasp matrix should be straightforward however estimating, if likelihood or impact are no medium or high is not trivial in many cases, if the exploit can be triggered by a few transactions manually without requiring much resources or access example not being an admin and without assuming many conditions to hold true, then the likelihood is evaluated as high exploits that \verb|require| deep knowledge of the system workings privileged roles large resources or multiple edge conditions to hold true are evaluated as medium likelihood others that \verb|require| even harder assumptions to hold true such as minor collusion chain forks or insider collusion for example are considered as low likelihood. If there is any loss or locking up of funds, then the impact is evaluated as high exploits that do not affect funds, but disrupt the normal functioning of the system are typically evaluated as medium and anything else is of low impact some evaluations of likelihood and impact are contentious and debated sometimes between the audit and project teams and sometimes even the security community at large, this typically happens with security conscious audit teams pressing for higher likelihood and impact while the project teams downplay the risks.
+
+\section{Audit Summary}
+
+So finally to summarize audits are a time resource and expertise bounded effort where trained experts evaluate smart contracts using a combination of automated and manual techniques to find as many vulnerabilities as possible whose difficulty impact and severity levels might vary similar to what dijkstra once said about software testing audits can only show the presence of vulnerabilities, but not their absence, so with that we have come to the end of this module on audit techniques and tools 101 where we have touched upon 101 key concepts related to the various aspects of auditing as related to the tools and techniques used, so hopefully you have a much better understanding and appreciation for what it takes to do smart contract security audits now and like always I would again encourage you to look at the related references especially the various tools to get a practical feel for their capabilities and challenges.

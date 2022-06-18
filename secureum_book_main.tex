@@ -1,0 +1,246 @@
+\documentclass[oneside]{book}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% HEADER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{enumitem}
+% For emojis
+\usepackage{wasysym}
+% For the slashed D symbol, executed as \DJ
+\usepackage[T1]{fontenc}
+% To strikeout text
+\usepackage[normalem]{ulem}
+% Sometimes \texttt{} just isn't enough
+\usepackage{listings}
+% To get code colors
+\usepackage{xcolor}
+
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan
+    }
+\setlength{\parindent}{0pt}
+% For the nested lists, so it is displayed as a single arabic number
+\renewcommand{\labelenumii}{\theenumii}
+\renewcommand{\theenumii}{\arabic{enumii}.}
+% To remove numbering until the real text starts
+\renewcommand{\thepage}{}
+% Solidity code syntax
+\input{dependencies/solidity-highlighting}
+% Change listings name to "Code"
+\renewcommand{\lstlistingname}{Code}
+% Sloppy line breaks
+\sloppy
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TITLE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{
+\textbf{\Huge Secureum Bootcamp: Epoch 0}\\
+\vspace{1cm}
+\includegraphics[scale=0.25]{dependencies/Img/secureum_logo}
+}
+
+\author{Lucas Goiriz Beltr\'an\\\&\\David Chaparro Mis\'o}
+\date{October 2021}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DOCUMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\maketitle
+
+\chapter*{About the authors}
+
+\section*{Secureum}
+
+\chapter*{Main collaborators}
+
+\section*{Lucas Goiriz Beltrán}
+
+PhD student in Mathematics.
+
+\section*{David Chaparro Misó}
+
+Software engineer.
+
+\tableofcontents
+
+\pagebreak
+
+% Begin page numbering
+\setcounter{page}{1}
+\renewcommand{\thepage}{\arabic{page}}
+
+% https://github.com/ethereumbook/ethereumbook/tree/05f0dfe6c41635ac85527a60c06ac5389d8006e7
+
+% Chapter 1: Ethereum 101. Dependencies with appendix A
+\input{chapters/chapter1_Ethereum101}
+
+% Chapter 2: Solidity 101.
+\input{chapters/chapter2_Solidity101}
+
+% Chapter 3: Solidity 201.
+\input{chapters/chapter3_Solidity201}
+
+% Chapter 4: Security Pitfalls & Best Practices 101
+\input{chapters/chapter4_SecurityPitfalls101}
+
+% Chapter 5: Security Pitfalls & Best Practices 201
+\input{chapters/chapter5_SecurityPitfalls201.tex}
+
+% Chapter 6: Audit Techniques and Tools 101
+\input{chapters/chapter6_AuditTechniques101.tex}
+
+% Chapter 7: Audit Findings 101
+\input{chapters/chapter7_AuditFindings101.tex}
+
+% Chapter 8: Audit Findings 101
+\input{chapters/chapter8_AuditFindings201.tex}
+
+% Chapter 9: Self-Assessment
+\chapter{Self-Assessment}
+
+% Ethereum 101 Quiz
+\input{chapters/chapter9/chapter9_exam1}
+\pagebreak
+
+% Solidity 101 Quiz
+\input{chapters/chapter9/chapter9_exam2}
+\pagebreak
+
+% Solidity 201 Quiz
+\input{chapters/chapter9/chapter9_exam3}
+\pagebreak
+
+% Security Pitfalls & Best Practices 101 Quiz
+\input{chapters/chapter9/chapter9_exam4}
+\pagebreak
+
+% Security Pitfalls & Best Practices 201 Quiz
+\input{chapters/chapter9/chapter9_exam5}
+\pagebreak
+
+% Audit Techniques & Tools 101 Quiz
+\input{chapters/chapter9/chapter9_exam6}
+\pagebreak
+
+% Audit Findings 101 Quiz
+\input{chapters/chapter9/chapter9_exam7}
+\pagebreak
+
+% Audit Findings 201 Quiz
+\input{chapters/chapter9/chapter9_exam8}
+\pagebreak
+
+% RACE4 Quiz
+\input{chapters/chapter9/chapter9_race4}
+\pagebreak
+
+% RACEX Certora Quiz
+\input{chapters/chapter9/chapter9_raceXcertora}
+\pagebreak
+
+% RACE5 Quiz
+\input{chapters/chapter9/chapter9_race5}
+
+% Chapter 10: Solutions
+\chapter{Self-Assessment Solutions}
+
+% Ethereum 101 Quiz solutions
+\input{chapters/chapter10/chapter10_exam1}
+\pagebreak
+
+% Solidity 101 Quiz solutions
+\input{chapters/chapter10/chapter10_exam2}
+\pagebreak
+
+% Solidity 201 Quiz solutions
+\input{chapters/chapter10/chapter10_exam3}
+\pagebreak
+
+% Security Pitfalls & Best Practices 101 Quiz solutions
+\input{chapters/chapter10/chapter10_exam4}
+\pagebreak
+
+% Security Pitfalls & Best Practices 201 Quiz solutions
+\input{chapters/chapter10/chapter10_exam5}
+\pagebreak
+
+% Audit Techniques & Tools 101 Quiz solutions
+\input{chapters/chapter10/chapter10_exam6}
+\pagebreak
+
+% Audit Findings 101 Quiz solutions
+\input{chapters/chapter10/chapter10_exam7}
+\pagebreak
+
+% Audit Findings 201 Quiz solutions
+\input{chapters/chapter10/chapter10_exam8}
+\pagebreak
+
+% RACE4 Quiz solutions
+\input{chapters/chapter10/chapter10_race4}
+\pagebreak
+
+% RACEX Certora Quiz Solutions
+\input{chapters/chapter10/chapter10_raceXcertora}
+\pagebreak
+
+% RACE5 Quiz solutions
+\input{chapters/chapter10/chapter10_race5}
+\pagebreak
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% References %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\nocite{*}
+\bibliography{references}
+\addcontentsline{toc}{chapter}{Bibliography}
+\bibliographystyle{plain}
+
+\pagebreak
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
+
+% Appendix A: historic gas prices
+\input{appendices/appendixA_historic_gas}
+\pagebreak
+
+% Appendix B: Chapter summaries as Keypoints
+\chapter{Chapter Summaries as Keypoints}
+
+\input{appendices/appendixB_sections/appendixB_section1}
+\pagebreak
+
+\input{appendices/appendixB_sections/appendixB_section2}
+\pagebreak
+
+\input{appendices/appendixB_sections/appendixB_section3}
+\pagebreak
+
+\input{appendices/appendixB_sections/appendixB_section4}
+\pagebreak
+
+\input{appendices/appendixB_sections/appendixB_section5}
+\pagebreak
+
+\input{appendices/appendixB_sections/appendixB_section6}
+\pagebreak
+
+\input{appendices/appendixB_sections/appendixB_section7}
+\pagebreak
+
+\input{appendices/appendixB_sections/appendixB_section8}
+\pagebreak
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}

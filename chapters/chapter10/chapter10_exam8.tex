@@ -1,0 +1,70 @@
+\section{Audit Findings 201 Quiz Solutions}
+
+\textbf{1. Missing zero-address check(s) in the contract}\label{sec:exam8_q1}\\
+
+\textbf{Solution: B.}
+
+While the require statement in \verb|startSale()| states that only the deployer may call the function AND the price needs to be not zero, the actual code uses OR which allows anyone to start the sale as long as they specify a valid price - but that can't be fixed by adding a zero-address check.\\
+
+All proceeds appear to be intended to go to the benificiary and since there's no validation of the \verb|_benificiary| address when it is set during construction, a zero-address could indeed put the sale proceeds to risk.
+In the given code, the internal \verb|_mint(_to)| function is always called with \verb|msg.sender| as \verb|_to| value which can't be a zero-address.\\
+
+\textbf{2. Given that lower indexed/numbered \texttt{CryptoSAFU NFT}s have rarer traits (and are considered more valuable as commented in \texttt{\_mint}), the implementation of \texttt{InSecureumNFT} is susceptible to the following exploits}\label{sec:exam8_q2}\\
+
+\textbf{Solution: A, B \& C.}
+
+The index of a CryptoSAFU NFT depends on a \verb|nonce| that increases after every mint and has an \verb|internal| visibility preventing contracts to read its current value easily, which would allow them to predict an index for the current block. But a prediction is not necessary since a contract can simply call \verb|_mint()| repeatedly every block and revert if the result is not desired, ensuring a refund.\\
+
+The \verb|msg.sender| is indeed also a variable for the ``random'' index generation, although it's very effective exploiting it, since you'd still have to pay the full price for each of those attempts because the nonce will change after each buy.
+There's also no need to generate a new address, you can just keep buying using the same address until you receive the desired NFT.\\
+
+A miner would indeed be able to pre-calculate a desirable index off-chain by picking a specific \verb|block.timestamp| and adding their mint-transaction to the beginning of their block.\\
+
+\textbf{3. The \texttt{getPrice()} function}\label{sec:exam8_q3}\\
+
+\textbf{Solution: A \& B.}
+
+The price is multiplied by \verb|saleDuration - elapsed| and while \verb|saleDuration| stays constant, \verb|elapsed| will increase over time, making the multiplicator value and therefore the price lower over time.\\
+
+There's indeed a possibility for a free mint when \verb|saleDuration| and \verb|elapsed| have exactly the same value, which is not a very likely scenario though.
+Once \verb|elapsed| is larger than \verb|saleDuration| the subtraction won't underflow since that is handled by \verb|if (elapsed > saleDuration)|.
+Since this function is called internally, it wouldn't make much sense to change its visibility to \verb|external|.\\
+
+\textbf{4. \texttt{InSecureumNFT} contract is}\label{sec:exam8_q4}\\
+
+\textbf{Solution: B \& C.}
+
+There are multiple external contract calls.
+The compiler version and absence of \verb|unchecked| blocks should indeed prevent integer overflows/wrapping, but instead will cause reverts which could lead to Denial of Service.\\
+
+The fact that \verb|mint()| keeps checking the current balance instead of the actual \verb|msg.value| and that the \verb|onERC721Received| hook is called before the balance is transferred to the beneficiary, can indeed be exploited using a reentrancy attack.\\
+
+\textbf{5. Assuming \texttt{InSecureumNFT} contract is deployed in production (i.e. live for users) on mainnet without any changes to shown code}\label{sec:exam8_q5}\\
+
+\textbf{Solution: A \& B.}
+
+Multiple comments throughout the code show a discrepancy between the configuration expected in production and the actual configuration that is currently implemented.
+A much better way to do it, would be parameterization by setting these values during construction, which allows using the same code without changes for both mainnet and testnets.\\
+
+\textbf{6. The function \texttt{startSale()}}\label{sec:exam8_q6}\\
+
+\textbf{Solution: A, B \& C.}
+
+While the \verb|require| statement in \verb|startSale()| states that only the deployer may call the function AND the price needs to be not zero, the actual code uses OR, which allows anyone to start the sale as long as they specify a valid price.
+This also means that a price of 0 can be successful if the caller is the deployer.
+The \verb|mint()| function requires \verb|publicSale| to be \verb|true|, which can only happen by calling \verb|startSale()|.\\
+
+\textbf{7. The minting of NFTs}\label{sec:exam8_q7}\\
+
+\textbf{Solution: B, C \& D.}
+
+Thanks to the refund mechanism after the actual price has been determined, the buyer does not need to send an exact amount of ETH.
+After refunding the buyer, what is left in the contracts balance and sent to the benificiary should indeed be the \verb|salePrice|.
+The refund mechanism can be optimized by skipping transfers when the current balance equals the price exactly.\\
+
+\textbf{8. The NFT sale}\label{sec:exam8_q8}\\
+
+\textbf{Solution: A, C \& D.}
+
+\verb|startSale()| is not checking whether \verb|publicSale| is already \verb|true|, allowing \verb|saleStartTime| to be reset and also overwriting the \verb|price| and can indeed be called by anyone since the authentication can be bypassed by simply specifying a \verb|_price| $\neq 0$.
+The start of the sale would certainly be a good point to log an event, but events are currently completely missing from the contract.\\

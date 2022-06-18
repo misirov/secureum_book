@@ -1,0 +1,458 @@
+\section{Solidity 101 Quiz Solutions}
+
+\textbf{1. User from EOA \texttt{A} calls Contract \texttt{C1} which makes an external call (\texttt{CALL} opcode) to Contract \texttt{C2}.
+Which of the following is/are true?}\label{sec:exam2_q1}\\
+
+\textbf{Solution: A \& C.}
+
+Block and Transaction Properties:
+\begin{itemize}
+    \item\verb|msg.sender| (\verb|address|): sender of the message (current call)
+    \item\verb|msg.value| (\verb|uint|): number of wei sent with the message
+    \item\verb|tx.origin| (\verb|address|): sender of the transaction (full call chain)
+\end{itemize}
+
+The values of all members of \verb|msg|, including \verb|msg.sender| and \verb|msg.value| can change for every external function call.
+This includes calls to library functions.\\
+
+\textbf{2. Which of the following is/are true for \texttt{call}/\texttt{delegatecall}/\texttt{staticcall} primitives?}\label{sec:exam2_q2}\\
+
+\textbf{Solution: A \& C.}
+
+\verb|Call|/\verb|Delegatecall|/\verb|Staticcall|: In order to interface with contracts that do not adhere to the ABI, or to get more direct control over the encoding, the functions \verb|call|, \verb|delegatecall| and \verb|staticcall| are provided.
+They all take a single bytes memory parameter and return the success condition (as a bool) and the returned data (bytes memory).\\
+
+With \verb|delegatecall|, only the code of the given address is used but all other aspects (\verb|storage|, \verb|balance|, \verb|msg.sender|, etc\dots) are taken from the current contract.
+The purpose of \verb|delegatecall| is to use library/logic code which is stored in callee contract but operate on the state of the caller contract.\\
+
+With \verb|staticcall|, the execution will revert if the called function modifies the state in any way\\
+
+\textbf{3. The gas left in the current transaction can be obtained with}\label{sec:exam2_q3}\\
+
+\textbf{Solution: B.}
+
+Block and Transaction Properties:
+
+\begin{itemize}
+    \item\verb|block.gaslimit| (\verb|uint|): current block \verb|gaslimit|
+    \item\verb|tx.gasprice| (\verb|uint|): gas price of the transaction
+    \item\verb|gasleft()| returns (\verb|uint256|): remaining gas
+\end{itemize}
+
+The function \verb|gasleft()| was previously known as \verb|msg.gas|, which was deprecated in version \verb|0.4.21| and removed in version \verb|0.5.0|.\\
+
+\textbf{4. The default value of}\label{sec:exam2_q4}\\
+
+\textbf{Solution: A, B, C \& D.}
+
+A variable which is declared will have an initial default value whose byte-representation is all zeros.
+The ``default values'' of variables are the typical ``zero-state'' of whatever the type is.\\
+
+For example, the default value for a \verb|bool| is \verb|false|.
+The default value for the \verb|uint| or \verb|int| types is \verb|0|.
+For statically-sized arrays and \verb|bytes1| to \verb|bytes32|, each individual element will be initialized to the default value corresponding to its type.
+For dynamically-sized arrays, \verb|bytes| and \verb|string|, the default value is an empty array or \verb|string|.
+For the \verb|enum| type, the default value is its first member.\\
+
+\textbf{5. Which of the following is/are true about events?}\label{sec:exam2_q5}\\
+
+\textbf{Solution: A \& C.}
+
+Events are an abstraction on top of the EVM's logging functionality.
+Emitting events cause the arguments to be stored in the transaction's log (a special data structure in the blockchain).
+These logs are associated with the address of the contract, are incorporated into the blockchain and stay there as long as a block is accessible.
+The Log and its event data is not accessible from within contracts (not even from the contract that created them).
+Applications can subscribe and listen to these events through the RPC interface of an Ethereum client.\\
+
+Adding the attribute indexed for up to three parameters adds them to a special data structure known as ``topics'' instead of the data part of the log.
+If you use arrays (including string and bytes) as indexed arguments, its Keccak-256 hash is stored as a topic instead, this is because a topic can only hold a single word (32 bytes).
+All parameters without the indexed attribute are ABI-encoded into the data part of the log.
+Topics allow you to search for events, for example when filtering a sequence of blocks for certain events.
+You can also filter events by the address of the contract that emitted the event.\\
+
+\textbf{6. Function \texttt{foo()} uses \texttt{block.number}. Which of the following is/are always true about \texttt{foo()}?}\label{sec:exam2_q6}\\
+
+\textbf{Solution: D.}
+
+Because it wouldn't always be true unless you know what other things \verb|foo()| uses too.\\
+
+\pagebreak
+
+\textbf{7. Solidity functions}\label{sec:exam2_q7}\\
+
+\textbf{Solution: B, C \& D.}
+
+Functions that are defined outside of contracts are called ``free functions'' and always have implicit internal visibility.
+Their code is included in all contracts that call them, similar to internal library functions.\\
+
+Function return variables are declared with the same syntax after the \verb|returns| keyword.
+The names of return variables can be omitted.
+Return variables can be used as any other local variable and they are initialized with their default value and have that value until they are (re-)assigned.\\
+
+Function parameters are declared the same way as variables, and the name of unused parameters can be omitted.
+Function parameters can be used as any other local variable and they can also be assigned to.\\
+
+Variables and other items declared outside of a code block, for example functions, contracts, user-defined types, etc\dots, are visible even before they were declared.
+This means you can use state variables before they are declared and call functions recursively.\\
+
+\textbf{8. Conversions in \texttt{Solidity} have the following behavior}\label{sec:exam2_q8}\\
+
+\textbf{Solution: B.}
+
+An implicit type conversion is automatically applied by the compiler in some cases during assignments, when passing arguments to functions and when applying operators.
+Implicit conversion between value-types is possible if it makes sense semantically and no information is lost.\\
+
+However, if the compiler does not allow implicit conversion but you are confident a conversion will work, an explicit type conversion is sometimes possible.
+This may result in unexpected behavior and allows you to bypass some security features of the compiler e.g. \verb|int| to \verb|uint|.
+If an integer is explicitly converted to a smaller type, higher-order bits are cut off.
+If an integer is explicitly converted to a larger type, it is padded on the left (i.e., at the higher order end).\\
+
+\textbf{9. When Contract \texttt{A} attempts to make a \texttt{delegatecall} to Contract \texttt{B} but a prior transaction to Contract \texttt{B} has executed a \texttt{selfdestruct}}\label{sec:exam2_q9}\\
+
+\textbf{Solution: C.}
+
+The low-level functions \verb|call|, \verb|delegatecall| and \verb|staticcall| return \verb|true| as their first return value if the account called is non-existent, as part of the design of the EVM.
+Account existence must be checked prior to calling if needed.\\
+
+\pagebreak
+
+\textbf{10. If \texttt{a = 1} then which of the following is/are true?}\label{sec:exam2_q10}\\
+
+\textbf{Solution: A \& D.}
+
+Operators Involving LValues (i.e. a variable or something that can be assigned to):\\
+
+\verb|a += e| is equivalent to \verb|a = a + e|.
+The operators \verb|-=|, \verb|*=|, \verb|/=|, \verb|%=|, \verb!|=!, \verb|&=| and \verb|^=| are defined accordingly.
+\verb|a++| and \verb|a--| are equivalent to \verb|a += 1| and \verb|a -= 1| but the expression itself still has the previous value of \verb|a|.
+In contrast, \verb|--a| and \verb|++a| have the same effect on \verb|a| but return the value after the change\\
+
+\textbf{11. \texttt{transfer} and \texttt{send} primitives}\label{sec:exam2_q11}\\
+
+\textbf{Solution: A, B \& D.}
+
+The \verb|receive| function is executed on a call to the contract with empty \verb|calldata|.
+This is the function that is executed on plain Ether transfers via \verb|.send()| or \verb|.transfer()|.
+In the worst case, the receive function can only rely on 2300 gas being available (for example when \verb|send| or \verb|transfer| is used), leaving little room to perform other operations except basic logging.\\
+
+\verb|.transfer(uint256 amount)| sends given \verb|amount| of wei to \verb|address|, reverts on failure, forwards 2300 gas stipend, not adjustable.\\
+
+\verb|.send(uint256 amount)| sends given amount of wei to \verb|address|, returns false on failure, forwards 2300 gas stipend, not adjustable.\\
+
+\textbf{12. A contract can receive Ether via}\label{sec:exam2_q12}\\
+
+\textbf{Solution: A, B, C \& D.}
+
+A contract without a \verb|receive| Ether function can receive Ether as a recipient of a \verb|coinbase| transaction (aka miner block reward) or as a destination of a \verb|selfdestruct|.\\
+
+A contract cannot react to such Ether transfers and thus also cannot reject them.
+This means that \verb|address(this).balance| can be higher than the sum of some manual accounting implemented in a contract (i.e. having a counter updated in the \verb|receive| Ether function).\\
+
+A contract can have at most one \verb|receive| function, declared using\linebreak\verb|receive() external payable| without the \verb|function| keyword.
+This is the function that is executed on plain Ether transfers via \verb|.send()| or \verb|.transfer()|.\\
+
+Similarly, a contract can have at most one \verb|fallback| function, declared using either
+\begin{lstlisting}[language=Solidity, style=solStyle]
+fallback() external // it can also have the payable specifier
+\end{lstlisting}
+
+or
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+fallback (bytes calldata _input) external returns (bytes memory _output) // it can also have the payable specifier
+\end{lstlisting}
+
+both without the \verb|function| keyword.
+This function must have \verb|external| visibility.
+The \verb|fallback| function always receives data, but in order to also receive Ether it must be marked \verb|payable|.
+In the worst case, if a \verb|payable fallback| function is also used in place of a \verb|receive| function, it can only rely on 2300 gas being available.\\
+
+An \verb|Error(string)| exception (or an exception without data) is generated in the following situations: if your contract receives Ether via a \verb|public| function without \verb|payable| modifier (including the \verb|constructor| and the \verb|fallback| function).\\
+
+\textbf{13. Structs in \texttt{Solidity}}\label{sec:exam2_q13}\\
+
+\textbf{Solution: Correct is A, B \& C.}
+
+Struct Types are custom defined types that can group several variables of same/different types together to create a custom data structure.
+The \verb|struct| members are accessed using ``\verb|.|'' e.g.:
+
+\begin{lstlisting}[style=defaultStyle]
+struct s {address user; uint256 amount}
+\end{lstlisting}
+
+where \verb|s.user| and \verb|s.amount| access the struct members.\\
+
+Mappings define key-value pairs and are declared using the syntax\linebreak\verb|mapping(_KeyType => _ValueType) _VariableName|.
+The \verb|_KeyType| can be any built-in value type, \verb|bytes|, \verb|string|, or any \verb|contract| or \verb|enum| type.
+Other user-defined or complex types, such as \verb|mappings|, \verb|structs| or array types are not allowed.
+\verb|_ValueType| can be any type, including \verb|mappings|, arrays and \verb|structs|.\\
+
+\textbf{14. The following is/are true about \texttt{ecrecover} primitive}\label{sec:exam2_q14}\\
+
+\textbf{Solution: A \& C.}
+
+Although internally it first recovers the public key from the signature, it actually returns the address derived from the public key.\\
+
+\begin{lstlisting}[style=defaultStyle]
+ecrecover(bytes32 hash, uint8 v, bytes32 r, bytes32 s) returns (address)
+\end{lstlisting}
+
+recovers the address associated with the public key from elliptic curve signature or return \verb|0| on error.
+The function parameters correspond to ECDSA values of the signature: $r =$ first 32 bytes of signature, $s =$ second 32 bytes of signature, $v =$ final 1 byte of signature.
+\verb|ecrecover| returns an \verb|address|, and not an \verb|address payable|.\\
+
+If you use \verb|ecrecover|, be aware that a valid signature can be turned into a different valid signature without requiring knowledge of the corresponding private key.
+This is usually not a problem unless you require signatures to be unique or use them to identify items.
+\verb|OpenZeppelin| has a ECDSA helper library that you can use as a wrapper for \verb|ecrecover| without this issue.\\
+
+\textbf{15. Which of the following is/are valid control structure(s) in \texttt{Solidity} (excluding \texttt{YUL})?}\label{sec:exam2_q15}\\
+
+\textbf{Solution: A \& B.}
+
+\verb|elif| is specific to \verb|Python|, and \verb|switch| has not been implemented in \verb|Solidity| yet.
+\verb|Solidity| has \verb|if|, \verb|else|, \verb|while|, \verb|do|, \verb|for|, \verb|break|, \verb|continue|, \verb|return|, with the usual semantics known from \verb|C| or \verb|JavaScript|.\\
+
+\textbf{16. \texttt{address} types}\label{sec:exam2_q16}\\
+
+\textbf{Solution: B \& C.}
+
+The \verb|address| type comes in two types:
+
+\begin{enumerate}
+    \item\verb|address|: Holds a 20 byte value (size of an Ethereum address)
+    \item\verb|address payable|: Same as \verb|address|, but with the additional members \verb|transfer| and \verb|send|.
+        \verb|address payable| is an address you can send Ether to, while a plain \verb|address| cannot be sent Ether.
+\end{enumerate}
+
+Members of Address Type:
+
+\begin{itemize}
+    \item\verb|address.balance (uint256)|: balance of the Address in Wei
+    \item\verb|address.code (bytes memory)|: code at the Address (can be empty)
+    \item\verb|address.call(bytes memory) returns (bool, bytes memory)|: issue low-level \verb|CALL| with the given payload, returns success condition and return data, forwards all available gas, adjustable
+\end{itemize}
+
+Implicit conversions from \verb|address payable| to \verb|address| are allowed, whereas conversions from \verb|address| to \verb|address payable| must be explicit via\linebreak\verb|payable(address)|.
+Explicit conversions to and from \verb|address| are allowed for \verb|uint160|, integer literals, \verb|bytes20| and \verb|contract| types.\\
+
+When attempting to add or subtract addresses, one gets
+
+\begin{lstlisting}[style=defaultStyle]
+TypeError: Operator - not compatible with types address and int_const 1. Arithmetic operations on addresses are not supported. Convert to integer first before using them.
+\end{lstlisting}
+
+\pagebreak
+
+\textbf{17. If the previous block number was 1000 on Ethereum mainnet, which of the following is/are true?}\label{sec:exam2_q17}\\
+
+\textbf{Solution: A, B \& C.}
+
+Block number is the number of the block that is currently being mined, the next one.
+Block number 1 was too long ago and its hash can no longer be accessed due to scaling reasons.
+Mainnet ID Chain is 1.
+
+Recall Block and Transaction Properties
+\begin{itemize}
+    \item\verb|blockhash(uint blockNumber) returns (bytes32)|: hash of the given block - only works for 256 most recent, excluding current, blocks
+    \item\verb|block.chainid (uint)|: current chain id
+    \item\verb|block.number (uint)|: current block number
+    \item\verb|block.timestamp (uint)|: current block timestamp as seconds since unix epoch
+\end{itemize}
+
+\textbf{18. If we have an array then its data location can be}\label{sec:exam2_q18}\\
+
+\textbf{Solution: A, B \& C.}
+
+Every reference type has an additional annotation - the data location where it is stored.
+There are three data locations: memory, storage and calldata.
+
+\begin{itemize}
+    \item whose lifetime is limited to an external function call
+    \item whose lifetime is limited to the lifetime of a contract and the location where the state variables are stored
+    \item which is a non-modifiable, non-persistent area where function arguments are stored and behaves mostly like memory.
+        It is required for parameters of external functions but can also be used for other variables
+\end{itemize}
+
+\textbf{19. \texttt{delete varName;} has which of the following effects?}\label{sec:exam2_q19}\\
+
+\textbf{Solution: A \& C.}
+
+\verb|delete a| assigns the default value (whose byte-representation is all zeros) for the type to \verb|a|.\\
+
+For integers it is equivalent to \verb|a = 0|.\\
+For bools, it is equivalen to \verb|a = false|.\\
+For structs, it assigns a struct with all members reset.\\
+\verb|delete| has no effect on mappings.\\
+If you delete a struct, it will reset all members that are not mappings and also recurse into the members unless they are mappings.\\
+
+\pagebreak
+
+\textbf{20. Which of the following is/are valid function specifier(s)?}\label{sec:exam2_q20}\\
+
+\textbf{Solution: A, B \& C.}
+
+Function Visibility Specifiers: \verb|public|, \verb|external|, \verb|internal| or \verb|private|.\\
+Function Mutability Specifiers: \verb|pure| or \verb|view|.\\
+In addition, there's also the \verb|payable| specifier, which allows a public function to receive Ether.\\
+
+\textbf{State Variables} are the ones which can be declared as \verb|constant| or \verb|immutable|.\\
+
+\textbf{21. Function visibility}\label{sec:exam2_q21}\\
+
+\textbf{Solution: A.}
+
+Default visibility is \verb|public| in current \verb|Solidity| versions.
+
+\begin{itemize}
+    \item Public functions are part of the contract interface and can be either called internally or via messages
+    \item External functions are part of the contract interface, which means they can be called from other contracts and via transactions.
+        An external function f cannot be called internally (i.e. \verb|f()| does not work, but \verb|this.f()| works)
+    \item Internal functions can only be accessed internally from within the current contract or contracts deriving from it
+    \item Private functions can only be accessed from the contract they are defined in and not even in derived contracts
+\end{itemize}
+
+\textbf{22. For error handling}\label{sec:exam2_q22}\\
+
+\textbf{Solution: A, C \& D.}
+
+\begin{itemize}
+    \item\verb|assert(bool condition)|: causes a \verb|Panic| error and thus state change reversion if the condition is not met - to be used for internal errors
+    \item\verb|require(bool condition)|: reverts if the condition is not met - to be used for errors in inputs or external components.
+    \item\verb|require(bool condition, string memory message)|: reverts if the condition is not met - to be used for errors in inputs or external components.
+        Also provides an error message.
+    \item\verb|revert()|: abort execution and revert state changes
+    \item\verb|revert(string memory reason)|: abort execution and revert state changes, providing an explanatory string
+\end{itemize}
+
+The \verb|assert| function creates an error of type \verb|Panic(uint256)|.
+Assert should only be used to test for internal errors, and to check invariants.
+Properly functioning code should never create a Panic, not even on invalid external input.\\
+
+\textbf{23. Which of the following is/are true?}\label{sec:exam2_q23}\\
+
+\textbf{Solution: C \& D.}
+
+For constant variables, the value has to be a constant at compile time and it has to be assigned where the variable is declared.\\
+The compiler does not reserve a storage slot for these variables, and every occurrence is replaced by the respective value.\\
+Compared to regular state variables, the gas costs of constant and immutable variables are much lower.\\
+
+\textbf{24. Integer overflows/underflows in \texttt{Solidity}}\label{sec:exam2_q24}\\
+
+\textbf{Solution: B \& C.}
+
+Integers in Solidity are restricted to a certain range.
+For example, with \verb|uint32|, this is $0$ up to $2^{32} - 1$.
+There are two modes in which arithmetic is performed on these types: The ``wrapping'' or ``unchecked'' mode and the ``checked'' mode.\\
+By default, arithmetic is always ``checked'', which means that if the result of an operation falls outside the value range of the type, the call is reverted through a failing assertion.
+You can switch to ``unchecked'' mode using \verb|unchecked|.
+This was introduced in compiler version \verb|0.8.0|.\\
+
+\textbf{25. Which of the following is true about mapping types in\linebreak\texttt{mapping(\_KeyType => \_ValueType)}?}\label{sec:exam2_q25}\\
+
+\textbf{Solution: B \& C.}
+
+The \verb|_KeyType| can be any built-in value type, \verb|bytes|, \verb|string|, or any \verb|contract| or \verb|enum| type.
+Other user-defined or complex types, such as mappings, structs or array types are not allowed.\\
+
+\verb|_ValueType| can be any type, including mappings, arrays and structs.
+They can only have a data location of storage and thus are allowed for state variables, as storage reference types in functions, or as parameters for library functions.\\
+
+You cannot iterate over mappings, i.e. you cannot enumerate their keys.
+It is possible, though, to implement a data structure on top of them and iterate over that.\\
+
+\pagebreak
+
+\textbf{26. \texttt{receive()} and \texttt{fallback()} functions}\label{sec:exam2_q26}\\
+
+\textbf{Solution: A, B \& D.}
+
+A contract can have at most one \verb|fallback| function, declared using either
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+fallback() external // it can also have the payable specifier
+\end{lstlisting}
+
+or
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+fallback (bytes calldata _input) external returns (bytes memory _output) // it can also have the payable specifier
+\end{lstlisting}
+
+both without the \verb|function| keyword.
+This function must have \verb|external| visibility.
+The \verb|fallback| function always receives data, but in order to also receive Ether it must be marked \verb|payable|.
+In the worst case, if a \verb|payable fallback| function is also used in place of a \verb|receive| function, it can only rely on 2300 gas being available.\\
+
+
+\textbf{27. In \texttt{Solidity}, \texttt{selfdestruct(address)}}\label{sec:exam2_q27}\\
+
+\textbf{Solution: B \& D.}
+
+\verb|selfdestruct(address payable recipient)|: Destroy the current contract, sending its funds to the given Address and end execution.\\
+
+\textbf{28. Which of the following is/are correct?}\label{sec:exam2_q28}\\
+
+\textbf{Solution: A \& B.}
+
+The version pragma indicates the specific \verb|Solidity| compiler version to be used for that source file and is used as follows: \verb|pragma solidity x.y.z;| where \verb|x.y.z| indicates the version of the compiler.\\
+
+Using the version pragma does not change the version of the compiler.
+It also does not enable or disable features of the compiler.
+It just instructs the compiler to check whether its version matches the one required by the pragma.
+If it does not match, the compiler issues an error.\\
+
+A ``\verb|^|'' symbol prefixed to \verb|x.y.z| in the pragma indicates that the source file may be compiled only from versions starting with \verb|x.y.z| until \verb|x.(y+1).z|.
+For e.g., \verb|pragma solidity ^0.8.3;| indicates that source file may be compiled with compiler version starting from \verb|0.8.3| until any \verb|0.8.z| but not \verb|0.9.z|.
+This is known as a ``floating pragma''.\\
+
+Complex pragmas are also possible using ``\verb|>|'', ``\verb|>=|'', ``\verb|<|'' and ``\verb|<=|'' symbols to combine multiple versions e.g. \verb|pragma solidity >=0.8.0 <0.8.3;|.\\
+
+\pagebreak
+
+\textbf{29. The impact of data location of reference types on assignments is}\label{sec:exam2_q29}\\
+
+\textbf{Solution: D.}
+
+In reality, they all do the opposite.\\
+
+Assignments between storage and memory (or from calldata) always create an independent copy.\\
+Assignments from memory to memory only create references.
+This means that changes to one memory variable are also visible in all other memory variables that refer to the same data.\\
+Assignments from storage to a local storage variable also only assign a reference.\\
+All other assignments to storage always copy.
+Examples for this case are assignments to state variables or to members of local variables of storage struct type, even if the local variable itself is just a reference.\\
+
+\textbf{30. Which of the below are value types?}\label{sec:exam2_q30}\\
+
+\textbf{Solution: A, B \& D.}
+
+Value Types are the ones passed by value, i.e. they are always copied when they are used as function arguments or in assignments - Booleans, Integers, Fixed Point Numbers, Address, Contract, Fixed-size Byte Arrays (bytes1, bytes2, \dots, bytes32), Literals (Address, Rational, Integer, String, Unicode, Hexadecimal), Enums, Functions.\\
+
+On the other hand, reference types can be modified through multiple different names.
+Arrays (including Dynamically-sized bytes array bytes and string), Structs, Mappings.\\
+
+\textbf{31. Arrays in \texttt{Solidity}}\label{sec:exam2_q31}\\
+
+\textbf{Solution: A, B \& C.}
+
+Arrays can have a compile-time fixed size, or they can have a dynamic size.
+Indices are zero-based.\\
+
+Array members:
+
+\begin{itemize}
+    \item\verb|length|: returns number of elements in array
+    \item\verb|push()|: appends a zero-initialised element at the end of the array and returns a reference to the element
+    \item\verb|push(x)|: appends a given element at the end of the array and returns nothing
+    \item\verb|pop|: removes an element from the end of the array and implicitly calls delete on the removed element
+\end{itemize}
+
+
+\textbf{32. \texttt{Solidity} language is}\label{sec:exam2_q32}\\
+
+\textbf{Solution: A, B, C \& D.}
+
+Inline assembly support is given by the \verb|YUL| syntax.\\
+\verb|Solidity| is statically typed, supports inheritance, libraries and complex user-defined types.
+It is a fully-featured high-level language.
+The syntax and OOP concepts are from \verb|C++|.

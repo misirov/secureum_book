@@ -1,0 +1,203 @@
+\section{Audit Techniques \& Tools 101 Quiz Solutions}
+
+\textbf{1. Which of the below is/are accurate?}\label{sec:exam6_q1}\\
+
+\textbf{Solution: C.}
+
+Audit is not a security guarantee of ``bug-free'' code by any stretch of imagination but a best-effort endeavour by trained security experts operating within reasonable constraints of time, understanding, expertise and of course, decidability.\\
+
+For Ethereum-based smart-contract projects, the scope is typically the on-chain smart contract code and sometimes includes the off-chain components that interact with the smart contracts.\\
+
+The goal of audits is to assess project code (with any associated specification, documentation) and alert project team, typically before launch, of potential security-related issues that need to be addressed to improve security posture, decrease attack surface and mitigate risk.\\
+
+The audit detects and describes (in a report) security issues with underlying vulnerabilities, severity/difficulty, potential exploit scenarios and recommended fixes.\\
+
+\textbf{2. Audit reports from audit firms tipically include}\label{sec:exam6_q2}\\
+
+\textbf{Solution: A \& B.}
+
+Audit Reports include details of the scope, goals, effort, timeline, approach, tools/techniques used, findings summary, vulnerability details, vulnerability classification, vulnerability severity/difficulty/likelihood, vulnerability exploit scenarios, vulnerability fixes and informational recommendations/suggestions on programming best-practices.\\
+
+The vulnerabilities found during the audit are typically classified into different categories which helps to understand the nature of the vulnerability, potential impact/severity, impacted project components/functionality and exploit scenarios.\\
+
+\textbf{3. These audit techniques are especially well-suited for smart contracts (compared to Web2 programs)}\label{sec:exam6_q3}\\
+
+\textbf{Solution: A, B, C \& D.}
+
+Smart contract testing has a similar motivation but is arguably more complicated despite their relatively smaller sizes (in lines of code) compared to Web2 software.\\
+
+Fuzzing is especially relevant to smart contracts because anyone can interact with them on the blockchain with random inputs without necessarily having a valid reason or expectation (arbitrary byzantine behaviour).\\
+
+It is natural for this question to be open to interpretation because it is a 100k feet level question comparing techniques "especially well-suited" to web3 smart contracts vis-a-vis web2 software, which covers a lot of ground.
+It is not about what is possible or what is expected but about suitability.
+All these techniques can be and are performed on web2 applications but generalized aspects of size, scope, nature of user-interactions, source-code availability/expectations and reduced states/transitions of smart contracts make the techniques more suitable for them compared to web2 software.\\
+
+\textbf{4. The following kinds of findings may be expected during audits}\label{sec:exam6_q4}\\
+
+\textbf{Solution: A, B \& C.}
+
+Findings may be contested as not being relevant, outside the project's threat model or simply acknowledged as being within the project's acceptable risk model.\\
+
+False Positives are findings which indicate the presence of vulnerabilities but which in fact are not vulnerabilities.
+Such false positives could be due to incorrect assumptions or simplifications in analysis which do not correctly consider all the factors required for the actual presence of vulnerabilities.\\
+
+False Negatives: are missed findings that should have indicated the presence of vulnerabilities but which are in fact are not reported at all.
+Such false negatives could be due to incorrect assumptions or inaccuracies in analysis which do not correctly consider the minimum factors required for the actual presence of vulnerabilities.\\
+
+Auditors generally collate all findings from their review into a report which is handed to the project team.
+At this point, the assumption from the auditors is that all the findings in their report are true positives.
+However, depending on the differing threat/trust models or different assumptions made between the audit \& project teams, some of the findings may be treated as false positives by the project team which thereafter may choose to ignore such findings, recognize but not act (via fixes) on them, etc\dots\\
+
+Auditors internally may bring up their individual findings with other team members to discuss if they are indeed true/false.
+They may also bring up doubtful findings with the project team during an audit (interim discussions/clarifications).
+Findings which are deemed by everyone as false positives, i.e. irrelevant, will not be included in the report.
+There may also be disagreements between the auditors \& project teams about the threat/trust models, assumptions or difficulty/severity levels, which may lead to opposing viewpoints which are sometimes documented in the reports.
+But, in general, many of the reported findings are ``confirmed'' by the projects, after which we can think of them as true positives.\\
+
+\textbf{5. Which of the following is/are true?}\label{sec:exam6_q5}\\
+
+\textbf{Solution: B.}
+
+Very few smart contract projects have detailed specifications at their first audit stage.
+At best, they have some documentation about what is implemented.
+Auditors spend a lot of time inferring specification from documentation/implementation which leaves them with less time for vulnerability assessment.\\
+
+Manual analysis is however the only way today to infer and evaluate business logic and application-level constraints which is where a majority of the serious vulnerabilities are being found.\\
+
+Automated analysis using tools is cheap (typically open-source free software), fast, deterministic and scalable (varies depending on the tool being semi-/fully-automated) but however is only as good as the properties it is made aware of, which is typically limited to \verb|Solidity| and EVM related constraints.\\
+
+
+Findings may be contested as not being relevant, outside the project's threat model or simply acknowledged as being within the project's acceptable risk model\\
+
+\textbf{6. Automated tools for smart contract analysis}\label{sec:exam6_q6}\\
+
+\textbf{Solution: D.}
+
+Manual analysis is however the only way today to infer and evaluate business logic and application-level constraints which is where a majority of the serious vulnerabilities are being found.\\
+
+Automated analyzers do not understand application-level logic and their constraints.
+They are limited to constraints/properties of \verb|Solidity| language, EVM or Ethereum blockchain.\\
+
+Smart contract security tools are useful in assisting auditors while reviewing smart contracts.
+They automate many of the tasks that can be codified into rules with different levels of coverage, correctness and precision.
+They are fast, cheap, scalable and deterministic compared to manual analysis.
+But they are also susceptible to false positives.
+They are especially well-suited currently to detect common security pitfalls and best-practices at the \verb|Solidity| and EVM level.
+With varying degrees of manual assistance, they can also be programmed to check for application-level, business-logic constraints.\\
+
+\textbf{7. Which of the following is/are true?}\label{sec:exam6_q7}\\
+
+\textbf{Solution: A \& C.}
+
+Slither is a \verb|Solidity| static analysis framework written in \verb|Python3|.
+It runs a suite of vulnerability detectors, prints visual information about contract details, and provides an API to easily write custom analyses.
+Slither enables developers to find vulnerabilities, enhance their code comprehension, and quickly prototype custom analyses.\\
+
+Echidna is a Haskell program designed for fuzzing/property-based testing of Ethereum smart contracts.\\
+
+MythX is a powerful security analysis service that finds \verb|Solidity| vulnerabilities in your Ethereum smart contract code during your development life cycle.
+It is a paid API-based service which uses several tools on the backend including a static analyzer (Maru), symbolic analyzer (Mythril) and a greybox fuzzer (Harvey) to implement a total of 46 detectors.\\
+
+\textbf{8. Which of the following is/are correct about false positives?}\label{sec:exam6_q8}\\
+
+\textbf{Solution: A \& C.}
+
+False positives require further manual analysis on findings to investigate if they are indeed false or true positives.\\
+
+Smart contract security tools are useful in assisting auditors while reviewing smart contracts.
+They automate many of the tasks that can be codified into rules with different levels of coverage, correctness and precision.
+They are fast, cheap, scalable and deterministic compared to manual analysis.
+But they are also susceptible to false positives.\\
+
+\textbf{9. Audit findings}\label{sec:exam6_q9}\\
+
+\textbf{Solution: A \& B.}
+
+Detect and describe (in a report) security issues with underlying vulnerabilities, severity/difficulty, potential exploit scenarios and recommended fixes.\\
+
+They also provide subjective insights into code quality, documentation and testing.\\
+
+Findings may be contested as not being relevant, outside the project's threat model or simply acknowledged as being within the project's acceptable risk model.\\
+
+Codified exploits should always be on a testnet, kept private and responsibly disclosed to project teams without any risk of being actually executed on live systems resulting in real loss of funds or access\\
+
+\textbf{10. Which of the following is/are typicial manual review approach(es)?}\label{sec:exam6_q10}\\
+
+\textbf{Solution: A, C \& D.}
+
+Symbolic checking is automated.
+Auditors have different approaches to manual reviewing smart contract code for vulnerabilities.
+Starting with access control, asset flow, inferring constraints and evaluating assumptions.\\
+
+\textbf{11. Access control analysis is a crytical part of manual review for the reason(s) that}\label{sec:exam6_q11}\\
+
+\textbf{Solution: C.}
+
+While the overall philosophy might be that smart contracts are permissionless, in reality, they do indeed have different permissions/roles for different actors who interact/use them.\\
+
+Access control is the most fundamental security primitive which addresses `who' has authorised access to `what'.
+(In a formal access control model, the `who' refers to subjects, `what' refers to objects and an access control matrix indicates the permissions between subjects and objects.)
+
+The general classification is that of users and admin(s).
+For purposes of guarded launch or otherwise, many smart contracts have an admin role that is typically the address that deployed the contract.
+Admins typically have control over critical configuration and application parameters including (emergency) transfers/withdrawals of contract funds.\\
+
+\textbf{12. Which of the following is/are true about vulnerability difficulty and impact?}\label{sec:exam6_q12}\\
+
+\textbf{Solution: C.}
+
+Per OWASP, likelihood or difficulty is a rough measure of how likely or difficult this particular vulnerability is to be uncovered and exploited by an attacker.\\
+
+Many likelihood and impact evaluations are contentious and debatable between the audit and project teams, typically with security-conscious audit teams pressing for higher likelihood and impact and project teams downplaying the risks.\\
+
+If there is any loss or locking up of funds then the impact is evaluated as High.
+Exploits that do not affect funds but disrupt the normal functioning of the system are typically evaluated as Medium.
+Anything else is of Low impact.\\
+
+\pagebreak
+
+\textbf{13. Application-level security constraints}\label{sec:exam6_q13}\\
+
+\textbf{Solution: B \& C.}
+
+Auditors may need to infer business logic and their implied constraints directly from the code or from discussions with the project team and thereafter evaluate if those constraints/properties hold in all parts of the codebase.\\
+
+However, application-level constraints are rules that are implicit to the business logic implemented and may not be explicitly described in the specification e.g. mint an \verb|ERC721| token to the address when it makes a certain deposit of \verb|ERC20| tokens to the smart contract and burn it when it withdraws the earlier deposit.
+Such constraints may have to be inferred by the auditors while manually analyzing the smart contract code.\\
+
+\textbf{14. Which of the following is/are typically true?}\label{sec:exam6_q14}\\
+
+\textbf{Solution: D.}
+
+Static analysis is a technique of analyzing program properties without actually executing the program.\\
+
+Fuzzing or fuzz testing is an automated software testing technique that involves providing invalid, unexpected, or random data as inputs to a computer program.\\
+
+Instead of enumerating reachable states one at a time, the state space can sometimes be traversed more efficiently by considering large numbers of states at a single step.\\
+
+\textbf{15. Which of the following is/are generally true about asset flow analysis?}\label{sec:exam6_q15}\\
+
+\textbf{Solution: B \& C.}
+
+Assets are Ether or \verb|ERC20|/\verb|ERC721|/other tokens managed by smart contracts.
+Given that exploits target assets of value, it makes sense to start evaluating the flow of assets into/outside/within/across smart contracts and their dependencies.\\
+
+`Who': Assets should be withdrawn/deposited only by authorised/specified addresses as per application logic.\\
+
+`When': Assets should be withdrawn/deposited only in authorised/specified time windows or under authorised/specified conditions as per application logic (when).\\
+
+`What type': Assets, only of authorised/specified types, should be withdrawn/deposited as per application logic.\\
+
+`How much': Assets, only in authorised/specified amounts, should be withdrawn/deposited as per application logic\\
+
+\textbf{16. Which of the following is/are generally true about control and data flow analyses?}\label{sec:exam6_q16}\\
+
+\textbf{Solution: A \& B.}
+
+Interprocedural (procedure is just another name for a function) control flow is typically indicated by a call graph which shows which functions (callers) call which other functions (callees), across or within smart contracts.\\
+
+Intraprocedural (i.e. within a function) control flow is dictated by conditionals (if/else), loops (for/while/do/continue/break) and return statements.\\
+
+Interprocedural data flow is evaluated by analyzing the data (variables/constants) used as argument values for function parameters at call sites.\\
+
+Intraprocedural data flow is evaluated by analyzing the assignment and use of (state/memory/calldata) variables/constants along the control flow paths within functions.\\

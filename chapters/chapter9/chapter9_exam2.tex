@@ -1,0 +1,368 @@
+\section{Solidity 101 Quiz}
+
+\textbf{1. User from EOA \texttt{A} calls Contract \texttt{C1} which makes an external call (\texttt{CALL} opcode) to Contract \texttt{C2}.
+Which of the following is/are true?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|tx.origin| in \verb|C2| returns \verb|A|'s address
+    \item\verb|msg.sender| in \verb|C2| returns \verb|A|'s address
+    \item\verb|msg.sender| in \verb|C1| returns \verb|A|'s address
+    \item\verb|msg.value| in \verb|C2| returns amount of wei sent from \verb|A|
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q1]{here}.\\
+
+\textbf{2. Which of the following is/are true for \texttt{call}/\texttt{delegatecall}/\texttt{staticcall} primitives?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item They are used to call contracts
+    \item They only revert without returning success/failure
+    \item\verb|Delegatecall| retains the \verb|msg.sender| and \verb|msg.value| of caller contract
+    \item\verb|Staticcall| reverts if the called contract reads contract state of caller
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q2]{here}.\\
+
+\textbf{3. The gas left in the current transaction can be obtained with}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|tx.gas()|
+    \item\verb|gasleft()|
+    \item\verb|msg.gas()|
+    \item\verb|block.gaslimit()|
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q3]{here}.\\
+
+\textbf{4. The default value of}
+
+\begin{enumerate}[label=\Alph*.]
+    \item \verb|bool| is \verb|false|
+    \item \verb|address| is \verb|0|
+    \item Statically-sized array depends on the underlying type
+    \item\verb|enum| is its first member
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q4]{here}.\\
+
+\pagebreak
+
+\textbf{5. Which of the following is/are true about events?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Events are meant for off-chain applications
+    \item Events can be accessed only by the emitting contract
+    \item Indexing event parameters creates searchable topics
+    \item A maximum of three events can have indexed parameters
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q5]{here}.\\
+
+\textbf{6. Function \texttt{foo()} uses \texttt{block.number}. Which of the following is/are always true about \texttt{foo()}?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item It should be marked as \verb|pure|
+    \item It should be marked as \verb|view|
+    \item It should be marked as \verb|payable|
+    \item Cannot determine mutability based only on this information
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q6]{here}.\\
+
+\textbf{7. \texttt{Solidity} functions}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Can be declared only inside contracts
+    \item Can have named return variables
+    \item Can have unnamed parameters
+    \item Can be recursive
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q7]{here}.\\
+
+\textbf{8. Conversions in \texttt{Solidity} have the following behavior}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Implicit conversions are never allowed
+    \item Explicit conversions of \verb|uint16| to \verb|uint8| removes the higher-order bits
+    \item Explicit conversion of \verb|uint16| to \verb|uint32| adds lower-order padding
+    \item Explicit conversions are checked by compiler for safety
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q8]{here}.\\
+
+\pagebreak
+
+\textbf{9. When Contract \texttt{A} attempts to make a \texttt{delegatecall} to Contract \texttt{B} but a prior transaction to Contract \texttt{B} has executed a \texttt{selfdestruct}}
+
+\begin{enumerate}[label=\Alph*.]
+    \item The \verb|delegatecall| reverts
+    \item The \verb|delegatecall| returns a failure
+    \item The \verb|delegatecall| returns a success
+    \item This scenario is not practically possible
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q9]{here}.\\
+
+\textbf{10. If \texttt{a = 1} then which of the following is/are true?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|a += 1| makes the value of \verb|a = 2|
+    \item\verb|b = ++a| makes the value of \verb|b = 1|
+    \item\verb|a -= 1| makes the value of \verb|a = 1|
+    \item\verb|b = a--| makes the value of \verb|b = 1|
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q10]{here}.\\
+
+\textbf{11. \texttt{transfer} and \texttt{send} primitives}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Are used for Ether transfers
+    \item Trigger the \verb|receive()| or \verb|fallback()| functions of \verb|address|
+    \item Always return a value to be checked
+    \item Provide only 2300 gas
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q11]{here}.\\
+
+\textbf{12. A contract can receive Ether via}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|msg.value| to \verb|payable| functions
+    \item\verb|selfdestruct| destination
+    \item\verb|coinbase| transaction
+    \item\verb|receive()| or \verb|fallback()| functions
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q12]{here}.\\
+
+\pagebreak
+
+\textbf{13. Structs in \texttt{Solidity}}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Are user-defined type
+    \item Are reference types
+    \item Can contain or be contained in arrays and mappings
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q13]{here}.\\
+
+\textbf{14. The following is/are true about \texttt{ecrecover} primitive}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Takes a message hash and ECDSA signature values as inputs
+    \item Recovers and returns the public key of the signature
+    \item Is susceptible to malleable signatures
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q14]{here}.\\
+
+\textbf{15. Which of the following is/are valid control structure(s) in \texttt{Solidity} (excluding \texttt{YUL})?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|if|
+    \item\verb|else|
+    \item\verb|elif|
+    \item\verb|switch|
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q15]{here}.\\
+
+\textbf{16. \texttt{address} types}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Can always receive Ether
+    \item Have members for \verb|balance|, \verb|call|, \verb|code|
+    \item Can be converted to \verb|uint160| or \verb|contract| types
+    \item Can be added and subtracted
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q16]{here}.\\
+
+\pagebreak
+
+\textbf{17. If the previous block number was 1000 on Ethereum mainnet, which of the following is/are true?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|block.number| is 1001
+    \item\verb|blochhash(1)| returns 0
+    \item\verb|block.chainID| returns 1
+    \item\verb|block.timestamp| returns the number of seconds since last block
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q17]{here}.\\
+
+\textbf{18. If we have an array then its data location can be}
+
+\begin{enumerate}[label=\Alph*.]
+    \item memory and its persistence/scope will be the function of declaration
+    \item storage and its persistence/scope will be the entire contract
+    \item calldata and it will only be readable
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q18]{here}.\\
+
+\textbf{19. \texttt{delete varName;} has which of the following effects?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|varName| becomes \verb|0| if \verb|varName| is an integer
+    \item\verb|varName| becomes \verb|true| if \verb|varName| is a boolean
+    \item No effect if \verb|varName| is a mapping
+    \item Resets all struct members to their default values irrespective of their types
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q19]{here}.\\
+
+\textbf{20. Which of the following is/are valid function specifier(s)?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|internal|
+    \item\verb|pure|
+    \item\verb|payable|
+    \item\verb|immutable|
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q20]{here}.\\
+
+\pagebreak
+
+\textbf{21. Function visibility}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Goes from \verb|private|-\verb|internal|-\verb|external|-\verb|public| in decreasing restrictive order (i.e. \verb|private| being the most restrictive)
+    \item Goes from \verb|internal|-\verb|private|-\verb|external|-\verb|public| in decreasing restrictive order (i.e. \verb|internal| being the most restrictive)
+    \item May be omitted to default to internal in the latest \verb|0.8.0+| compiler versions
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q21]{here}.\\
+
+\textbf{22. For error handling}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|require()| is meant to be used for input validation
+    \item\verb|require()| has a mandatory error message string
+    \item\verb|assert()| is meant to be used to check invariants
+    \item\verb|revert()| will abort and revert state changes
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q22]{here}.\\
+
+\textbf{23. Which of the following is/are true?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Constant state variables can be initialized within a constructor
+    \item Immutable state variables are allocated a storage slot
+    \item Gas costs for constant and immutable variables is lower
+    \item Only value types can be immutable
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q23]{here}.\\
+
+\textbf{24. Integer overflows/underflows in \texttt{Solidity}}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Are never possible because of the language design
+    \item Are possible but prevented by compiler added checks (version dependent)
+    \item Are possible but prevented by correctly using certain safe math libraries
+    \item Are possible without any mitigation whatsoever
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q24]{here}.\\
+
+\pagebreak
+
+\textbf{25. Which of the following is true about mapping types in \texttt{mapping(\_KeyType => \_ValueType)}?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|_KeyType| can be any value or reference type
+    \item\verb|_ValueType| can be any value or reference type
+    \item Can only have storage (not memory) as data location
+    \item Can be iterated over natively (i.e. without implementing another data structure)
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q25]{here}.\\
+
+\textbf{26. \texttt{receive()} and \texttt{fallback()} functions}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Can rely only on 2300 gas in the worst case
+    \item May receive Ether with \verb|payable| mutability
+    \item Are mandatory for all contracts
+    \item Must have \verb|external| visibility
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q26]{here}.\\
+
+\textbf{27. In \texttt{Solidity}, \texttt{selfdestruct(address)}}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Destroys the contract whose address is given as argument
+    \item Destroys the contract executing the selfdestruct
+    \item Sends address's balance to the calling contract
+    \item Sends executing contract's balance to the address
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q27]{here}.\\
+
+\textbf{28. Which of the following is/are correct?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|Solidity| file with \verb|pragma solidity ^0.6.5;| can be compiled with compiler version \verb|0.6.6|
+    \item\verb|Solidity| file with \verb|pragma solidity 0.6.5;| can be compiled with compiler version \verb|0.6.5|
+    \item\verb|Solidity| file with \verb|pragma solidity ^0.6.5;| can be compiled with compiler version \verb|0.7.0|
+    \item\verb|Solidity| file with \verb|pragma solidity >0.6.5 <0.7.0;| can be compiled with compiler version \verb|0.7.0|
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q28]{here}.\\
+
+\pagebreak
+
+\textbf{29. The impact of data location of reference types on assignments is}
+
+\begin{enumerate}[label=\Alph*.]
+    \item storage assigned to storage (local variable) makes a copy
+    \item memory assigned to memory makes a copy
+    \item memory assigned to storage creates a reference
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q29]{here}.\\
+
+\textbf{30. Which of the below are value types?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|address|
+    \item\verb|enum|
+    \item\verb|struct|
+    \item\verb|contract|
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q30]{here}.\\
+
+\textbf{31. Arrays in \texttt{Solidity}}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Can be fixed size or dynamic
+    \item Are zero indexed
+    \item Have \verb|push|, \verb|pop| and \verb|length| members
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q31]{here}.\\
+
+\textbf{32. \texttt{Solidity} language is}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Statically typed
+    \item Object-oriented
+    \item Supports inheritance
+    \item Supports inline assembly
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam2_q32]{here}.\\

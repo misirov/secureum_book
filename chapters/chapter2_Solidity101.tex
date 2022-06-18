@@ -1,0 +1,998 @@
+\chapter{Solidity 101: Introduction}
+
+As mentioned in the previous chapter, \texttt{Solidity} is currently the most popular programming language used to develop smart contract.
+In fact, it is so commonly used and there are so few alternatives to high-level languages on Ethereum, that it has become a fundamental pillar to smart contracts on Ethereum and therefore their security.
+
+\section{Solidity: Influence, Features and Layout}
+
+\texttt{Solidity} is a \textbf{high level language} specifically designed for writing smart contracts on Ethereum.
+It was proposed in 2014 by Gavin Wood and was later developed (and continues to be developed) by the Ethereum Foundation team led by Dr. Christian Reitwiessner, Alex Beregszsaszi and others.\\
+
+It targets the underlying EVM and is mainly influenced by \texttt{C++} (a lot of the syntax and object oriented programming), a bit from \texttt{Python} (the use of modifiers, multiple inheritance, C3 linearization and the use of the \texttt{super} keyword) and some of the early motivation was also from \texttt{Javascript} (things like function level scoping or the use of \texttt{var} keyword, although those influences have significantly been reduced since version \texttt{0.4.0}).\\
+
+One of the few alternatives to \texttt{Solidity} is \texttt{Vyper}: it's a language that is mostly based on \texttt{Python} and has just started to catch up with some of the high profile projects on Ethereum.
+However, to a great extent, due to the maturity of the language and the tool chains built around it, \texttt{Solidity} is by far the most widely used, so it becomes critical that in order to evaluate security of smart contracts we understand the syntax semantics, the pitfalls and various other aspects related to it.\\
+
+\texttt{Solidity} is known as a ``\textit{curly bracket language}'' (it means that curly brackets are used to group together statements within a particular scope), it is also an object oriented language (so there exitsts the use of inheritance), statically typed (which means that the types of variables defined are static and defined at compile time), there is code modularity in the form of libraries and there are also user defined types.\\
+
+All these characteristics make \texttt{Solidity} a fully featured high level language that allows the definition of complex logic in smart contracts to leverage all the underlying features of the EVM.\\
+
+\textbf{So, how does the physical layout of a smart contract written in \texttt{Solidity} look like?}\\
+
+This is important to the readability aspect of the file and the maintainability aspect of the smart contract in the context of the the project itself.
+A \texttt{Solidity} source file can contain an arbitrary number of various directives and primitives.
+These include the \texttt{pragma} and the \texttt{import} directives, the declarations of structs, enums and contract definitions.
+Every contract can itself contain structures, enums, state variables, events, errors, modifiers, constructor and various functions that define the various functionalities that are implemented by the smart contract.\\
+
+This physical layout is something that is specific to the syntax of \texttt{Solidity}.
+When it comes to helping with the readability or the maintainability, it is prime to layout all the components in the order mentioned.
+This is something that you will commonly see when you evaluate smart contracts in \texttt{Solidity}.
+There might be cases where some of these are out of order from what is considered as best practice, but it's still something to keep in mind.
+
+\section{SPDX \& Pragmas}
+
+\subsection*{SPDX}
+
+One of the things that you will often see specified at the top of every \texttt{Solidity} file is what is known as the SPDX license identifier.
+\textbf{SPDX} stands for \textbf{Software Package Data Exchange}.
+In the case of \texttt{Solidity} it's a comment that indicates its license and it is specified as a best practice to be at the top of every file.
+An example looks like this
+
+\begin{lstlisting}[language=Solidity, style=solStyle, caption={Example of SPDX comment.}]
+// SPDX-License-Identifier: AGPLv3
+\end{lstlisting}
+
+The specific license obviously depends on what the developer intends for the particular smart contract.
+This identifier (i.e. the license) is included by the compiler in the byte code metadata that is generated, so it becomes machine readable.
+
+\subsection*{Pragma}
+
+The \texttt{pragma} keyword in \texttt{Solidity} is used to enable certain compiler features or compiler checks.
+An example looks something like this
+
+\begin{lstlisting}[language=Solidity, style=solStyle, caption={Example of pragma statement.}]
+pragma solidity ^0.8.0;
+\end{lstlisting}
+
+At a high level, there are two types of pragmas:
+
+\begin{enumerate}
+   
+   \item The first kind specifies the version.
+   There are, again, two types of versions that can be specified:
+   \begin{enumerate}[label*=\arabic*.]
+      
+      \item\textbf{The version \texttt{pragma}}, which indicates the specific \texttt{Solidity} compiler version that the developer expects to be used for that source file, and it looks like
+
+      \begin{lstlisting}[language=Solidity, style=solStyle, caption={Example of version \texttt{pragma} statement.}]
+pragma solidity x.y.z;
+      \end{lstlisting}
+
+      where \texttt{x}, \texttt{y} and \texttt{z} are numerals that specify that compiler version.
+      This does not change the version of the compiler used nor enables or disables any features of the compiler.
+      All it does is instructing the compiler at compilation time to check whether its version matches the one specified by the developer.
+      This could be of several formats: it could be a very \textbf{simple} format, a \textbf{complex} one or even a \textbf{floating} one (which has some security implications).\\
+
+      The latest \texttt{Solidity} compiler versions as of now are in the \texttt{0.8} range with a different \texttt{z} in the \texttt{pragma} directive.
+      If you look at \texttt{x.y.z}; a different \texttt{z} indicates bug fixes and a different \texttt{y} indicates breaking changes between the compiler versions.
+      So if we have compiler versions in the \texttt{0.5} range, then by looking at the \texttt{0.6} range it means that the \texttt{0.6.z} range has at least one or more breaking changes compared to the previous versions.\\
+
+      A floating \texttt{pragma} is a \texttt{pragma} that has a caret symbol (\verb|^|) prefixed to \texttt{x.y.z} in the directive.
+      This indicates that the contract can be compiled with versions starting with \texttt{x.y.z} all the way until \texttt{x.(y + 1).z}. So, as an example, consider
+
+      \begin{lstlisting}[language=Solidity, style=solStyle, caption={Example of floating \texttt{pragma} statement.}]
+pragma solidity ^0.8.3;
+      \end{lstlisting}
+
+      It indicates that the source file can be compiled with any compiler version starting from \texttt{0.8.3} going to \texttt{0.8.4}, \texttt{0.8.5} and whatever else has been released; but not \texttt{0.9.z}, so the transition from \texttt{0.8} to \texttt{0.9} is what is prevented by this floating platform.
+      This allows the developer to specify a range of compiler versions that can be used with a particular contract, and that has some security implications similar to the floating \texttt{pragma}.\\
+
+      A range of compiler versions can be indicated with a complex practice, where you have \texttt{>}, \texttt{>=}, \texttt{<}, \texttt{<=} symbols that are used to combine multiple versions of the \texttt{Solidity} compiler.
+      This affects the compiler version, which in turn brings in different features that are implemented by said version.
+      Some of those could be security features, others could be security bug fixes or optimizations.
+      All these aspects affect the security posture of the bytecode that is generated from a particular smart contract.
+      
+      \item\textbf{The ABI coder \texttt{pragma}}.
+      This directive allows a developer to specify the choice between \textbf{Version 1} or \textbf{Version 2} ABI coder.
+
+      The newer Version 2 was considered experimental for a while, but is now activated by default and allows the encoding/decoding of nested arrays and structs.\\
+      
+      You might encounter old \texttt{Solidity} source code using the old directive, such as shown below
+
+      \begin{lstlisting}[language=Solidity, style=solStyle, caption={Example of old ABI coder \texttt{pragma} statement.}]
+pragma experimental ABIEncoderV2;
+      \end{lstlisting}
+
+      Version 2 is a strict superset of Version 1: contracts that use Version 2 can interact with other contracts that do not use it without any concern or limitations.
+      This \texttt{pragma} also applies to the code defined in the file where it is activated, regardless of where that code ends up eventually; what this means is that a contract whose file is using Version 1 can still contain code that uses Version 2 by inheriting it from another contract.
+      An example of ABI Coder \texttt{pragma} statement is
+
+      \begin{lstlisting}[language=Solidity, style=solStyle, caption={Example of ABI coder \texttt{pragma} statement.}]
+pragma abicoder v1; // or v2, which is the default from version 0.8.z onwards
+      \end{lstlisting}
+
+      The ABI coder affects encoding and decoding.
+      The optimizations it does have certain security implications.
+   
+   \end{enumerate}
+   
+   \item The second \texttt{pragma} directive helps the developer to specify features that are considered experimental as of that point in time.\\
+
+   \pagebreak
+
+   These features are not enabled by default and have to be explicitly specified as part of this \texttt{pragma} directive and within every file where it is required.
+   As of now there is only one experimental feature, which is known as \texttt{SMTChecker}.
+
+   \begin{lstlisting}[language=Solidity, style=solStyle, caption={Example of experimental \texttt{pragma} statement.}]
+pragma experimental SMTChecker;
+   \end{lstlisting}
+
+   \textbf{SMT} stands for \textbf{Satisfiability Modulo Theory} which is an approach to formal verification, and in the case of \texttt{Solidity} it is used to implement safety checks by what is known as querying an SMT solver.\\
+
+   There are various security checks performed by the SMT checker.
+   The first one is where it uses the \texttt{require} and \texttt{assert} statements that are included as part of the smart contract.
+   The checker considers all the required statements specified as assumptions by the developer and it tries to prove that the conditions inside the \texttt{assert} statements are \texttt{true}.
+   If a failure can be established, then the checker provides what is known as a counter example that shows the user how this assertion can fail.
+   There are various other checks that have been added to this empty checker over time.
+   These include the arithmetic overflow, underflow, division by zero, unreachable code and so on.\\
+
+   So SMT checker is a critical security feature that comes packaged as part of \texttt{Solidity}.
+   It's implemented in the compiler itself.
+   Formal verification is considered as a fundamental part of programming languages' security, so we can imagine that this particular \texttt{pragma} directive affects the security and optimizations of the smart contracts that use them.
+
+\end{enumerate}
+
+What needs to be kept in mind with the \texttt{pragma} directives is that they are local to the files where they are specified.
+So if you have a \texttt{Solidity} file that imports other files, the pragmas from the imported files do not automatically carry over to the file that is of concern.
+
+\section{Imports}
+
+These \texttt{import} statements are similar to \texttt{Javascript}, where the format is
+
+\begin{lstlisting}[language=Solidity, style=solStyle, caption={Example of import statement}]
+import <filename>;
+\end{lstlisting}
+
+They help to modularize your code: split what might become a large monolithic code base into multiple components (modules) and import them wherever they are required.\\
+
+This helps developers to reuse code and, again, not only it affects the readability of code (compare a piece of monolithic code that is hundreds or thousands of lines versus modular code, where they're separated out into independent self-contained modules and used only when required), it also has implications to security and optimization as well.
+
+\section{Comments \& NatSpec}
+
+\texttt{Solidity} supports single line comments and multiline comments as shown here
+
+\begin{lstlisting}[language=Solidity, style=solStyle, caption={Example of comments}]
+// This is a single line comment
+/* This is a 
+multiline
+comment */
+\end{lstlisting}
+
+Comments are recommended to be used as inline documentation of what the contracts are supposed to do, what the functions, variables, expressions, various control and data flow expected to do as per the specification and what is really implemented.
+They can also be used to specify certain assumptions that the developer is making in the implementation and they can also represent some of the invariants that need to be maintained.\\
+
+Comments become a critical part of documentation that is included or encapsulated within the code itself, affect the readability of the code to a great extent and maintainability.
+In fact, comments become critical when we start talking about evaluating the security of smart contracts: comments give a lot of vital clues as to what the developer intended to implement or just information related to the various syntax or the semantics itself.\\
+
+\texttt{Solidity} also supports a special type of comment called \textbf{NatSpec} which stands for \textbf{Ethereum Natural Language Specification Format}.
+These are specialized comments that are specific to \texttt{Solidity} and \texttt{Ethereum}.
+They are written as follows
+
+\begin{lstlisting}[language=Solidity, style=solStyle, caption={Example of NatSpec comments}]
+/// This is a single line NatSpec comment
+/** This is a 
+multi line NatSpec comment */
+\end{lstlisting}
+
+and located directly about the function declaration or statements that are relevant to the \textbf{NatSpec}.
+These NatSpec comments come in many different types: there are many different tags such as
+
+\begin{itemize}
+
+   \item\texttt{@title}: describes the contract or the interface.
+
+   \item\texttt{@author}: specifies the developer (i.e. who is authoring the contract).
+
+   \item\texttt{@notice}: explains to an end user what the contract or function does.
+
+   \item\texttt{@dev}: directed towards the developer for any extra implementation related details.
+
+\end{itemize}
+
+There are also specific tags related to function parameters (\texttt{@param}), the return variable (\texttt{@return}) and so on\dots\,
+These NatSpec comments are meant to automatically generate \texttt{JSON} documentation for both developers as well as users and provide a lot of valuable information that the developer intended for all these various aspects of parameters, returns, contracts and so on\dots\,
+They also form an important piece of the toolset that helps evaluate smart contract security.
+
+\section{Smart Contracts}
+
+Smart contracts (or simply contracts) are fundamental to what Ethereum is all about.
+Conceptually, contracts are very similar to the concept of classes in object oriented programming and that's because they encapsulate a state in the form of variables, and logic that allow to modify that state in the form of functions.
+These contracts can inherit from other contracts, they can interact with other contracts and support a very rich environment where one can specify different types of interactions between these components.\\
+
+Contracts contain different components, including structures, enums, state variables, events, errors, modifiers, constructor and various functions.
+Some of these concepts should be familiar from other programming languages, but there are also some very Ethereum specific aspects, such as those related to state variables or events, or something that's specific to \texttt{Solidity} in the case of modifiers.\\
+
+Contracts can come in different types: they could be either \textbf{vanilla contracts}, \textbf{libraries} or even \textbf{interfaces}.
+
+\section{State Variables: Definition, Visibility \& Mutability}
+
+These are variables that can be accessed by all the contact functions.
+The data location where these state variables are stored is what is known as the \textbf{contract storage}.\\
+
+Recall EVM has multiple components: the stack, calldata, volatile memory and the non-volatile storage.
+This non-volatile storage is where the state variables are stored because they need to persist across transactions that affect the contract state.
+
+\subsection*{State Visibility}
+
+In \texttt{Solidity}, state variables have a concept known as visibility: who can see the state variables and who can access them.
+Visibility specifiers indicate this property.
+There are three specifiers
+
+\begin{itemize}
+
+   \item\texttt{public}: these state variables are part of the contract interface and they can be accessed either internally (from within the contract) or from outside the contract via messages.
+   For such public state variables, an automatic getter function is generated by the compiler, which is used to access their values.
+
+   \item\texttt{internal}: these state variables can be accessed only internally; from within the current contract or contracts deriving from this contract.
+
+   \item\texttt{private}: these state variables can be accessed only from within the contract.
+   They are defined at, and not even from the contracts that are derived from it.
+
+\end{itemize}
+
+Visibility specifiers are interesting from a security perspective because, although these seem to give an impression that certain state variables are private (in a sort of a privacy centric manner), everything that is within the contract is visible to all the observers external to the blockchain.\\
+
+The \texttt{private} visibility specifier makes these variables private to the contract and prevents only other contracts from reading those private state variables on chain, however all the variables can be looked at can be queried via different interfaces.
+
+\subsection*{State Mutability}
+
+State variables also have the concept of mutability.
+It indicates when can those state variables be modified and what are the rules for those modifications.
+There are two such specifiers
+
+\begin{itemize}
+
+   \item\texttt{constant}: these state variables are fixed at compile, which means that their value is the same as when they were declared for the life of the contract. 
+   There are certain rules for what expressions can be used for defining these constant variables within the contract.
+
+   \item\texttt{immutable}: these on the other hand are fixed at construction time, which means that they can be assigned values within the constructor of the contract or at the point of declaration.
+   They cannot be read during construction time and they can only be assigned once.
+
+\end{itemize}
+
+The concept of mutability allows the \texttt{Solidity} compiler to prevent reserving any storage slot for these variables, making thesm storage and gas efficient: the gas cost of constant and immutable variables are lower.\\
+
+The reason for this is because the expression that is assigned to it is copied to all the places where it is accessed within the contract and it's also re-evaluated each time.
+This aspect allows the \texttt{Solidity} compiler to make some local optimizations wherever constant variables are used.
+And in the case of \texttt{immutable} state variables, they're evaluated only once at construction time and then their value is copied to all the places in the code where they are used.
+For these immutable variables, 32 bytes are reserved even if they require fewer bytes.
+Due to this, constant variables can sometimes be cheaper than immutable ones.
+For now the only supported types for these variables are strings and value types.
+
+\section{Functions}
+
+Functions are the executable units of code.
+In the case of \texttt{Solidity}, they are usually defined inside a smart contract, but they can also be defined outside of the contracts in which case they are specified at a file level.
+Such functions are referred to as ``\textit{free functions}''.\\
+
+Functions are what allow modifications to the state that is encapsulated as part of the contract, so they are how logic manifests itself within the smart contracts and the state transitions from one initial state to the modified state, as a result of any of the transactions or messages that interact with the smart contract.
+
+\subsection*{Parameters}
+
+Functions typically specify parameters.
+These are declared just like variables within the function. 
+Parameters are how the caller of the function sends in data into the function for it to work on.
+Parameters are used and assigned in a very similar manner to local variables within the function, and the nomenclature that the function specifies the parameter and the caller sends in arguments that get assigned to these parameters in the context of the function.
+
+\subsection*{Return Variables}
+
+Functions typically also return values.
+These are returned using the \texttt{return} keyword. \texttt{Solidity} functions can return single variables or they can return multiple variables.
+The return variables can also be of 2 types:
+
+\begin{itemize}
+
+   \item\textbf{Named return variables}: they have a specific name or names.
+   They are treated just like local variables within the context of the function.
+
+   \item\textbf{Unnamed return variables}: an explicit return statement needs to be used to return that variable a return value to the context of the function caller.
+
+\end{itemize}
+
+The caller specifies arguments that get assigned to the respective parameters of the callee function.
+The caller function works with these parameters (in the context of that function), does something with them along with all the local variables that might be defined within that function (it can also use the state variables that are declared within that contract) and once it is done with that logic, it can return values back to the caller.
+
+\subsection*{Modifiers}
+
+Function modifiers are something unique and specific to \texttt{Solidity}.
+They are declared using the \texttt{modifier} keyword and the format is something like this
+
+\begin{lstlisting}[language=Solidity, style=solStyle, caption={Modifier example.}]
+modifier mod() {
+    Checks;
+    _;
+}
+\end{lstlisting}
+
+As you can see, they are very similar to a function where, because modifiers have some logic encapsulated within them.
+The underscore acts as a placeholder for the function that we're attempting to modify; because \textbf{modifiers are used along with functions}.\\
+
+So in this case if there is a function \texttt{foo()} on which this modifier is applied, then whenever this function is called, it goes first to the modifier and depending on any of the checks (any of the logic implemented within that modifier), the function's logic gets called at the point where the underscore is placed within that modifier.\\
+
+So, if there are a bunch of checks in the modifier prior to the underscore, then those checks implement some preconditions that are evaluated before the function's logic is executed.
+Similarly, if the underscore precedes the checks in the modifier, the function's logic gets executed first and then the modifier executes its checks.\\
+
+Examples for the usage here could be access control checks that are implemented as preconditions on the function in the modifier, and they could be post-conditions that could be evaluated if the underscore happens to be before the checks in the modifier, and these could implement some sort of accounting checks in the context of the contract.\\
+
+Function modifiers play a critical role because they're very often used to implement access control checks, things that allow a contract to specify only certain addresses for example, to call the function where the modifier is applied\dots\,
+This is something that becomes critical when you evaluate the security of smart contracts.
+
+\subsection*{Function Visibility}
+It is similar to the visibility for state variables functions.
+Functions have the 4 different visibility specifiers
+
+\begin{itemize}
+
+   \item\texttt{public}: these functions are part of the contract interface and they can be called either internally (within the contract) or via messages.
+
+   \item\texttt{external}: these functions are also part of the contract interface, which means they can be called from other contracts and via transactions, but they cannot be called internally.
+
+   \item\texttt{internal}: these functions on the other hand can only be accessed internally (from within the current contract or contracts deriving from it).
+
+   \item\texttt{private}: these functions can be accessed only from within the contract where they are defined and not even from the derived contracts.
+
+\end{itemize}
+
+\subsection*{Function Mutability}
+
+Similar to the state variable mutability, functions also have the concept of mutability.
+This affects what state can they read or modify.
+Depending on that there are two function mutability specifiers:
+
+\begin{itemize}
+
+   \item\texttt{view}: these functions are allowed only to read the state but not modifying it.
+   This is enforced at the EVM level using the \texttt{STATICCALL} opcode.\\
+
+   There are various actions that are considered as state modifying that are not allowed for view functions, these include:
+   
+   \begin{itemize}
+      
+      \item Writing to state variables (as should be obvious)
+      
+      \item Emitting events
+      
+      \item Creating other contracts
+      
+      \item Using self-destruct
+      
+      \item Sending ether to other contracts
+      
+      \item Calling other functions not marked \texttt{view} or \texttt{pure}
+      
+      \item Using low level calls
+      
+      \item Using inline assembly that contain certain opcodes
+   
+   \end{itemize}
+
+   \item\texttt{pure}: these on the other hand are allowed to neither read contract state nor modify it.\\
+
+   The not modification part can be enforced at the EVM, but the reading part cannot because there are no specific opcodes that allow that.
+   There are various actions that are considered as reading from the state
+
+   \begin{itemize}
+      
+      \item Reading from state variables (obviously)
+      
+      \item Accessing the balance of contracts
+      
+      \item Accessing members of block
+      
+      \item Transactions or messages
+      
+      \item Calling other functions not marked as \texttt{pure}
+      
+      \item Using inline assembly that contain certain opcodes
+   
+   \end{itemize}
+
+\end{itemize}
+
+The read/write mutability aspect of functions again has security implications as you can imagine.
+
+\subsection*{Function Overloading}
+
+This is something fundamental to object oriented programming.
+It means that it supports multiple functions within a contract to have the same name but with different parameters or different parameter types.
+Overloaded functions are selected by matching the function declarations within the current scope to the arguments supplied in the function call, so depending on the number and the type of arguments the correct function is correctly chosen.\\
+
+Note that return variables are not considered for the process of resolving overloading, so this notion of overloading is an interesting one that is supported by \texttt{Solidity} given that it is an object-oriented programming language.
+
+\subsection*{Free Functions}
+
+They are functions that are defined at the file level (i.e. outside the scope of contracts) and thus these are different from the contract functions (defined within the scope of the contract).
+Free functions always have implicit \texttt{internal} visibility and their code is included in all the contracts that call them, similar to internal library functions.
+These functions are not very commonly seen.
+
+\section{Events}
+
+Events are an abstraction that are built on top of the EVM's logging functionality.
+Emitting events cause the arguments that are supplied to them to be stored in what is known as the transactions log. 
+This log is a special data structure in the blockchain associated with the address of the specific contract that created the event.
+This log stays there as long as that block is accessible.\\
+
+The log and its event data are not accessible from within the contracts, not even from the contract that created them. 
+This is an interesting fact of logs in EVM: they're meant to be accessed off-chain and this is allowed using RPCs (Remote Procedure Calls).
+So applications, off-chain interfaces or monitoring tools can subscribe and listen to these events through the RPC interface of an Ethereum client.\\
+
+From a security perspective, these events play a very significant role when it comes to auditing and logging for off-chain tools to know what the state of a contract is and monitor the state along with all the transitions that happen due to the transactions.
+
+\subsection*{Indexed Parameters in Events}
+
+Up to three parameters of every event can be specified as being indexed by using the \texttt{indexed} keyword.
+This causes those parameters to be stored in a special data structure known as topics instead of the data part of the log.
+Putting parameters into the topics part allows one to search and filter those topics in a very optimal manner.
+Parameters are commonly part of some of the specifications such as the \texttt{ERC20} token standard, and the events in that standard.
+These index parameters use a little more gas than the non-indexed one but they allow for faster search and query.
+
+\section*{Event Emission}
+
+Events are triggered by using the \texttt{emit} keyword.
+Every contract would declare a certain set of events as relevant, and within the contract functions, wherever these events need to be created and stored in the log, they would be done so by using the \texttt{emit} keyword.
+An example would look like this
+
+\begin{lstlisting}[language=Solidity, style=solStyle, caption={Example of Event emission.}]
+emit Deposit(msg.sender, _id, msg.value);
+\end{lstlisting}
+
+for the above example, let's say that we have a deposit event as part of a particular contract, and we have specific parts of functions where we would want to create this event and store them in the log.\\
+
+So, following the example above, we specify the event plus the arguments that are required according to the parameters of the event.
+These look in some way very similar to a function call, where the event corresponds to the function and the arguments that are supplied to it correspond to the event parameters.\\
+
+From a security perspective, it's critical for the contract and for the developers to emit the correct event and to use the correct parameters that are required by that event.
+This is something that is sometimes missed or not paid attention to because it's harder to be tested perhaps, and not critical to the control flow of the contract.
+But the only way for off chain entities, any kind of user interfaces or monitoring tools to keep track of the contract state and the transitions is by looking at these event parameters stored in the logs.
+
+\section{Structs}
+From a data structure perspective, structs are custom data structures that can group together several variables of the same or different types to create something very unique to the contract as required by the developer. The various members of the structs are accessed as follows
+
+\begin{lstlisting}[language=Solidity, style=solStyle, caption={Example of accesing struct members},label={Code_10}]
+// Create a struct
+struct Book { 
+   string title;
+   string author;
+   uint book_id;
+}
+// Fill in some info
+Book my_book = Book("El Quixote", "Miguel de Cervantes", 1);
+// Access a member
+my_book.author
+\end{lstlisting}
+
+\begin{lstlisting}[language=Solidity, style=solStyle, caption={Output of Code \ref{Code_10}}]
+"Miguel de Cervantes"
+\end{lstlisting}
+
+Struct is aggregate type that is commonly used within \texttt{Solidity} to pack together custom data structures.
+
+\section{Enums}
+Enums are another user defined custom type in \texttt{Solidity}. They can be used to represent a finite set of constant integer values as represented by the members of the enum. Every enum needs to have a minimum of one member and can have a maximum of 256 members. As they represent the underlying integer values, they can be explicitly converted to and from integers. An example looks as follows
+
+\begin{lstlisting}[language=Solidity, style=solStyle, caption={Example of enums}]
+enum ActionChoices{GoLeft, GoRight};
+ActionChoices choice = ActionChoices.GoRight;
+\end{lstlisting}
+
+So here \texttt{choice} is a variable of \texttt{ActionChoices} and it can be assigned the members of \texttt{ActionChoices}. Here we are assigning \texttt{ActionChoices.GoRight} to \texttt{choice} and during the course of the contact function, different members can be assigned to that variable and it can be read from. This is used to improve readability, <so instead of using integer values one can use specific names that correspond to those integer values in the con<text of what makes sense from that co<ntract and its underlying logic.
+
+\section{Constructor}
+This concept is specific and unique to \texttt{Solidity} because it applies to smart contracts and the way they are created on Ethereum. Recall contracts on ethereum can be created from outside the blockchain via transactions, or from within the \texttt{Solidity} contracts themselves. When a contract is created, you can imagine that one would want to initialize the contract state in some manner. This is made possible by the constructor. So the constructor is really a special function that gets triggered when a contract is created. A constructor is optional and there can be only one constructor for every contract. These special functions are specified by using the \texttt{constructor} keyword; some of the syntax and semantics have changed over the course of the solutions but this is how it has been in the most recent versions of \texttt{Solidity}
+
+\begin{lstlisting}[language=Solidity, style=solStyle, caption={Example of usage of a constructor}]
+contract Base {
+   uint data;
+   constructor(uint _data) public {
+      data = _data;   
+   }
+}
+\end{lstlisting}
+
+So constructors are used to initialize the state of a contract when they are created and deployed on the blockchain. They're triggered when a contract is created and it's run only once. Once the constructor has finished executing, the final code of the contract is stored on the blockchain and this deployed code does not include the constructor code or any of the internal functions that are called from within the constructor.\\
+
+From a security perspective, constructors are very interesting because they lets one examine what initializations are being done to the contact state because, if not the default values of the specific types of state variables. For example it could be used in the context of the various contract functions, which is an interesting and important aspect when it comes to evaluating the security of smart contracts.
+
+\section{Receive Function}
+Another special function in the context of \texttt{Solidity} is the \texttt{receive()}. This function gets triggered automatically whenever there is an ether transfer made to this contract via send or transfer primitives. It also gets triggered when a transaction targets the contract but with empty \texttt{CALLDATA}. Recall that a transaction that targets a contract specifies which function needs to be called in that contract and what arguments need to be used within the data portion of the transaction, but if that data is empty then the receive function is the function that gets automatically triggered in the contract.\\
+
+There can only be one receive function for every contract and this function cannot have any arguments, it cannot return anything and it must also have external visibility and a payable state mutability. Payable state mutability is something we haven't discussed so far but what it specifies is that the function that has this \texttt{payable} specifier can receive ether as part of a transaction and that applies to the receive function as well because it is triggered when ether transfers happen. The send and transfer primitives are designed in \texttt{Solidity} to transfer only 2300 gas. The rationale behind this was to prevent the risk, or mitigate the risk of what are known as "\textit{reentrancy attacks}" which we'll talk more in the security module. This minimal amount of gas does not allow a \texttt{receive()} function to do anything much more than some basic logging (using events).\\
+
+From a security context, \texttt{receive()} function becomes interesting to evaluate because it affects the ether balance of a contract and any assumptions in the contract logic that depends on the contract's ether balance.
+
+\section{Fallback Function}
+Another special function in \texttt{Solidity}. This is very similar to the \texttt{receive()}, there are some differences however. The \texttt{fallback()} function gets triggered automatically on a call to the contract if none of the functions in the contract match the function signature specified in the transaction. It also gets triggered if there was no data supplied at all in the transaction and there is no \texttt{receive()} function.\\
+
+Similar to the receive function there can be only one \texttt{fallback()} function for every contract, however this \texttt{fallback()} function can receive and return data if required. The visibility is \texttt{external} and if the fallback function is meant to receive ether, then it needs to use the \texttt{payable} specified similar to the receive function. The \texttt{fallback()} function cannot assume that more than 2300 gas can be supplied to it because this can be triggered via the send or transfer primitives and, similar to the \texttt{receive} function, the security implications of the \texttt{fallback} function have to consider that the ether balance can be changed via this function, so any assumptions in the contract logic specific to the ether balance need to be examined.
+
+\section{Statically Typed}
+\texttt{Solidity} is a \textbf{statically typed} language, which means that the type of the variables used within the contracts written in \texttt{Solidity} need to be specified in the code explicitly at compile time. This applies to the state variables and also the local variables. Statically typed languages perform what is known as compile time type checking according to the language rules. So when variables of different types are assigned to each other at compile time, the language can enforce that the types are used correctly across all these assignments and usages. Many of the programming languages that you may be familiar with such as \texttt{C}, \texttt{C++}, \texttt{Java}, \texttt{Rust}, \texttt{Go} or \texttt{Scala} are statically typed languages. From a security perspective, the type checking is a critical part and helps in improving the security of the contracts.
+
+\section{Types}
+\texttt{Solidity} has two categories of types
+
+\begin{enumerate}
+\item\texttt{value}: they're always passed by value, which means that whenever they are used as function arguments or in assignments of expressions, they are always copied from one location to the other.
+\item\texttt{reference}: they can be modified via multiple names all of which point to or reference the same underlying variable (i.e. the same memory address. This is easier to understand when it is thought like the concept of pointers).
+\end{enumerate}
+
+From a security perspective you can imagine that this becomes important because it affects which state is being updated and what those transitions are in the states as affected by the transactions.
+
+\section{Value Type}
+As discussed value type is one of the two types in \texttt{Solidity} where variables of these value types are passed by value (which means they are copied when used as function arguments or in assignments of expressions). There are different value types in \texttt{Solidity}: booleans, integers, fixed point numbers, address, contract, fixed size byte arrays, literals, enums and functions themselves.\\
+
+From a security perspective, value types can be thought of as being somewhat safer because a copy of that variable is made so that the original value of the original state itself is not modified accidentally. But then one should also check that any assumptions around the persistence of the values is being considered properly, so this will become clearer once we talk about the reference types and once we look at some of the security aspects.
+
+\section{Reference Type}
+In contrast to value types, reference types are passed by reference: there can be multiple names for the variable, all pointing to the same underlying variable state. There are 3 reference types in \texttt{Solidity}: arrays, structs and mappings. From a security perspective, reference types can perhaps be considered a little more riskier than value types because now you have multiple names pointing to the same underlying variable, which could, in some situations, lead to unintentional modification of the underlying state.
+
+\section{Default Values}
+Variables that are declared but not initialized have default values. In the case of \texttt{Solidity}, the default values of variables are what is known as a zero state of that particular type. This means is that in the case of a boolean, it has a value of zero as a default which represents a value of false for the boolean. For unsigned integers or integer types, this is 0 (as expected). For statically sized arrays and \texttt{bytes1} to \texttt{bytes32}, each individual element will be initialized to the default value corresponding to its type. For dynamically sized arrays, bytes and string the default value is an empty array or string. For enum types, the default value is its first member.\\
+
+From a security perspective this becomes important because variables that are declared and not initialized end up with these default values. In some cases, such as an address type, the zero address (which is a default value) has a special meaning in Ethereum, and that affects some of the security properties within the contract depending on how those address variables are used.
+
+\section{Scoping}
+This is fundamental to every programming language as it affects what is known as variable visibility, or in other words "\textit{where can variables be used in relation to where they're declared}. In the case of \texttt{Solidity}, it uses the widely used scoping rules of \texttt{C99} standard.\\
+
+So variables are visible from the point right after the declaration until the end of the smallest curly bracket block that contains that declaration. As an exception to this rule, variables declared in the initialization part of a \texttt{for} loop are only visible until the end of the loop. Variables that are parameters, like function parameters, modifier parameters or catch parameters are visible inside the code block that follows the body of the function (or modifier or catch). Other items declared outside of a code block such as functions, contracts, state variables or user defined types are visible even before they are declared. This means that we can see the usage of state variables even before they are declared within the context of a contract. This is what allows functions to be called recursively.\\
+
+From a security perspective, understanding the scoping rules of \texttt{Solidity} becomes important when we are doing data flow analysis. This could be in the context of a manual review, where you're looking at the code yourself or when you're writing tools to do static analysis on \texttt{Solidity} smart contracts.
+
+\section{Boolean}
+
+\textbf{Boolean types} are declared using the \texttt{bool} keyword. They can have only two possible values: \texttt{true} or \texttt{false}.
+
+There are five operators that can operate on boolean types: \textbf{the logical negation} or \textbf{not operator} (\texttt{!}), \textbf{the equality operator} (\texttt{==}), \textbf{inequality} (\texttt{!=}), the \textbf{and} (\texttt{\&\&}) and \textbf{or} (\texttt{||}). The latter two operators are also known as logical conjunction and logical disjunction operators.
+
+\textbf{Operators apply the short circuiting rules}. For example, in an expression that uses the logical disjunction or, operator if there are two booleans let's say \texttt{x} or \texttt{y}, if x evaluates to \texttt{true}, then the boolean \texttt{y} will not be evaluated at all even if it may have side effects. This is because the expression already evaluates to \texttt{true} and there's no need for the second boolean to be evaluated at all and similarly this applies to the \textbf{and} operator logical conjunction as well. So if there are two booleans that have this operator, let's say \texttt{x} and \texttt{y}, and if \texttt{x} happens to be \texttt{false}, then we know that the expression finally will evaluate to \texttt{false}, so there is no reason for the compiler to evaluate, because the result is already known to be \texttt{false} from a security perspective. 
+
+\textbf{Booleans are used significantly in smart contract functions} for various conditionals and evaluations of expressions. \textbf{This affects the control flow and specifically when it comes to certain checks access control checks}. 
+
+\textit{(History)}. There have been cases where booleans have been used, and the wrong operator has been used in those checks. So for example using the \textbf{not} or logical disjunction instead of logical conjunction. It can have big implications to how that particular expression evaluates and that check, the access control check or whatever that might be, might not be effective at all as intended by the specification. So this is again something to pay attention to when you're looking at booleans and the operators that evaluate that operate on the booleans in smart contracts.
+
+\section{Integers}
+\textbf{Integer types} are very common in \texttt{Solidity} and any programming language. There are unsigned and signed integers of various sizes. In \texttt{Solidity} they use the \texttt{uint} or \texttt{int} keywords. They come in \textbf{sizes from 8 bits all the way to the word size of 256 bits}.
+
+\begin{center}
+\texttt{uint}/\texttt{int} \textbf{keywords} 
+\textbf{sizes: 8 }$\rightarrow$\textbf{ 256 Bits}
+\end{center}
+
+So you'll see declarations of unsigned integers or integers signed intgers in the form of \texttt{uint8} all the way to 256.
+
+\begin{lstlisting}[style=defaultStyle, caption={Examples of different \textbf{int} and \textbf{uint} sizes.}]
+uint8, uint16, ... uint256 
+int8, int16, ... int256
+\end{lstlisting}
+
+There are various operators for integer types. There are different categories that we saw in the EVM instruction set: \textbf{arithmetic operators}, \textbf{comparative operators}, \textbf{bit operators} and \textbf{shift operators}.  From a security perspective, given that integer variables are vastly used in \texttt{Solidity} contracts, they \textbf{affect the data flow of the contract logic} and specifically there is an aspect of integers that becomes \textbf{security critical} which is that of \textbf{underflow and overflow}.
+
+\section{Integer Arithmetic}
+Integer arithmetic is arithmetic that operates on integer operands, signed integer operands or unsigned integers operands \texttt{Solidity}. Like in any other language, they are really restricted to a certain range of values, so for example if you have $256$, then the range of that variable is from a value of $0$ to $2^{256} - 1$.\\ 
+
+If there is any operation on a variable of, let's say \texttt{uint256} type that forces it to go beyond this range, then it leads to what is known as an overflow or an underflow. This causes wrapping. In the case of \texttt{uint256} (let's say that the value of one of those \texttt{uint256} variables was the maximum value), then if the contract logic incremented it by 1 more, then that integer value would overflow: it would wrap to the other side of the range and would become 0. Similarly an underflow, let's say in the case of the value was 0, if the logic decremented it by one more, then it would again cause wrapping to the other end of the range and the value of that variable would now be $2^{256} - 1$. This can have significant unintended side effects when it comes to the integer values used in that logic.\\
+
+There have been numerous cases of certain integer values being overflowed or underfloored, leading to huge exploits vulnerabilities from a security perspective. This is something that is really really critical when it comes to the security of integers, basically in the smart contract.\\ 
+
+To address this specific aspect in versions of \texttt{Solidity} below \texttt{0.8.0}, \textbf{the best practice was to use the safe math libraries from OpenZeppelin} that made operating on integer variables safe with respect to overflows and underflows. \texttt{Solidity} itself as a language recognized this aspect of security and introduced in version 0.8.0 default overflow and underflow checks for integers.\\
+
+In contracts that are written with the compiler version \texttt{0.8.0} and above, one can actually switch between the default checked arithmetic (that checks for underflows and overflows and causes exceptions when that happens) versus unchecked arithmetic (where the programmer or the developer asserts that for the expressions used in that unchecked arithmetic there is no way or no cause for concern when it comes to overflows and underflows), so all the default underlying checks in the language in the compiler itself should be disabled.\\
+
+This is something to be paid attention as it is a critical aspect of smart contact security. When looking at smart contracts, pay attention to the solution compiler version that was used: if it is below \texttt{0.8.0}, then there should be the use of safe map from OpenZeppelin, or some of the other equivalents that make sure that the integers don't overflow and underflow and cause security vulnerabilities. If the compiler version is \texttt{0.8.0} or beyond, then one should pay attention to any expressions, integer expressions, that are using unchecked blocks to make sure that those don't have any overflows or underflows.
+
+\section{Fixed Point Arithmetic}
+Conceptually you would have seen this in other languages, as well for numbers that have an integer part and a fractional part, the location or the position of the decimal point indicates if it is fixed or floating. If that position or location of the decimal point can change for that type then it is referred to as a floating point type.\\
+
+But if that position is fixed for all variables of that tipe, then it is known as fixed point arithmetic. In the case of \texttt{Solidity}, these can be declared but cannot be assigned. There's no real support in \texttt{Solidity}. \textbf{For any use of fixed point arithmetic}, one has to \textbf{depend on some of the libraries such as} \texttt{DSMath}, \texttt{PRBMath}, \texttt{ABDKMath64x64} or others.\\
+
+\section{Address}
+It's a type that is specific to \texttt{Solidity} and Ethereum, and it is critical to security: the \texttt{address} type. It refers to the underlying Ethereum account address, the EOA or the contract account. This is different from the addresses that you might have encountered in other programming languages such as \texttt{C} and \texttt{C++}, where they refer to variables' memory address when you're dealing with pointers or references. Here address signifies something very different: an account address.\\
+
+The \texttt{address} types are 20 bytes in size, because remember that is the size of the Ethereum address. They come in two types they can be \textbf{plain} \texttt{address} types or they can have a \texttt{payable} \textbf{specifier, and referred to as an} \texttt{address payable} \textbf{type}, where it indicates that this \texttt{address} type can receive Ether. There are different operators that operate on address types, such as shown here
+
+\begin{itemize}
+\item Operators \texttt{==}, \texttt{!=}, \texttt{<}, \texttt{<=}, \texttt{>} and \texttt{>=}
+\item Implicit/Explicit Conversions
+\end{itemize}
+
+There are conversions that can be performed on \texttt{address} types. Some of them are implicit and others are explicit. For converting \texttt{address payable} types to \texttt{address} types, implicit conversions can be used because it is safe. Whereas the other way around, where an \texttt{address} type is converted to an \texttt{address payable} type, that should be an explicit conversion because now this address becomes capable of receiving Ether.\\
+
+From a security perspective, \texttt{address} types play a critical role in contracts. These addresses are used in different types of access control: some may be considered as more privileged than the others in the context of the contract logic. Addresses can also hold Ether balances and token balances, so using the right addresses in the right places and making sure that the correct access control logic or the balances accounting logic is applied on them, becomes very critical from a security perspective to make sure there are no undefined behavior or unintended side effects leading to security vulnerabilities.\\
+
+\section{Address Members}
+Address types have different members that can give different aspects of the underlying \texttt{address} type. There is the \texttt{balance}, that gives you (as the name may suggest) the balance of that address in wei. There is the \texttt{code} that gives you (surprise\dots) the code of that address. There is \texttt{code hash} that gives you the hash of the code..\\
+
+There are also the \texttt{transfer} and \texttt{send} members that \textbf{are applicable to the} \texttt{address payable} \textbf{types}. They make calls to the addresses that are specified by supplying a limited gas stipend of only 2300 gas units. This is not adjustable: it is something hard coded in \texttt{Solidity} to address the category of reentrancy attacks on addresses. We'll take a look at the reentrancy aspect later on in the security modules, but it's something to keep in mind for now.\\
+
+There are also the following members: \texttt{call}, \texttt{delegate call} and \texttt{static call} that can be applied on \texttt{address} types. These are used to make low level calls to their specific address that is specified. We talked about some of these calls in the context of the underlying instructions, \texttt{call}, \texttt{delegatecall}, and \texttt{staticcall} instructions, where we talked about how the callee account in the case of \texttt{delegatecall} executes with its logic but with the state of the caller account. Similarly in the case of \texttt{staticcall} we talked about how the callee contract address can access the state but cannot modify the state.\\
+
+So as you can imagine, these \texttt{address} members play a huge role when it comes to the security aspects, because they deal with the balances, look at the code, the code hash, the reentrancy aspects of \texttt{send} and \texttt{transfer}, making external calls using \texttt{call}, \texttt{delegatecall}, and \texttt{staticcall}, which are critical when it comes to the trustworthiness of the contracts that are being called at these addresses.
+
+\section{Transfer}
+The transfer primitive can be applied on addresses. The \texttt{transfer} function is used for transferring Ether to the destination address. This transfer triggers the \texttt{receive} function, or the \texttt{fallback} function of the target contract. This comes by default supplied with 2300 gas subsidy (remember, it is a fixed amount cannot be changed) and if the \texttt{fallback} functions of the target contract uses more than 2300 gas, then the transaction fails: it reverts and an exception is executed by design.\\
+
+From a security perspective this primitive affects reentrancy attacks: where the target contract, if it is untrusted, could potentially call back into the caller contract and lead to undesired behavior that could affect token balances or other contract logic in in a very critical way. The 2300 gas assumption is critical when you look at how contracts use transfer and whether that transaction could fail and revert and lead to undefined behavior.
+
+\section{Send}
+Similar to \texttt{transfer}, there is \texttt{send} function in \texttt{Solidity} which is somewhat a lower level counterpart for \texttt{transfer}. It is used for Ether transfers: it triggers the same receiver \texttt{fallback} functions like \texttt{transfer}, it also has a 2300 gas subsidy, but \textbf{it does not result in a failure if the target contract uses more than 2300 gas unlike transfer}. In the case of \texttt{send}, it does not revert but it just sends back a boolean return value that indicates a failure or a false boolean value in the case of failure.\\
+
+So if the \texttt{send} primitive is used to transfer value, then from a security perspective it means that the return value of that \texttt{send} primitive must be checked by the caller to make sure that the transfer happened successfully or not, depending on what was returned. Again, the \texttt{send} primitive affects reentrancy, which is again why the \texttt{send} primitive was introduced as a mitigation in \texttt{Solidity}. There is also the 2300 gas subsidy aspect that affects security, and finally the return value check that is critical and and different from its \texttt{transfer} counterpart.
+
+\section{External Calls}
+There are really primitives that we touched upon earlier: \texttt{call}, \texttt{delegatecall} and \texttt{staticcall}. These are used to interface with contracts that do not adhere to the ABI or where the developer wants more direct control over such calls. They all take single bytes memory parameter, return the success condition as a boolean and return data in a bytes memory. They can also use \texttt{abi.*} functions, such as \texttt{encode}, \texttt{codepath}, encode with selector, encoded signature\dots\, to encode structured data as part of the arguments. They can also use gas and value modifiers to specify the amount of gas and Ether for these calls. The latter is applicable for the \texttt{call} primitive but not \texttt{delegatecall} or \texttt{staticcall}.\\
+
+To summarize: the \texttt{delegatecall} is used where the caller contract wants to use the logic specified by the callee contract but with the state and other aspects of the caller contract itself. So while the code of the given address is used, all other aspects such as \texttt{storage}, \texttt{balance}, \texttt{message}, \texttt{sender} are taken from the current caller contract. The purpose of \texttt{delegatecall} is to enable use cases such as libraries or proxy upgradability, where the logic code is stored in the callee contract but that operates on the state of the caller contract. \texttt{staticcall} is used where we want the called function in the callee contract to look at or to read the state of the caller contract, but not modify it in any way.\\
+
+The use of external calls have different types of security implications, these are low level calls that should be avoided in most cases unless absolutely required and there are no alternatives available, because these are calling out to external contracts that may be untrusted, in the context of the current applications threat model or trust model. These external contracts could result in undefined behavior, use more gas than expected, cause re-entrances to the caller contract and might also return failures where if the return value is not checked, could result in undefined behavior as well.\\
+
+\section{Contract Type}
+Every contract that's declared is its own type and these contract types \textbf{can be explicitly converted to and from address types}. That is what they represent underneath. These contract types do not have any operators supported, and the only members of these types are external functions declared in the contract along with any state variables.
+
+\section{Bytes Arrays}
+\textbf{Bytes array type are used to store arrays of raw bytes}. There are two kinds here: if we know what the size of the byte array is going to be in advance, then we can use what are known as fixed size bytes arrays: they come in 32 kinds, \texttt{bytes1} for storing 1 byte all the way to \texttt{bytes32} for storing 32 bytes, which is the full word size in the context of EVM.\\ 
+
+If we do not know the fixed size in advance then we can use the alternative, which is indicated by \texttt{byte[]}, but due to padding rules of EVM it wastes 31 bytes of space for every element that is stored in it. So if we have a choice, then it's better to use the bytes type instead of the byte type for these byte arrays. This is something that you will commonly come across in smart contracts for storing raw bytes example in case of hashes.
+
+\section{Literals}
+This is something that you would have come across in other programming languages, as well \texttt{Solidity} supports five types of literals: \textbf{address types}, \textbf{rational}/\textbf{integers}, \textbf{strings}, \textbf{unicode} and \textbf{hexadecimals}.\\
+
+The address literals are hexadecimal literals that pass the address checksum test. Remember that Ethereum addresses are 20 bytes in length, so in the case of the hexadecimal address representation, half a byte is represented by a hexadecimal character. This results in the address literal having 40 characters: 2 for every byte. These should pass the checksum test. The checksum is something that has been introduced in EIP55 to make sure that there are no typographical errors when you're using addresses in the context of Ethereum. This is a mixed case addressed exam.\\
+
+Rational literals and integer literals are also supported. Integer literals have a sequence of numbers in the 0 to 9 range. Decimal fraction literals are formed by using a decimal point, with at least one number in each side. Scientific notation is supported where the base can have fractions and the exponent cannot. Underscores can be used to separate these digits, which is used to help with readability and does not have any semantic significance. String literals are written with either double quotes (\texttt{""}) or single quotes (\texttt{''}). They can only contain printable \texttt{ASCII} characters and a set of escape characters. Unicode literals they have to be prefixed with the keyword \texttt{unicode}. They can contain any \texttt{utf-8} sequence. The hexadecimal literals are hexadecimal digits prefixed with the keyword \texttt{"hex"} or \texttt{'hex'}. The usage of all these literals is in the context of constants.\\
+
+\section{Enums}
+\textbf{Enums are a way to create user defined types in} \texttt{Solidity}. \textbf{They can have members anywhere: from 1 member all the way to a maximum of 256 members, and the default value of an} \texttt{enum} \textbf{is that of the first member}. This is something that you see sometimes in smart contracts where \texttt{enums} \textbf{are used to represent the names of the various states} within the context of the contract logic or the transitions in some cases. This is something that helps to \textbf{improve readability} instead of using the underlying integers that the \texttt{enums} really represent.
+
+\section{Function Types}
+\textbf{Function types are types used to indicate that variables represent actual functions}. These variables can be used just like any other variables: they can be assigned from functions because they are of the function type, and they can be sent as arguments to other functions and can also be used to return values from other functions.\\
+ 
+They come in two types: \texttt{internal} and \texttt{external}. Internal functions can only be called inside the current contract. External functions consist of an address of the contract where they're relevant and a function signature along with it. They can be passed and returned from external function calls. The usage of function types is somewhat minimal in most of the common smart contracts.
+
+\section{Data Location}
+We talked about value types and reference types. Reference types, which consist of structs, arrays and mappings in \texttt{Solidity} allow for a specification of their data location. This is an additional annotation and it indicates where that reference type variable is stored. There are really three locations: \textbf{memory}, \textbf{storage} and \textbf{calle data}. Remember that these are 3 of the 4 locations that the EVM supports besides the stack. These data locations affect the lifetime or the scope and persistence of the variables stored in those locations.
+
+\begin{itemize}
+
+\item\textbf{Memory} indicates that the lifetime is limited to that external function call.\\
+\item\textbf{Storage} indicates that the lifetime extends to that whole contract and this is also the location where state variables are stored.\\
+\item\textbf{Call data} is a non-modifiable and non-persistent area where function arguments are stored. This is required for parameters of external functions but can also be used for other variables. This data location annotation impacts the scope of the variables that use this lotation. From a security perspective this affects the persistence of those variables.
+\end{itemize}
+
+
+\section{Data Location \& Assignments}
+\textbf{The data location annotation} we just talked about not only \textbf{affects the persistency of those variables}, the scope in which they are relevant, but it also affects what are known as \textbf{assignment semantics}. In the context of \texttt{Solidity}, what this means is that during an assignment, using such variables is a copy of that variable being created? Or is simply a reference being created to the existing variable? In \texttt{Solidity}, storage to memory assignments always create an independent copy. Memory to memory assignments only create references. Similarly storage to storage assignments only create a reference. All other variants, create a copy.\\ 
+
+From a security perspective how this impacts the semantics is: if a copy were to be created because of these assignment rules, then any modifications to the copy affect only the copy and not the original variable from where it was copied. On the other hand, if a reference was created, in the case of memory to memory assignments or storage to storage assignments, then the new variable modifications to that affect the original variable because both of them are just different names pointing to the same underlying variable data (the same memory address on the machine). So this becomes important when you analyze programs and notice what the data locations are for those reference types, because there's a big difference if modifications are being made to the copy versus a reference.
+
+\section{Arrays}
+Array types are something that are very common in most programming languages, in the case of \texttt{Solidity} they come in two types: they can be\linebreak\texttt{static arrays} \textbf{where the size of the array is known at compile time} or \textbf{they can have a dynamic size}.\\
+
+They are formally represented as \texttt{T[k]} (a static array of size \texttt{k}) or \texttt{T[]} (a dynamical array). The elements of these arrays can be of any type that is supported by \texttt{Solidity}. The indices that are used with these arrays are 0 based (the first array element is stored at \texttt{T[0]} and not \texttt{T[1]}.\\ 
+
+If these arrays are accessed by the logic past their length, then \texttt{Solidity} automatically reverts that access and creates an exception, which causes a failing assertion, In the context of the contract doing such an access. From a security perspective, arrays are very commonly used in smart contracts, \textbf{so the things to pay attention to are to check if the correct index is being used especially in the context of indices being zero based and to check if arrays have an off by 1 error, where they're being accessed either beyond or below their supported indices}, in which case such an \textbf{access could lead to an exception and the transaction would revert.}
+
+The other aspect to keep in mind with arrays is if the length of the array that is being accessed is really long and if the types are complicated underneath, then the amount of gas that is used for the processing of such arrays could end up in what is known as a denial of service attack(DoS) where those transactions revert because not enough gas can be supplied as part of the transaction so you would end up with no processing really happening because a transaction would revert.
+
+\section{Array Members}
+The members that are supported for array types there are four of them: there is the \texttt{length}, \texttt{push(x)} and \texttt{pop}. 
+
+\begin{itemize}
+\item\texttt{length} returns the number of elements in the array.
+\item\texttt{push()} appends a 0 initialized element at the end of the array and it returns a reference to that element
+\item\texttt{push(x)} appends the specified element \texttt{x} to the end of the array and it returns nothing.
+\item\texttt{pop} on the other hand removes an element from the end of the array and implicitly calls delete on that remote element.
+\end{itemize}
+
+\section{bytes \& string}
+
+Bytes are used to stir arbitrary byte data of arbitrary length. Remember that \textbf{if we know beforehand the size of the byte array}, then we can \textbf{use the fixed size byte arrays} to store those number of bytes. But if you do not know what the size is beforehand, then we can use the \texttt{bytes} type, and even there we have a choice of bytes or the byte array we talked about earlier. Remember that the byte array uses 31 bytes of padding for every element stored and leads to waste of that space so \textbf{it's preferable to use bytes over the byte array}.\\
+
+\textbf{String type is equivalent to the byte style except that it does not allow accessing the length of the string and the index of a particular byte in that string}, so it does not have those members. \texttt{Solidity} \textbf{does not yet have inbuilt string manipulation functions but there are third party string libraries} that one can use.
+
+\section{Memory Arrays}
+\textbf{Memory arrays are arrays that are created in memory, they can have dynamic length and can be created using the} \texttt{new} \textbf{operator}. But as opposed to storage arrays, \textbf{it's not possible to resize them}. So the \texttt{push()} \textbf{member functions are not available} for such memory arrays. So the options are for the developer to either \textbf{calculate the required size in advance} and use that appropriately during the creation of these arrays, \textbf{or create a new memory array and copy every element of the older memory array into the new one} an example is shown here.
+
+\begin{lstlisting}[language=Solidity, style=solStyle, caption={Example of memory array definition.}]
+uint[] memory a = new uint[](7);
+\end{lstlisting}
+
+\section{Array Literals}
+They are another type that is supported by \texttt{Solidity}. They are a comma separated list of one or more expressions, enclosed in square brackets (which is how arrays are represented in \texttt{Solidity}). These are always statically sized memory arrays, whose length is the number of expressions used within them. The base type of the array is the type of the first expression of that list, such that all other expressions can be converted to the first expression. If that is not possible then it is a type error indicated by \texttt{Solidity}. Fixed size memory arrays cannot be assigned to dynamically sized memory arrays within \texttt{Solidity}, so these are some aspects to be kept in mind when evaluating contracts that have array literals.
+
+\section{Array Gas Costs}
+Arrays have \texttt{push} and \texttt{pop} operations. Increasing the length of a storage array by calling \texttt{push}, has constant Gas cost because storage is zero initialized. Whereas if you use \texttt{pop} on such arrays to decrease their length, the Gas cost associated with that operation depends on the size of the element being removed. If the element being removed happens to be an entire array, then it can be very costly because it includes explicitly clearing the removed elements, which is similar to calling \texttt{delete} on each one of them.
+
+\section{Array Slices}
+\texttt{Solidity} supports the notion array slices. Array slices are views that are supported on contiguous array portions of existing arrays. They are not a separate type in \texttt{Solidity}, but they can be used in intermediate expressions to extract useful portions of existing arrays as required by the logic within the smart contracts. These are written as
+
+\begin{lstlisting}[language=Solidity, style=solStyle, caption={Example of array slicing.}]
+X[start:end]
+/** This expression takes the array from element X[start]
+up to element X[end-1]
+*/
+\end{lstlisting}
+
+From an error checking perspective if \texttt{start > end} or if \texttt{end > n} (where \texttt{n} is the size of the array) then an exception is thrown. Both these \texttt{start} and \texttt{end} values are optional, where \texttt{start} defaults to \texttt{0} and \texttt{end} defaults to the length of the array \texttt{n}. Array slicers do not have any members that are supported, and for now \texttt{Solidity} only supports array slices for call data arrays.
+
+\section{Struct Types}
+Struct types and Solidity are another user defined type: they let the developer combine different variables of value or reference types into one unit and treat them together in the contract logic. So these are used extensively within smart contracts, they're very commonly encountered.\\
+
+Some of the properties of \texttt{struct} types are that they can be used inside mappings, arrays and they themselves can contain mappings and arrays. All these different complex reference types can be used in a very interrelated manner and allows for a versatile usage of these data structures to support different kinds of encapsulation logic when it comes to the different data types within a smart contract. There's one exception: \texttt{struct} types cannot contain members of the same \texttt{struct} type.
+
+\section{Mapping Types}
+It is an interesting reference type somewhat unique to \texttt{Solidity}. Mapping types define \texttt{(key, value)} pairs, they're declared using the following syntax
+
+\begin{lstlisting}[language=Solidity, style=solStyle, caption={Example of mapping definition}]
+mapping(_key => _value) _Var
+\end{lstlisting}
+
+The \texttt{key} type in a \texttt{mapping} can be really any built-in value type: byte, string or any contract or enum type even. Other user defined or complex types, such as \texttt{mapping structs} or \texttt{array} types are not allowed to be used as the key type, so there are some restrictions here. On the other hand, the \texttt{value} type of that \texttt{(key, value)} pair, can be any type including mappings, arrays and structs. There are some interesting aspects of how mappings are created and maintained by \texttt{Solidity}: the \texttt{key} data is not stored in the \texttt{mapping}, it is only used to look up the value by taking a Keccak-256 hash of that \texttt{key} data. They also do not have a concept of length nor a concept of a \texttt{key} or \texttt{value} being set in the mapping. They can only have a storage data location, so they are only allowed for state variables. They cannot be used as parameters or return values of contact functions that are publicly visible.\\
+
+These restrictions are also true for arrays and structs that contain mappings, not just mappings themselves. Also one cannot iterate over the mappings, you cannot enumerate their keys and get the resulting values. This is not supported by default but it is possible where required by implementing another data structure on top of mappings and iterating over them. So very versatile type in \texttt{Solidity} again, very commonly encountered in smart contracts to store associations between different data structures that are used in that contract logic.
+
+\section{Shorthand Operators}
+These are concise notations of slightly longer expressions as shown here
+
+\begin{lstlisting}[style=defaultStyle, caption={Example of shorthand operators}]
+Long expression } Shorthand notation
+----------------+-------------------
+a = a + e       } a += e
+a = a - e       } a -= e
+a = a*e         } a *= e
+a = a/e         } a /= e
+a = a%e         } a %= e
+a = a}e         } a }= e
+a = a&e         } a &= e
+a = a^e         } a ^= e
+\end{lstlisting}
+
+Basically it consists on simplifying the expression of increments and decrements, where the result of the expression is really the value of a after the increment or decrement has been performed.
+
+\section{Delete}
+The \texttt{delete} keyword that can be used within smart contracts to reclaim the underlying storage of a variable when it is no longer required in in that context of the contract. Applying this keyword on a variable \texttt{a}, of a particular type, assigns the initial value for that type to \texttt{a}. So if it is applied on integers, then the value of that variable is set to 0, for arrays it assigns a length of 0. For dynamic arrays and for static arrays the length remains the same but all the elements are set to their initial value.\\
+
+\texttt{deleta A[x]} where \texttt{A} is an array and \texttt{x} specifies a particular index, deletes the item at that index of that array and leaves all the other elements and even the length of that array intact. For structs, \texttt{delete} assigns a \texttt{struct} with all the members reset to their initial values. Delete has no effect on mappings, this is an exception that has to be paid attention to. So if you \texttt{delete} a struct which in turn has a mapping as one of its fields, then \texttt{delete} will reset all the members of that struct that are not mappings and will also recurse into each of those members unless they are mappings. But if you want to \texttt{delete} a particular \texttt{key} of that \texttt{mapping} then that is possible.\\
+
+\section{Implicit Conversions}
+Every programming language that supports different types supports the concept of conversions, where variables of different types can be converted between each other.\\
+
+There are two types of these conversions, some of them can happen \textbf{implicitly} where that conversion is applied by the compiler itself. These typically happen where that conversion makes sense semantically and there is no information that is lost, so this is a very safe conversion applied by the compiler. Such conversions happen during assignments of variables when variables are passed as arguments to functions, and the parameter types of those functions are of a different type than the arguments applied (and in other contexts as well).\\ 
+
+Examples of implicit conversions in the case of \texttt{Solidity} are converting a \texttt{uint8} to \texttt{uint16} or \texttt{uint128} to \texttt{uint256} and so on, where the resulting type is bigger in the sense of the storage supported than the type that is being converted from. So \texttt{uint16} has 16 bits that can safely store \texttt{uint8}. However exceptions to implicit conversions are converting from signed integers to unsigned integers, and that doesn't make semantic sense because unsigned integers cannot hold or represent negative values.
+
+\section{Explicit Conversions}
+The flip side of implicit conversion are \textbf{explicit} conversions, where the type conversions are explicitly applied by the developers themselves and not by the compiler. The reason for that is the compiler cannot deduce or prove the type safety of such conversions and they may result in an unexpected behavior.\\ 
+
+There are various rules to such explicit conversions: in the case of integers when they are converted to a smaller type, the higher order bits are cut off when they are converted to a larger type they are padded on the left with the higher order end. So these apply for example when a \texttt{uint8} is converted to \texttt{uint16} the padding happens on to the left and when a \texttt{uint16} is converted to \texttt{uint8}, the higher order bits are cut off. Similarly for fixed size bytes, the \texttt{bytes} arrays or \texttt{bytes1} all the way to \texttt{bytes32}, converting to a smaller type cuts off bytes to the right and converting to a larger type will pad bytes to the right.\\
+
+So these rules are something that the developer has to pay attention to when forcing explicit conversions and if not done right, they could really result in undefined unexpected behavior, because the values underlying variables are chopped off in an unexpected fashion.
+
+\section{Conversions Literals}
+There are various rules that apply to these conversions. Decimals and hexadecimal number literals can be converted implicitly to any integer type that's large enough to represent it without getting it truncated. However decimal number literals cannot be implicitly converted to fixed size byte arrays.\\ 
+
+Hexadecimal number literals can be converted to fixed size byte arrays but only if the number of hex digits fits the size of the bytes type exactly, although there are some exceptions to this. As well string literals and hex string literals can be implicitly converted to fixed size bite arrays, but only if the number of characters matches the size of the \texttt{bytes} type. So these are various \texttt{Solidity} rules that need to be considered while converting literals and again it's something that you might encounter while analyzing smart contracts.
+
+\section{Ether Units}
+Ether is $18$ decimals, the smallest unit is a wei. There are various names given for different numbers of weis: $1$ gwei $= 10^9$ wei, $1$ ether $= 10^{18}$.\\
+
+In the case of the \texttt{Solidity} types, a literal number can be given a suffix of a wei, or a gwei (gigawei) or an ether. These are used to specify sub denominations of ether, as we see here, which are used when contracts want to manipulate different denominations of ether in the context of the logic.
+
+\section{Time Units}
+As you can imagine contracts might want to work with different notions of time for various types of logic that they want to encode. \texttt{Solidity} supports different suffixes that represent time, and these can be applied to literal numbers and these suffixes are: seconds, minutes, hours, days and weeks.\\
+
+The base unit for time is seconds, so literally when 1 is used it is the same as representing 1 seconds. The suffixes cannot be directly applied onto variables, so if you want to apply time units to certain variables, then one needs to multiply that variable with that time unit. So as an example shown, if we have a \texttt{daysafter} variable and we wanted to represent the number of days then we have to proceed like follows: \texttt{daysafter * 1 days}. That is really how Solidity allows one to use these units with variables.
+
+\section{Block \& Transaction Properties}
+\texttt{Solidity} allows accessing various block and transaction properties within smart contracts. These allow developers to perform interesting logic that are dependent on different aspects of the current block or the transaction. So in the case of the block we have the \textbf{block hash}, that gives the hash of the specified block, but only works for the most recent 256 ones, otherwise it returns zero. There is \textbf{block chain id} which gives the current id of the chain that this is executing on. There is the \textbf{block number} which is the sequence number of the block within the blockchain. There is the \textbf{block timestamp}, which is the number of seconds since the unix epoch.\\
+
+There is also the \textbf{coinbase address}, which is controlled by the miner and it's the beneficiary address where the block rewards and transaction fees go to. There is a \textbf{block difficulty} related to the proof of work. There's a \textbf{Gas limit} related to the block.\\
+
+Additionally, yhere are also fields related to the message, the \textbf{message value}, representing the amount of ether that was sent as part of this transaction, \textbf{message data}, which gives access to the complete call data sent in this transaction, \textbf{message sender}, which is the center of the current call or the message, and the \textbf{message signature}, which is the function identifier or the first four bytes of the call data representing the function selector that we talked about earlier.\\
+
+Then there are transaction components of \textbf{Gas price} used in this transaction, the amount of \textbf{Gas left} in this transaction after all the competition so far, and also the \textbf{transaction origin}, which is the sender of the transaction, representing the EOA.
+
+\section{Message Values}
+Message value represents the amount of ether sent in way as part of the transaction. Message sender is the sender's address. The thing to be kept in mind is that every external call made, changes the sender. Every external call made can also change the message value.\\
+
+So if we have three contracts \texttt{a}, \texttt{b} and \texttt{c} where \texttt{a} calls \texttt{b} and \texttt{b} calls \texttt{c}, in the context of the contract \texttt{b} the message sender is \texttt{a}, but in the context of the contract \texttt{c} the message sender is contract \texttt{b} and not \texttt{a}.\\
+
+These aspects should be kept in mind when analyzing the security of smart contract because the developers could have made incorrect assumptions about some of these that could result in security issues.
+
+\section{Randomness Source}
+\textbf{The block timestamp and block hash that we just discussed are not good sources of randomness}, that's because both these values can be influenced by the miners mining the blocks to some degree. The only aspects of timestamps that are guaranteed, is that the \textbf{current blocks timestamp must be strictly larger than the timestamp of the last block} and the other guarantee is that \textbf{it will be somewhere between the time stamps of two consecutive blocks in the canonical blockchain}. Therefore smart contract developers should not rely on either the block timestamp or the block hash as a source of good randomness.
+
+\section{Blockhash}
+\texttt{Solidity} supports a block hash primitive, where the block number can be specified to obtain the corresponding hash. This is possible only for the most recent 256 blocks excluding the current block, for all other historical blocks the value returned is 0. So as you can imagine this becomes important when you are considering the security aspect of code using this primitive, because \textbf{the block number should really be the most recent 256 blocks otherwise a value of zero is obtained}.
+
+\section{ABI Encoding/Decoding}
+\texttt{Solidity} supports multiple functions in these categories. The obvious ones are the \texttt{encode} and \texttt{decode} functions that take arguments and encode them or decode them, specifically with respect to the ABI. There are also functions that encode with the function selector or with the signature, and finally there is an encode packed function that takes the arguments and performs the encoding in a packed fashion, so there's no padding applied between the arguments applied.\\
+
+For this reason the packed encoding can be ambiguous. This is something that affects security when you're considering these functions, specifically this encode packed function.
+
+\section{Error Handling}
+Error handling is one of the most important fundamental and critical aspects of programming languages' security. The reason is that errors during program execution are what result in security vulnerabilities. These could be errors resulting from user inputs when they interact with the smart contract and the inputs are not as expected by the developer during the coding of the contract. They could also be due to assumptions made within the smart contract that are not really valid for the various control and data flows that happen during program execution. They could also be related to the programming variants that are expected from a specification perspective and these invariants might not hold good during certain control and data flows.\\
+
+\texttt{Solidity} supports multiple primitives for error handling, being the first set of primitives are functions that let the developer assert or require certain conditions to be held. The \texttt{assert(x)} primitive for example, specifies a condition \texttt{x} as its argument, and if that condition is not met (if it evaluates to \texttt{false} during run time), then a panic error is raised and this panic error reverts all the state changes made to the contract logic so far in the context of the transaction that triggered it. The \texttt{assert} primitive is meant to be used for internal errors for program invariants that are meant to be held at any part of the program during execution.\\
+
+This contrasts with the \texttt{require} primitive, which is another error handling primitive supported by \texttt{Solidity}. Similarly it also specifies a condition that gets evaluated at runtime, and if that condition evaluates to \texttt{false}, then it again raises a \texttt{revert}, that reverses all the state changes made to the contract so far. The \texttt{required} primitive is meant to be used for errors in inputs from users or from external components that the contract interacts with. The \texttt{require} primitive takes an optional string as an argument: this is a message that gets printed if the required condition is not met.\\
+
+Finally there is a \texttt{revert} primitive that unconditionally aborts execution when triggered, reverting all the state changes similar to when the conditions are not met for a certain \texttt{require} primitive. This again takes an optional string that gets printed when that happens. The thing to be kept in mind is the difference between \texttt{assert} and \texttt{require}. There were some historical differences as well in the use of a particular opcode: a different opcode for \texttt{assert} versus \texttt{require} that affected the Gas consumption, but some of these have been changed in the recent celebrity versions.
+
+\section{Math/Crypto Functions}
+Solidity supports the addition and multiplication operations with modulus: \texttt{addmod()} and \texttt{mulmod()}.\\ 
+
+It obviously supports the Keccak-256 hashing function that is fundamental to Ethereum and used extensively within Ethereum and smart contracts themselves.\\
+
+It also supports the standardized SHA-256 algorithm (related to Keccak-256), but the standardized version, it further supports one of the older hashing function,  the ripe message digest \texttt{ripemd160(bytes memory)} for historical reasons.\\
+
+finally it supports what is known as the \texttt{ecrecover} primitive. This is the elliptic curve recover function that takes in the hash of a message as an argument along with the signature components, the ECDSA signature components of $v$, $r$ and $s$. \texttt{ecrecover} takes in these arguments and returns the address (or recovers the address) associated with the public key from the elliptic curve signature that is specified in the parameters. This is used in various smart contracts and it is used for different types of logic within them.
+
+\section{ecrecover Malleability}
+\texttt{ecrecover} is susceptible to malleability, or in other words non-uniqueness. In the context of signatures this means that a valid signature, can be converted into a second valid signature without requiring knowledge of the private key to generate those signatures. This depending on how signatures are used within the contract logic or the reason why the signatures are used within that contract logic can result in replay attacks, where the second valid signature can be used by the user or even by the attacker to bypass the contract logic that is using these signatures.\\
+
+The reason for this malleability is the math behind how elliptic curve cryptography works, so the signature components of $v$, $r$ and $s$. The $s$ value can either be in the lower order range or in the higher order range, and \texttt{ecrecover} does not prevent the $s$ value from being in one of these two ranges. This is what allows the malleability. If the smart contract logic using \texttt{ecrecover} requires the signatures to be unique, then currently the best practice is to use the ECDSA wrapper from OpenZeppelin, that enforces the $s$ value to be in the lower range (it forces there to be a single valid signature for these signature components).
+
+
+\section{Contract Related}
+Solidity supports some contract related primitives that need to be understood, the keyword \texttt{this} refers to the current contract and \textbf{it can be converted to an} \texttt{address} \textbf{type explicitly}. More importantly, there is a primitive known as \texttt{selfdestruct} that \texttt{Solidity} supports, recall that there is a self-destruct instruction in the EVM. This primitive is really a high level wrapper on top of that instruction, it takes in a single argument: an \texttt{address} type specifying the recipient, and what this recipient signifies is that when the contract is destroyed by this primitive, all the funds (the ether balance in that destroyed contract) are sent to this recipient address when the execution ends. There are some specifics of \texttt{selfdestruct} that need to be kept in mind from a security perspective.
+
+\section{selfdestruct}
+The recipient address that is specified in this primitive does not execute the receive function when it is triggered. Recall that contracts can specify a receive function that gets triggered on ether transfers or under other conditions. In the context of \texttt{selfdestruct} primitive, the recipient address happens to be a contract and it specifies a receive function that does not get triggered when \texttt{selfdestruct} happens. This is critical because any logic that might be within that receive function might have been anticipated by the developer to be triggered anytime ether is received by the contract, but \texttt{selfdestruct} is an exception to that logic.\\
+
+Also the contract gets destroyed by \texttt{selfdestruct} only at the end of the transaction that has triggered this flow. What this means is that if there is any other logic after \texttt{selfdestruct} that may revert for various reasons, then that revert undoes the destruction of the contract itself. So just because we see a \texttt{selfdestruct} in the control flow does not mean that the contract gets destroyed, because logic after that might revert and really not result in the destruction of this contract.
+
+\section{Contract Type}
+\texttt{Solidity} supports some primitives specific to the contract type. \texttt{type(x)} is the syntax for doing so, where \texttt{x} is a contract type. The primitives supported are \texttt{type(C).name} that returns a name of the contract, \texttt{type(C).creationCode} and \texttt{type(C).runtimeCode} primitives return the creation and runtime byte codes of that contract. These are interesting details that are best examined by writing a simple contract and looking at what these primitives return. \\
+
+There's also the interface id primitive \texttt{type(I).interfaceId} that returns the identifier for the interface specified. We'll take a look at the differences between interfaces and contracts later on, but these are primitives that are supported by \texttt{Solidity} specific to the contract or interface type.
+
+\section{Integer Type}
+There are similar parameters supported for integer types. This again represented by \texttt{type(x)} where \texttt{x} happens to be an integer. \texttt{type(t).min} returns the smallest value representable by the type \texttt{t}. Similarly \texttt{type(t).max} primitive returns the largest value that is representable by the type \texttt{t}. If we say  \texttt{type(uint8).max} then it returns the maximum value representable by the unsigned integer of size 8 bits, and in this case it happens to be 255 which is $2^8 -1$..
+
+\section{Control Structures}
+These are really fundamental to any programming language because there is a control flow to the sequence of instructions specified in the high-level language that get translated into machine code by the compiler.\\
+
+In the case of \texttt{Solidity}, the control structures supported are \texttt{if}, \texttt{else}, \texttt{while}, \texttt{do}, \texttt{for}, \texttt{break}, \texttt{continue} and \texttt{return}. These are very similar to the ones found in any of the programming languages. Although  are some differences in \texttt{Solidity}. Paranthesis for example cannot be omitted for conditionals that some of the other languages support, however curly braces can be omitted around single statement bodies for such conditionals.\\
+
+Also note that there is no type conversion from a non-boolean to a boolean type. As an example \texttt{if(1)} is not allowed in \texttt{Solidity} because 1 is not convertible to the boolean \texttt{true}, which is supported by some of the other languages. So control structures play a critical role in the security analysis of smart contracts whether you're doing a manual review or whether you're writing a tool to pass the \texttt{Solidity} smart contract. These are some things to be understood really well because that's how control flows, and any analysis depends critically on making sure that the control flow is accurately followed and representative of what really happens at runtime.
+
+\section{Exceptions}
+\texttt{Solidity} supports the concept of exceptions to a great extent. We touched upon this under error handling. What this really means, is that in Solidity exceptions are used to handle errors, and these exceptions are state reverting. Which means that an exception undoes or reverses all the changes made to the state of the smart contract in the context of the current transaction: the calls and all the subcalls that may be several levels deep. All the changes that they have affected to the contact state are reversed, and this also flags an error to the caller so that they can take appropriate action.\\
+
+So when exceptions happen within subcalls in that call hierarchy, during runtime they bubble up, and What this means is that exceptions are rethrown at the higher level calls automatically. There are some exceptions to this rule. There are some differences here in the context of the \texttt{send} primitive, and the low level function calls: \texttt{call}, \texttt{delegatecall} and \texttt{staticcall} which we talked about earlier. These primitives (\texttt{send}, \texttt{call}, \texttt{delegatecall} and \texttt{staticcall}) return a boolean \texttt{true} or \texttt{false} as their first return value instead of an exception bubbling up.\\
+
+This is an important distinction to be kept in mind when analyzing smart contracts because the exception behavior is different for these primitives, compared to the standard message calls. Exceptions that happen in external calls made during the contact execution can be caught with the \texttt{try} \texttt{catch} statement.\\
+
+These exceptions can contain data that is passed back to the caller and this data consists of a function selector indicating which function the exception happened in, and also some other ABI encoded data that gives more information about the exception.\\
+
+\texttt{Solidit}y supports two error signatures, the error and panic. Error takes a string parameter whereas panic takes an unsigned parameter. Error is meant to be used for "\textit{regular error conditions}", such as input validation and so on. The panic is used for errors that should not be present in bug free code. So this is the \texttt{assert} primitive situation where program invariants are being violated and panic is meant to be used.
+
+\section{Low-level Calls}
+Let's now revisit the concept of low level calls and talk about very specific peculiarity or counterintuitive aspect of these calls. As we first talked about these calls under the EVM instruction set, there is \texttt{call}, \texttt{staticcall} and \texttt{delegatecall}, each of them corresponding to the specific instruction that implements these calls.\\
+
+The counter-intuitive aspect is that \textbf{if these calls are made to contract accounts that do not exist for some reason they still return} \texttt{true} \textbf{based on the design of the EVM}.\\
+
+This can have some serious side effects if the contract logic really assumes that the external call was successful and executed the logic that it expected it to execute because it got a value of \texttt{true} from these primitives. The mitigation for this aspect of low level calls is to check for contract existence before these calls are made, and have the logic handle it appropriately if they do not exist.\\
+
+This has resulted in some serious security vulnerabilities being reported in various high-profile smart contract projects, so something to be kept in mind when analyzing the security of smart contracts that use these low level calls.
+
+\section{Assert}
+As we know, \texttt{assert} is really meant to be used for the \textit{program invariants} that should never be violated within the smart contract if it does not have bugs as intended by the developer.\\
+
+These asserts result in the panic errors that take the \texttt{uint256} type, to reiterate they should be used for internal errors for checking invariants, normal code bug free code should never cause panic. Comparing it to the \texttt{require} primitive, \texttt{assert} should only be used again for program  nvariants, and not for checking things like invalid external inputs or invalid interactions with external dependencies.
+
+\section{Panic}
+
+The Panic exception is generated in various situations in \texttt{Solidity}, and the error code supplied with the error data indicates the kind of panic.\\
+
+There are many of these error codes. Some of them are
+\begin{itemize}
+\item\texttt{0x01}: indicates that \texttt{assert} has an argument that evaluated to \texttt{false}.
+\item\texttt{0x11}: an overflow or underflow happened in arithmetic.
+\item\texttt{0x12}: division by zero or modulus by zero occured.
+\item\texttt{0x31}: \texttt{pop()} of an empty array occurred. 
+\item\texttt{0x32}: out of bounds access for an array.
+\end{itemize}
+
+There are numerous error codes for panic.
+
+\section{Require}
+Under the \texttt{require} primitive, \texttt{Solidity} either creates an error of type error strain or an error without any error data.\\
+
+This should be used to detect invalid conditions during runtime that cannot be prevented at compile time, including input validation (which is a fundamental pillar of programming languages' security).\\ 
+
+Inputs at runtime that are obtained from users interacting the contracts should be validated to make sure they are within the thresholds of what is acceptable with the smart contract logic, so some sanity checks on those values are necessary.\\
+
+Require is also used for checking the return values from calls that are made to external contracts. So any type of external interaction, be it inputs from users or return values from external contact calls, are what require is meant to be used with. Require takes in an optional message string that is output when the condition fails.
+
+\section{Error}
+Error string exception, as discussed earlier, are generated when \texttt{require} executes and its argument evaluates to \texttt{false}.\\ 
+
+The error string is also generated in other situations such as an external call made to a contact that contains no code, or if the contract receives ether via public function without the payable modifier. Or if the contract receives ether via a public getter function.
+
+\section{Revert}
+There are two ways to explicitly trigger a \texttt{revert} in \texttt{Solidity}: using the \texttt{revert CustomError(arg1,...)} primitive or the \texttt{revert([String])} function, where the \texttt{String} parameter is optional.\\
+
+In both these cases, the execution is aborted and all the state changes made. as part of the transaction, are reversed. This distinction between \texttt{CustomError} and the string, is interesting from an optimization and use case perspective.
+
+\section{try/catch}
+These primitives supported by \texttt{Solidity} are fundamental error handling. The syntax is
+
+\begin{lstlisting}[language=Solidity, style=solStyle, caption={try/catch example}]
+try Expr [returns()] {...}
+catch <Block> {...}
+\end{lstlisting}
+
+So, we have the \texttt{try} and \texttt{catch} keywords coupled with an expression that contains an external function call or creation of a contract. These are coupled with code blocks corresponding to the success blocks or the catch blocks. These are code segments within the curly braces shown here. Which block gets executed depends on whether there was a failure or not in that external call within that expression.\\
+
+If there were no errors then the success block gets executed (the block that immediately follows the \texttt{try} expression in the syntax shown here). But if there was an error in that external call then the catch block, or one of the catch blocks, gets executed. Which catch block gets executed depends on the error type, and there are multiple of them.
+
+\section{catch Blocks}
+\texttt{Solidity} supports different kinds of \texttt{catch} blocks depending on the error type. There is a \texttt{catch} block that supports an error string\linebreak\texttt{catch Error(<string reason>)}. This is executed if the error was caused by \texttt{revert} with a reason string, or \texttt{require} where the condition evaluated to \texttt{false}.\\
+
+Then there is a \texttt{catch} kind that supports panic error code\linebreak\texttt{catch Panic(uint <error code>)}. If this error was caused by a panic failing \texttt{assert}, (remember: division by zero, outer bound array accesses, arithmetic underflow/overflow) this is the \texttt{catch} block that will be run.\\
+
+In addition there is a \texttt{catch} that specifies the low level data\linebreak\texttt{catch (bytes <LowLevelData>)}. This one gets executed if the error signature does not match any other clause shown above. Or if there was an error while decoding the error message itself, or if no error data was provided with that exception. This variable that is declared the low-level data gives us access to the error data in that case.\\
+
+Finally if the developer is not really interested in the type of error data, one can simply use \texttt{catch} as is. These give various options to deal with different types of exceptions, that might come from the external call that is used within the \texttt{try} \texttt{catch} permit.
+
+\section{try/catch State Change}
+As we just discussed, there exists the concept of the success block, that gets executed when there are no exceptions in that external call. There are also error blocks that correspond to the different \texttt{catch} blocks which get executed when there are exceptions encountered in that external call.\\
+
+If execution reaches the success block, it means that there were no exceptions in that external call, and all the state changes that are done in the context of the external call are committed to the state of the contract.\\
+
+But if execution reaches one of the \texttt{catch} or error blocks, then it means that the state changes in that external call context have been reverted, because of the exception. There could also be a context where the \texttt{try} \texttt{catch} statement itself reverts for reasons of decoding or low level failures.
+
+\section{External Call Failure}
+These failures of the external call made in the context of the catch primitive, could happen for a variety of reasons and one cannot always assume that the error message is coming directly from the contract that was called in that external call, because the error could happen deeper down in the call chain resulting from that call. It was forwarded to the point where it was received. \\
+
+This could also be due to an out of Gas or OOG situation, in which case the caller still has a bit of Gas to deal with that exception because not all of it is forwarded to the callee.
+
+\section{Programming Style}
+So far so all the aspects of the various basics of \texttt{Solidity}: syntax, semantics,\dots\, are rules that are enforced in \texttt{Solidity} grammar.\\
+
+Programming style on the other hand is coding convention, and these are different across different developers. Different styles are adopted based on what the developer is comfortable with based on what they believe is an optimal way of programming, \textbf{but fundamentally the programming style is about consistency}.
+
+\textbf{The reason is that programming style affects the readability and maintainability of the code}. So when anyone other than the developer looks at the code to evaluate the security, to audit it or to make fixes or extend those smart contracts, the consistency of the programming style becomes important. If different styles are used within the same function, within the same module or within the same project, because of the same developer not being consistent or because multiple developers are involved in that project having different styles, then this significantly affects the readability and maintainability of the code, impacting both significantly on the security life cycle of the code. There are two main categories of programming style, that of code \textbf{layout} and that of \textbf{naming}.
+
+\section{Code Layout}
+\textbf{Code layout refers to the physical layout of the various programming elements within a source code file}. There are many programming style aspects related to code layout: those related to indentation, where the best practice and \texttt{Solidity} is to recommend 4 spaces per indentation level and to prefer spaces over tabs and to definitely not mix them.\\
+
+There are also style guidelines with respect to blank lines used to surround declarations, with the max line length that's recommended to be 79 or 99 characters for best readability. There are also recommendations for wrapping lines, for the encoding used in the source files (\texttt{ASCII} or \texttt{UTF-8}), and for keeping the import statements at the top of the file and not anywhere else.\\
+
+Finally, the ordering of the functions within the contract, where the recommendation is to have the constructor as the first in that order followed by functions of different visibilities. Grouping all the external functions first, followed by public functions and then internal and then private functions.
+
+\section{Code Layout (More)}
+There are more code layout programming style guidelines specific to the use of white space within expressions, curly brackets and spaces and control structures function, declarations, mappings and variable declarations.\\
+
+Strings are recommended to be used with double quotes instead of single quotes operators, spaces have some guidelines as well. Finally the ordering of different program elements within a \texttt{Solidity} file also have a guideline, which is to have the \texttt{pragma} declaratives all the way at the top, followed by the \texttt{import} directives and then the contract library or interface definition itself.\\
+
+Within each of the contracts libraries and interfaces, the guideline suggests using the types first, followed by declarations of state variables, then events and finally all the various functions.
+
+\section{Naming Convention}
+The next aspect of programming style is naming convention. This refers to the names that are given to various variables, events, contracts, libraries and all the different program elements used within smart contracts.\\
+
+There are different types of names: lower case names, lower case with underscores, all upper case, upper case with underscores, capitalized words, mixed case, capitalized words with underscores and so on. All these different types are recommended to be used for different program elements, and as a general rule the guideline is to avoid letters that can be confused with the different numerals, like the lowercase letter\texttt{"l"}, or the uppercase letter \texttt{"O"} and uppercase letter \texttt{"I"} that could be confused with 0 and 1 numerals.\\
+
+Contract and libraries should be named with cap word style, they should also match their file names and if a contact file includes multiple contracts and libraries then the file name should match the core contract (or what is considered as a core contract for that file by the developer). Structs should be named using the cab word style. Event should be named using cap word style again. Functions should be named using mixed case.\\
+
+This is something that you'll encounter often within contracts developers are sometimes consistent with these naming, sometimes they're mixed up because of multiple developers or the style just not being consistent or being confused with that of some external libraries.\\
+
+Again all these aspects affect the readability and maintainability, they do not have any impact on the syntax or the semantics of the contract itself. The byte code is just the same but it has an effect to a certain extent, on the security audit aspect when you look at this code, and when the naming convention is different or not consistent then it could lead to some assumptions being made on these variables being the same ones or different ones.
+
+\section{Naming (More)}
+Some more naming conventions are: function arguments should be in mixed case, local state variables again in mixed case, constants however should be with all capital letters and underscores separating the multiple words if they are present.\\ 
+
+Modifiers in mixed case, enums in cap word style and finally one should avoid naming collisions where the desired names, variables or functions collides with that of a built-in within \texttt{Solidity} or any other reserve name. So those should be resolved using single trailing underscores in those names.
+
+Programming style is subjective in nature: different developers different teams might have different philosophies as to what works best for them. The key is consistency within the function modules, contracts or projects, as it affects readability and maintainability, which are critical for security, specifically with respect to smart contract audits.

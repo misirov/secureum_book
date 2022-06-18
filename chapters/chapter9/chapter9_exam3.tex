@@ -1,0 +1,367 @@
+\section{Solidity 201 Quiz}
+
+\textbf{1. \texttt{OpenZeppelin SafeERC20} is generally considered safer to use than \texttt{ERC20} because}
+
+\begin{enumerate}[label=\Alph*.]
+    \item It adds integer overflow/underflow checks
+    \item It adds return value/data checks
+    \item It adds pause/unpause capability
+    \item It adds race-conditon checks
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q1]{here}.\\
+
+\textbf{2. The OpenZeppelin library that provides \texttt{onlyOwner} modifier}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Is Ownable
+    \item Provides role based access control
+    \item Provides a function to renounce ownership
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q2]{here}.\\
+
+\textbf{3. \texttt{OpenZeppelin ECDSA}}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Implements functions for signature creation \& verification
+    \item Is susceptible to signature malleability
+    \item Both A \& B
+    \item Neither A nor B
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q3]{here}.\\
+
+\textbf{4. Which of the following is/are true about \texttt{Solidity} compiler \texttt{0.8.0}?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item ABI coder v2 is made the default
+    \item No opt-out primitives for default checked arithmetic
+    \item Failing to \verb|assert| returns the gas left instead of consuming all gas
+    \item Exponentiation is made right associative
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q4]{here}.\\
+
+\pagebreak
+
+\textbf{5. EVM memory}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Is linear and byte-addressable
+    \item Is reserved by \verb|Solidity| until \verb|0x7f|
+    \item Can be accessed in bytes using \verb|MLOAD8|/\verb|MSTORE8|
+    \item Is non-volatile or persistent
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q5]{here}.\\
+
+\textbf{6. Dappsys provides}
+
+\begin{enumerate}[label=\Alph*.]
+    \item A proxy implementation
+    \item A floating-point implementation with \verb|wad| \& \verb|ray|
+    \item A flexible authorization implementation
+    \item All of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q6]{here}.\\
+
+\textbf{7. Libraries are contracts}
+
+\begin{enumerate}[label=\Alph*.]
+    \item That cannot have state variables
+    \item That cannot be inherited
+    \item That always require a \verb|delegatecall|
+    \item That are not meant to receive Ether
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q7]{here}.\\
+
+\textbf{8.  ERC20 \texttt{transferFrom(address sender, address recipient, uint256 amount)} (that follows the \texttt{ERC20} spec strictly)}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Transfers token amount from \verb|sender| to \verb|recipient|
+    \item \verb|sender| must have given caller (\verb|msg.sender|) approval for at least \verb|amount| or more
+    \item Deducts amount from \verb|sender|'s allowance
+    \item Deducts amount from caller's (\verb|msg.senders|'s) allowance
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q8]{here}.\\
+
+\pagebreak
+
+\textbf{9. \texttt{ERC777} may be considered as an improved version of \texttt{ERC20} because}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Hooks allow reacting to token \verb|mint|/\verb|burn|/\verb|transfer|
+    \item It can help avoid separate \verb|approve| and \verb|transferFrom| transactions
+    \item It can help prevent tokens getting stuck in contracts
+    \item It removes reentrancy risk
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q9]{here}.\\
+
+\textbf{10. WETH is}
+
+\begin{enumerate}[label=\Alph*.]
+    \item An \verb|ERC20| pre-compile for Wrapped Ether built into Ethereum protocol
+    \item Warp Ether for super-fast Ether transfers
+    \item Wrapped Ether to convert Ether into an \verb|ERC721| NFT
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q10]{here}.\\
+
+\textbf{11. \texttt{OpenZeppelin SafeCast}}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Prevents underflows while downcasting
+    \item Prevents overflows while downcasting
+    \item Prevents underflows while upcasting
+    \item Prevents overflows while upcasting
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q11]{here}.\\
+
+\textbf{12. \texttt{OpenZeppelin ERC20Pausable}}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Adds ability to pause token transfers
+    \item Adds ability to pause token minting and burning
+    \item Provides modifiers \verb|whenPaused| and \verb|whenNotPaused|
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q12]{here}.\\
+
+\pagebreak
+
+\textbf{13. \texttt{CREATE2}}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Deploys two contracts proxy and implementation concurrently
+    \item Deploys contract at an address that can be predetermined
+    \item Uses a salt and contract \verb|creationCode|
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q13]{here}.\\
+
+\textbf{14. Name collision error with inheritance happens when the following pairs have the same name within a contract}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Function \& modifier
+    \item Function \& event
+    \item Function \& function
+    \item Event \& modifier
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q14]{here}.\\
+
+\textbf{15. \texttt{OpenZeppelin}'s (role-based) \texttt{AccessControl} library}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Provides support only for two specific: \verb|owner| and \verb|user|
+    \item Provides support for different roles with different authorization levels
+    \item Provides support for granting and revoking roles
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q15]{here}.\\
+
+\textbf{16. \texttt{OpenZeppelin}'s proxy implementations}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Typically have a proxy contract and an implementation contract
+    \item Use \verb|delegatecall|s from proxy to implementation
+    \item Cannot support upgradable proxies
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q16]{here}.\\
+
+\pagebreak
+
+\textbf{17. Which of the following is/are true for a function \texttt{f} that has a modifier \texttt{m}?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Function \verb|f| cannot have another modifier because every function function can have at most one modifier
+    \item Function \verb|f|'s code is inlined at the point of `\verb|_|' within modifer \verb|m|
+    \item Function \verb|f| reverts if `\verb|_|' is not executed in the modifier \verb|m|
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q17]{here}.\\
+
+\textbf{18. Zero address check is typically recommended because}
+
+\begin{enumerate}[label=\Alph*.]
+    \item The use of zero address for transfers will trigger an EVM exception
+    \item Ether/tokens sent to zero address will be inaccessible
+    \item Ether/tokens sent to zero address can be accessed by anyone
+    \item Address 0 is the Ethereum Masternode account and is forbidden for access
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q18]{here}.\\
+
+\textbf{19. \texttt{Solidity} supports}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Multiple inheritance
+    \item Polymorphism
+    \item Contract overloading
+    \item Function overloading
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q19]{here}.\\
+
+\textbf{20. \texttt{OpenZeppelin ERC721}}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Implements the NFT standard
+    \item\verb|safeTransferFrom()| checks for zero-addresses
+    \item\verb|approve()| is susceptible to race-condition just like \verb|ERC20|
+    \item\verb|setApprovalForAll(address operator, bool _approved)| approves/removes \verb|operator| for all of caller's tokens
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q20]{here}.\\
+
+\pagebreak
+
+\textbf{21. For \texttt{contract A \{uint256 i; bool b1; bool b2; address a1;\}} the number of storage slots used is:}
+
+\begin{enumerate}[label=\Alph*.]
+    \item 4
+    \item 3
+    \item 2
+    \item 1
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q21]{here}.\\
+
+\textbf{22. Which of the following is/are generally true about storage layouts?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item The number of slots used for a contract depends on the ordering of state variable declarations
+    \item The slots for struct elements are consecutive
+    \item  The slot \verb|s| for dynamic array contains the length with individual elements stored consecutively in slots starting at \verb|keccak256(s)|
+    \item The slot \verb|s| for mapping is empty with individual values stored consecutively in slots starting at \verb|keccak(h(k).s)| where \verb|k| is the first key and \verb|h| is a hash function that depends on type of \verb|k|
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q22]{here}.\\
+
+\textbf{23. Assuming all contracts \texttt{C1}, \texttt{C2} and \texttt{C3} define explicit constructors in \texttt{contract C1 is C2, C3}  and both \texttt{C2} and \texttt{C3} don't inherit contracts, the number \& order of constructor(s) executed is/are}
+
+\begin{enumerate}[label=\Alph*.]
+    \item One, that of \verb|C1|
+    \item Three, in the order \verb|C2|, \verb|C3|, \verb|C1|
+    \item One, that of \verb|C3|
+    \item Three, in the order \verb|C1|, \verb|C2|, \verb|C3|
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q23]{here}.\\
+
+\textbf{24. \texttt{OpenZeppelin SafeMath}}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Prevents integer overflow/underflow at compile-time
+    \item Is not required if using \verb|Solidity| compiler version $\geq$ \verb|0.8.0|
+    \item Both A \& B
+    \item Neither A nor B
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q24]{here}.\\
+
+\pagebreak
+
+\textbf{25. Which of the following is/are not allowed?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Function overriding
+    \item Function overloading
+    \item Modifier overloading
+    \item Modifier overriding
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q25]{here}.\\
+
+\textbf{26. Which of the following is/are true about abstract contracts and interfaces?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Abstract contracts have at least one function undefined
+    \item Interfaces can have some functions defined
+    \item Unimplemented functions in abstract contracts need to be declared virtual
+    \item All functions are implicitly virtual in interfaces
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q26]{here}.\\
+
+\textbf{27. Storage layout}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Refers to the layout of state variables in storage
+    \item Is organized in 256-byte slots
+    \item Is packed for value types that use less than 32 bytes
+    \item Always starts on a new slot for reference types
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q27]{here}.\\
+
+\textbf{28. Which of the following EVM instruction(s) do(es) not touch EVM storage?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|SLOAD|
+    \item\verb|MSTORE8|
+    \item\verb|SSTORE|
+    \item\verb|SWAP|
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q28]{here}.\\
+
+\pagebreak
+
+\textbf{29. Proxied contracts}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Should use constructors in implementation contract to initialize the proxy's state variables
+    \item Should use an external/public \verb|initialize()| function
+    \item Should have their \verb|initialize()| function called only once
+    \item All of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q29]{here}.\\
+
+\textbf{30. \texttt{OpenZeppelin}'s \texttt{ReentrancyGuard} library mitigates reentrancy risk in a contract}
+
+\begin{enumerate}[label=\Alph*.]
+    \item For all its functions by simply deriving/inheriting from it
+    \item Only for functions that apply the \verb|nonReentrant| modifier
+    \item By enforcing a checks-effects-interactions pattern in its functions
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q30]{here}.\\
+
+\textbf{31. EVM inline assembly has}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Its own language \verb|Yul|
+    \item Safety checks just like \verb|Solidity|
+    \item Access to all variables in the contract and function where present
+    \item References to variables as their addresses not values
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q31]{here}.\\
+
+\textbf{32. If \texttt{OpenZeppelin}'s \texttt{isContract(address)} returns \texttt{false} for an address then}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Address is guaranteed to not be a contract
+    \item Codesize at address is 0 at time of invocation
+    \item Both A \& B
+    \item Neither A nor B
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam3_q32]{here}.\\

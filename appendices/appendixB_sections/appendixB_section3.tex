@@ -1,0 +1,658 @@
+\section{Solidity 201}
+
+\textit{(See \url{https://secureum.substack.com/p/solidity-201} for the original article.)}\\
+
+\begin{enumerate}
+
+\item \verb|Solidity| supports multiple inheritance including polymorphism:
+
+\begin{enumerate}
+	\item Polymorphism means that a function call (internal and external) always executes the function of the same name (and parameter types) in the most derived contract in the inheritance hierarchy
+	\item When a contract inherits from other contracts, only a single contract is created on the blockchain, and the code from all the base contracts is compiled into the created contract.
+	\item\textbf{Function Overriding}: Base functions can be overridden by inheriting contracts to change their behavior if they are marked as \verb|virtual|. The overriding function must then use the \verb|override| keyword in the function header.
+	\item Languages that allow multiple inheritance have to deal with several problems. One is the Diamond Problem. \verb|Solidity| is similar to \verb|Python| in that it uses “C3 Linearization” to force a specific order in the directed acyclic graph (DAG) of base classes. So when a function is called that is defined multiple times in different contracts, the given bases are searched from right to left (left to right in \verb|Python|) in a depth-first manner, stopping at the first match.
+\end{enumerate}
+
+\item Contract Types:
+
+\begin{enumerate}
+	\item\textbf{Abstract Contracts}: Contracts need to be marked as abstract when at least one of their functions is not implemented. They use the \verb|abstract| keyword.
+	\item\textbf{Interfaces}: They cannot have any functions implemented. There are further restrictions:
+	\begin{enumerate}
+	\item They cannot inherit from other contracts, but they can inherit from other interfaces.
+	\item All declared functions must be external.
+	\item They cannot declare a constructor.
+	\item They cannot declare state variables.
+	\end{enumerate}
+	They use the \verb|interface| keyword.
+	\item\textbf{Libraries}: They are deployed only once at a specific address and their code is reused using the \verb|DELEGATECALL| opcode. This means that if library functions are called, their code is executed in the context of the calling contract. They use the \verb|library| keyword.
+\end{enumerate}
+
+\item \verb|using for|: The directive \verb|using A for B|; can be used to attach library functions (from the library (\verb|A|) to any type (\verb|B|) in the context of a contract. These functions will receive the object they are called on as their first parameter.
+
+\begin{enumerate}
+	\item The \verb|using A for B| directive is active only within the current contract, including within all of its functions, and has no effect outside of the contract in which it is used.
+	\item The directive may only be used inside a contract, not inside any of its functions.
+\end{enumerate}
+
+\item\textbf{Base Class Functions}: It is possible to call functions further up in the inheritance hierarchy internally by explicitly specifying the contract using \verb|ContractName.functionName()| or using \verb|super.functionName()| if you want to call the function one level higher up in the flattened inheritance hierarchy.
+
+\item\textbf{State Variable Shadowing}: This is considered as an error. A derived contract can only declare a state variable \verb|x|, if there is no visible state variable with the same name in any of its bases.
+
+\item\textbf{Function Overriding Changes}: The overriding function may only change the visibility of the overridden function from external to public. The mutability may be changed to a more strict one following the order: \verb|nonpayable| can be overridden by \verb|view| and \verb|pure|. \verb|view| can be overridden by \verb|pure|. \verb|payable| is an exception and cannot be changed to any other mutability.
+
+\item\textbf{Virtual Functions}: Functions without implementation have to be marked \verb|virtual| outside of interfaces. In interfaces, all functions are automatically considered virtual. Functions with \verb|private| visibility cannot be virtual.
+
+\item\textbf{Public State Variable Override}: Public state variables can override external functions if the parameter and return types of the function matches the getter function of the variable. While public state variables can override external functions, they themselves cannot be overridden.
+
+\item\textbf{Modifier Overriding}: Function modifiers can override each other. This works in the same way as function overriding (except that there is no overloading for modifiers). The \verb|virtual| keyword must be used on the overridden modifier and the \verb|override| keyword must be used in the overriding modifier
+
+\item\textbf{Base Constructors}: The constructors of all the base contracts will be called following the linearization rules. If the base constructors have arguments, derived contracts need to specify all of them either in the inheritance list or in the derived constructor.
+
+\item\textbf{Name Collision Error}: It is an error when any of the following pairs in a contract have the same name due to inheritance:
+    \begin{enumerate}
+    \item a function and a modifier
+    \item a function and an event
+    \item an event and a modifier
+    \end{enumerate}
+
+\item\textbf{Library Restrictions}: In comparison to contracts, libraries are restricted in the following ways:
+    \begin{enumerate}
+	\item they cannot have state variables
+	\item they cannot inherit nor be inherited
+	\item they cannot receive Ether
+	\item they cannot be destroyed
+	\item it can only access state variables of the calling contract if they are explicitly supplied (it would have no way to name them, otherwise)
+	\item Library functions can only be called directly (i.e. without the use of \verb|DELEGATECALL|) if they do not modify the state (i.e. if they are view or pure functions), because libraries are assumed to be stateless
+    \end{enumerate}
+
+\item\textbf{EVM Storage}: Storage is a \verb|(key, value)| store that maps 256-bit words to 256-bit words and is accessed with EVM’s \verb|SSTORE|/\verb|SLOAD| instructions. All locations in storage are initialized as zero.
+
+\item\textbf{Storage Layout}: State variables of contracts are stored in storage in a compact way such that multiple values sometimes use the same storage slot. Except for dynamically-sized arrays and mappings, data is stored contiguously item after item starting with the first state variable, which is stored in slot 0
+
+\item\textbf{Storage Layout Packing}: For each state variable, a size in bytes is determined according to its type. Multiple, contiguous items that need less than 32 bytes are packed into a single storage slot if possible, according to the following rules:
+    \begin{enumerate}
+	\item The first item in a storage slot is stored lower-order aligned
+	\item Value types use only as many bytes as are necessary to store them
+	\item If a value type does not fit the remaining part of a storage slot, it is stored in the next storage slot
+    \end{enumerate}
+
+\item\textbf{Storage Layout \& Structs/Arrays}:
+    \begin{enumerate}
+	\item Structs and array data always start a new slot and their items are packed tightly according to these rules
+	\item Items following struct or array data always start a new storage slot
+	\item The elements of structs and arrays are stored after each other, just as if they were given as individual values.
+    \end{enumerate}
+
+\item\textbf{Storage Layout \& Inheritance}: For contracts that use inheritance, the ordering of state variables is determined by the C3-linearized order of contracts starting with the most base-ward contract. If allowed by the above rules, state variables from different contracts do share the same storage slot.
+
+\item\textbf{Storage Layout \& Types}: It might be beneficial to use reduced-size types if you are dealing with storage values because the compiler will pack multiple elements into one storage slot, and thus, combine multiple reads or writes into a single operation.\\
+If you are not reading or writing all the values in a slot at the same time, this can have the opposite effect, though: when one value is written to a multi-value storage slot, the storage slot has to be read first and then combined with the new value such that other data in the same slot is not destroyed.
+
+\item\textbf{Storage Layout \& Ordering}: Ordering of storage variables and struct members affects how they can be packed tightly. For example, declaring your storage variables in the order of \verb|uint128|, \verb|uint128|, \verb|uint256| instead of \verb|uint128|, \verb|uint256|, \verb|uint128|, as the former will only take up 2 slots of storage whereas the latter will take up 3.
+
+\item\textbf{Storage Layout for Mappings \& Dynamically-sized Arrays}: Due to their unpredictable size, mappings and dynamically-sized array types cannot be stored “in between” the state variables preceding and following them. Instead, they are considered to occupy only 32 bytes with regards to the rules above and the elements they contain are stored starting at a different storage slot that is computed using a Keccak-256 hash.
+
+\item\textbf{Storage Layout for Dynamic Arrays}: If the storage location of the array ends up being a slot \verb|p| after applying the storage layout rules, this slot stores the number of elements in the array (byte arrays and strings are an exception). Array data is located starting at \verb|keccak256(p)| and it is laid out in the same way as statically-sized array data would: one element after the other, potentially sharing storage slots if the elements are not longer than 16 bytes. Dynamic arrays of dynamic arrays apply this rule recursively.
+
+\item\textbf{Storage Layout for Mappings}: For mappings, the slot stays empty, but it is still needed to ensure that even if there are two mappings next to each other, their content ends up at different storage locations. The value corresponding to a mapping key \verb|k| is located at \verb|keccak256(h(k) . p)| where \verb|.| is concatenation and \verb|h| is a function that is applied to the key depending on its type:
+    \begin{enumerate}
+    \item for value types, \verb|h| pads the value to 32 bytes in the same way as when storing the value in memory.
+    \item for strings and byte arrays, \verb|h| computes the \verb|keccak256| hash of the unpadded data. If the mapping value is a non-value type, the computed slot marks the start of the data.
+    \end{enumerate}
+If the value is of struct type, for example, you have to add an offset corresponding to the struct member to reach the member.
+
+\item\textbf{Storage Layout for bytes and string}: bytes and string are encoded identically. In general, the encoding is similar to \verb|byte1[]|, in the sense that there is a slot for the array itself and a data area that is computed using a \verb|keccak256| hash of that slot’s position. However, for short values (shorter than 32 bytes) the array elements are stored together with the length in the same slot.\\
+
+If the data is at most 31 bytes long, the elements are stored in the higher-order bytes (left aligned) and the lowest-order byte stores the value \verb|length * 2|. For byte arrays that store data which is 32 or more bytes long, the main slot \verb|p| stores \verb|length * 2 + 1| and the data is stored as usual in \verb|keccak256(p)|. This means that you can distinguish a short array from a long array by checking if the lowest bit is set: short (not set) and long (set).
+
+\item\textbf{EVM Memory}: EVM memory is linear and can be addressed at byte level and accessed with \verb|MSTORE|/\verb|MSTORE8|/\verb|MLOAD| instructions. All locations in memory are initialized as zero.
+
+\item\textbf{Memory Layout}: \verb|Solidity| places new memory objects at the free memory pointer, and memory is never freed. The free memory pointer points to \verb|0x80| initially.
+
+\item Reserved Memory: \verb|Solidity| reserves four 32-byte slots, with specific byte ranges (inclusive of endpoints) being used as follows:
+    \begin{enumerate}
+	\item\verb|0x00| - \verb|0x3f| (64 bytes): scratch space for hashing methods.
+	\item\verb|0x40| - \verb|0x5f| (32 bytes): currently allocated memory size (aka. free memory pointer).
+	\item\verb|0x60| - \verb|0x7f| (32 bytes): zero slot (The zero slot is used as initial value for dynamic memory arrays and should never be written to).
+    \end{enumerate}
+
+\item\textbf{Memory Layout \& Arrays}: Elements in memory arrays in \verb|Solidity| always occupy multiples of 32 bytes (this is even true for \verb|byte[]|, but not for bytes and string).
+    \begin{enumerate}
+	\item Multi-dimensional memory arrays are pointers to memory arrays.
+	\item The length of a dynamic array is stored at the first slot of the array and followed by the array elements.
+    \end{enumerate}
+
+\item\textbf{Free Memory Pointer}: There is a “free memory pointer” at position \verb|0x40| in memory. If you want to allocate memory, use the memory starting from where this pointer points at and update it. Considering the reserved memory, allocatable memory starts at \verb|0x80|, which is the initial value of the free memory pointer.
+
+\item\textbf{Zeroed Memory}: There is no guarantee that the memory has not been used before and thus you cannot assume that its contents are zero bytes. There is no built-in mechanism to release or free allocated memory.
+
+\item Reserved Keywords: These keywords are reserved in \verb|Solidity|. They might become part of the syntax in the future: \verb|after|, \verb|alias|, \verb|apply|, \verb|auto|, \verb|case|, \verb|copyof|, \verb|default|, \verb|define|, \verb|final|, \verb|immutable|, \verb|implements|, \verb|in|, \verb|inline|, \verb|let|, \verb|macro|, \verb|match|, \verb|mutable|, \verb|null|, \verb|of|, \verb|partial|, \verb|promise|, \verb|reference|, \verb|relocatable|, \verb|sealed|, \verb|sizeof|, \verb|static|, \verb|supports|, \verb|switch|, \verb|typedef|, \verb|typeof| and \verb|unchecked|.
+
+\item\textbf{Inline Assembly}: Inline assembly is a way to access the Ethereum Virtual Machine at a low level. This bypasses several important safety features and checks of \verb|Solidity|. You should only use it for tasks that need it, and only if you are confident with using it.
+    \begin{enumerate}
+	\item The language used for inline assembly in \verb|Solidity| is called Yul
+	\item An inline assembly block is marked by \verb|assembly { ... }|, where the code inside the curly braces is code in the Yul language
+    \end{enumerate}
+
+\item Inline Assembly Access to External Variables, Functions and Libraries:
+    \begin{enumerate}
+	\item You can access \verb|Solidity| variables and other identifiers by using their name.
+	\item Local variables of value type are directly usable in inline assembly
+	\item Local variables that refer to memory/\verb|calldata| evaluate to the address of the variable in memory/\verb|calldata| and not the value itself
+	\item For local storage variables or state variables, a single Yul identifier is not sufficient, since they do not necessarily occupy a single full storage slot. Therefore, their “address” is composed of a slot and a byte-offset inside that slot. To retrieve the slot pointed to by the variable \verb|x|, you use \verb|x.slot|, and to retrieve the byte-offset you use \verb|x.offset|. Using \verb|x| itself will result in an error.
+	\item Local \verb|Solidity| variables are available for assignments
+	\item Assignments are possible to assembly-local variables and to function-local variables. Take care that when you assign to variables that point to memory or storage, you will only change the pointer and not the data.
+	\item You can assign to the \verb|.slot| part of a local storage variable pointer. For these (structs, arrays or mappings), the \verb|.offset| part is always zero. It is not possible to assign to the \verb|.slot| or \verb|.offset| part of a state variable, though.
+\end{enumerate}
+
+\item\textbf{Yul Syntax}: Yul parses comments, literals and identifiers in the same way as \verb|Solidity|. Inside a code block, the following elements can be used:
+    \begin{enumerate}
+	\item literals, i.e. \verb|0x123|, \verb|42| or \verb|"abc"| (strings up to 32 characters).
+	\item calls to builtin functions, e.g. \verb|add(1, mload(0))|.
+	\item variable declarations, e.g. \verb|let x := 7|, \verb|let x := add(y, 3)| or \verb|let x| (initial value of 0 is assigned).
+	\item identifiers (variables), e.g. \verb|add(3, x)|.
+	\item assignments, e.g. \verb|x := add(y, 3)|.
+	\item blocks where local variables are scoped inside,\linebreak e.g. \verb|{ let x := 3 {let y := add(x, 1)}}|.
+	\item\verb|if| statements,\\e.g. \verb|if lt(a, b) {sstore(0, 1)}|.
+	\item\verb|switch| statements,\\e.g. \verb|switch mload(0) case 0 {revert()} default {mstore(0, 1)}|.
+	\item\verb|for| loops,\\e.g. \verb|for {let i := 0} lt(i, 10) {i := add(i, 1)} {mstore(i, 7)}|.
+	\item function definitions, e.g. \verb|function f(a, b) -> c {c := add(a, b)}|.
+    \end{enumerate}
+
+\item\verb|Solidity v0.6.0| Breaking Semantic Changes - changes where existing code changes its behaviour without the compiler notifying you about it: the resulting type of an exponentiation is the type of the base. It used to be the smallest type that can hold both the type of the base and the type of the exponent, as with symmetric operations. Additionally, signed types are allowed for the base of the exponentiation.
+
+\item \verb|Solidity v0.6.0| \textbf{Explicitness Requirements}:
+    \begin{enumerate}
+	\item Functions can now only be overridden when they are either marked with the \verb|virtual| keyword or defined in an interface. Functions without implementation outside an interface have to be marked \verb|virtual|. When overriding a function or modifier, the new keyword override must be used. When overriding a function or modifier defined in multiple parallel bases, all bases must be listed in parentheses after the keyword like so: \verb|override(Base1, Base2)|.
+	\item Member-access to length of arrays is now always read-only, even for storage arrays. It is no longer possible to resize storage arrays by assigning a new value to their length. Use \verb|push()|, \verb|push(value)| or \verb|pop()| instead, or assign a full array, which will of course overwrite the existing content. The reason behind this is to prevent storage collisions of gigantic storage arrays.
+	\item The new keyword \verb|abstract| can be used to mark contracts as\linebreak\verb|abstract|. It has to be used if a contract does not implement all its functions. Abstract contracts cannot be created using the \verb|new| operator, and it is not possible to generate bytecode for them during compilation.
+	\item Libraries have to implement all their functions, not only the internal ones.
+	\item The names of variables declared in inline assembly may no longer end in \verb|_slot| or \verb|_offset|.
+	\item Variable declarations in inline assembly may no longer shadow any declaration outside the inline assembly block. If the name contains a dot, its prefix up to the dot may not conflict with any declaration outside the inline assembly block.
+	\item State variable shadowing is now disallowed. A derived contract can only declare a state variable \verb|x|, if there is no visible state variable with the same name in any of its bases.
+    \end{enumerate}
+
+\item \verb|Solidity v0.6.0| \textbf{Semantic and Syntactic Changes}:
+    \begin{enumerate}
+	\item Conversions from external function types to address are now disallowed. Instead external function types have a member called \verb|address|, similar to the existing selector member.
+	\item The function \verb|push(value)| for dynamic storage arrays does not return the new length anymore (it returns nothing).
+	\item The \verb|unnamed| function commonly referred to as “fallback function” was split up into a new fallback function that is defined using the \verb|fallback| keyword and a receive ether function defined using the \verb|receive| keyword.
+	\item If present, the receive ether function is called whenever the \verb|calldata| is empty (whether or not ether is received). This function is implicitly \verb|payable|.
+	\item The new fallback function is called when no other function matches (if the receive ether function does not exist then this includes calls with empty \verb|calldata|). You can make this function \verb|payable| or not. If it is not payable then transactions not matching any other function which \verb|send| value will revert. You should only need to implement the new fallback function if you are following an upgrade or proxy pattern.
+    \end{enumerate}
+
+\item \verb|Solidity v0.6.0| \textbf{New Features}:
+    \begin{enumerate}
+	\item The \verb|try|/\verb|catch| statements allows you to react on failed external calls.
+	\item struct and enum types can be declared at file level.
+	\item Array slices can be used for calldata arrays, for example\linebreak\verb|abi.decode(msg.data[4:], (uint, uint))| is a low-level way to decode the function call payload.
+	\item Natspec supports multiple return parameters in developer documentation, enforcing the same naming check as \verb|@param|.
+	\item Yul and Inline Assembly have a new statement called \verb|leave| that exits the current function.
+	\item Conversions from \verb|address| to address \verb|payable| are now possible via \verb|payable(x)|, where \verb|x| must be of type \verb|address|.
+    \end{enumerate}
+
+\item \verb|Solidity v0.7.0| Breaking Semantic Changes - changes where existing code changes its behaviour without the compiler notifying you about it  exponentiation and shifts of literals by non-literals (e.g. \verb|1 << x| or \verb|2 ** x|) will always use either the type \verb|uint256| (for non-negative literals) or \verb|int256| (for negative literals) to perform the operation. Previously, the operation was performed in the type of the shift amount / the exponent which can be misleading.
+
+\item \verb|Solidity v0.7.0| Changes to the Syntax - changes that might cause existing contracts to not compile anymore:
+    \begin{enumerate}
+	\item In external function and contract creation calls, Ether and gas is now specified using a new syntax:\\\verb|x.f{gas: 10000, value: 2 ether}(arg1, arg2)|. The old syntax – \verb|x.f.gas(10000).value(2 ether)(arg1, arg2)| – will cause an error.
+	\item The global variable \verb|now| is deprecated, \verb|block.timestamp| should be used instead. The single identifier \verb|now| is too generic for a global variable and could give the impression that it changes during transaction processing, whereas \verb|block.timestamp| correctly reflects the fact that it is just a property of the block.
+	\item NatSpec comments on variables are only allowed for public state variables and not for local or internal variables.
+	\item The token gwei is a keyword now (used to specify, e.g. \verb|2 gwei| as a number) and cannot be used as an identifier.
+	\item String literals now can only contain printable \verb|ASCII| characters and this also includes a variety of escape sequences, such as hexadecimal (\verb|\xff|) and unicode escapes (\verb|\u20ac|).
+	\item Unicode string literals are supported now to accommodate valid \verb|UTF-8| sequences. They are identified with the unicode prefix: unicode"Hello \smiley" (whose unicode notation is \verb|U+1F603|).
+	\item State Mutability: The state mutability of functions can now be restricted during inheritance. Functions with default state mutability can be overridden by pure and view functions while view functions can be overridden by pure functions. At the same time, public state variables are considered view and even pure if they are constants.
+	\item Disallow \verb|.| in user-defined function and variable names in inline assembly. It is still valid if you use \verb|Solidity| in Yul-only mode.
+	\item Slot and offset of storage pointer variable \verb|x| are accessed via \verb|x.slot| and \verb|x.offset| instead of \verb|x_slot| and \verb|x_offset|.
+    \end{enumerate}
+
+\item \verb|Solidity v0.7.0| \textbf{Removal of Unused or Unsafe Features}
+    \begin{enumerate}
+	\item If a struct or array contains a mapping, it can only be used in storage. Previously, mapping members were silently skipped in memory, which is confusing and error-prone.
+	\item Assignments to structs or arrays in storage do not work if they contain mappings. Previously, mappings were silently skipped during the copy operation, which is misleading and error-prone.
+	\item Visibility (\verb|public|/\verb|external|) is not needed for constructors anymore: To prevent a contract from being created, it can be marked \verb|abstract|. This makes the visibility concept for constructors obsolete.
+	\item Type Checker: Disallow virtual for library functions: Since libraries cannot be inherited from, library functions should not be virtual.
+	\item Multiple events with the same name and parameter types in the same inheritance hierarchy are disallowed.
+	\item\verb|using A for B| only affects the contract it is mentioned in. Previously, the effect was inherited. Now, you have to repeat the using statement in all derived contracts that make use of the feature.
+	\item Shifts by signed types are disallowed. Previously, shifts by negative amounts were allowed, but reverted at runtime.
+	\item The \verb|finney| and \verb|szabo| denominations are removed. They are rarely used and do not make the actual amount readily visible. Instead, explicit values like \verb|1e20| or the very common \verb|gwei| can be used.
+	\item The keyword \verb|var| cannot be used anymore. Previously, this keyword would parse, but result in a type error and a suggestion about which type to use. Now, it results in a parser error.
+    \end{enumerate}
+
+\item \verb|Solidity v0.8.0| Breaking Semantic Changes - changes where existing code changes its behaviour without the compiler notifying you about it:
+    \begin{enumerate}
+	\item Arithmetic operations revert on underflow and overflow. You can use \verb|unchecked {...}| to use the previous wrapping behaviour. Checks for overflow are very common, so they are the default to increase readability of code, even if it comes at a slight increase of gas costs.
+	\item ABI coder v2 is activated by default. You can choose to use the old behaviour using \verb|pragma abicoder v1;|. The pragma \verb|pragma experimental ABIEncoderV2;| is still valid, but it is deprecated and has no effect. If you want to be explicit, please use\linebreak\verb|pragma abicoder v2;| instead.
+	\item Exponentiation is right associative, i.e., the expression \verb|a**b**c| is parsed as \verb|a**(b**c)|. Before \verb|0.8.0|, it was parsed as \verb|(a**b)**c|. This is the common way to parse the exponentiation operator.
+	\item Failing assertions and other internal checks like division by zero or arithmetic overflow do not use the \verb|invalid| opcode but instead the \verb|revert| opcode. More specifically, they will use error data equal to a function call to Panic(\verb|uint256|) with an error code specific to the circumstances. This will save gas on errors while it still allows static analysis tools to distinguish these situations from a revert on invalid input, like a failing \verb|require|.
+	\item If a byte array in storage is accessed whose length is encoded incorrectly, a panic is caused. A contract cannot get into this situation unless inline assembly is used to modify the raw representation of storage byte arrays.
+	\item If constants are used in array length expressions, previous versions of \verb|Solidity| would use arbitrary precision in all branches of the evaluation tree. Now, if constant variables are used as intermediate expressions, their values will be properly rounded in the same way as when they are used in run-time expressions.
+	\item The type \verb|byte| has been removed. It was an alias of \verb|bytes1|.
+    \end{enumerate}
+
+\item \verb|Solidity v0.8.0| New Restrictions - changes that might cause existing contracts to not compile anymore:
+    \begin{enumerate}
+	\item Explicit conversions from negative literals and literals larger than \verb|type(uint160).max| to address are disallowed.
+	\item Explicit conversions between literals and an integer \verb|type T| are only allowed if the literal lies between \verb|type(T).min| and \verb|type(T).max|. In particular, replace usages of \verb|uint(-1)| with \verb|type(uint).max|.
+	\item Explicit conversions between literals and enums are only allowed if the literal can represent a value in the enum.
+	\item Explicit conversions between literals and address type\linebreak (e.g. \verb|address(literal)|) have the type address instead of address payable. One can get a payable address type by using an explicit conversion, i.e., \verb|payable(literal)|.
+	\item Address literals have the type \verb|address| instead of \verb|address payable|. They can be converted to \verb|address payable| by using an explicit conversion.
+	\item Function call options can only be given once,\linebreak i.e. \verb|c.f{gas: 10000}{value: 1}()| is invalid and has to be changed to \verb|c.f{gas: 10000, value: 1}()|.
+	\item The global functions \verb|log0|, \verb|log1|, \verb|log2|, \verb|log3| and \verb|log4| have been removed. These are low-level functions that were largely unused. Their behaviour can be accessed from inline assembly.
+	\item\verb|enum| definitions cannot contain more than 256 members. This will make it safe to assume that the underlying type in the ABI is always \verb|uint8|.
+	\item Declarations with the name \verb|this|, \verb|super| and \verb|_| are disallowed, with the exception of public functions and events.
+	\item The global variables \verb|tx.origin| and \verb|msg.sender| have the type\linebreak\verb|address| instead of address payable. One can convert them into\linebreak\verb|address payable| by using an explicit conversion.
+	\item Explicit conversion into \verb|address| type always returns a non-payable address type.
+	\item The \verb|chainid| builtin in inline assembly is now considered \verb|view| instead of \verb|pure|.
+    \end{enumerate}
+
+\item\textbf{Zero Address Check}: \verb|address(0)| which is 20-bytes of \verb|0|’s is treated specially in \verb|Solidity| contracts because the private key corresponding to this address is unknown. Ether and tokens sent to this address cannot be retrieved and setting access control roles to this address also won’t work (no private key to sign transactions). Therefore zero addresses should be used with care and checks should be implemented for user-supplied address parameters.
+
+\item\verb|tx.origin|\textbf{Check}: Recall that Ethereum has two types of accounts: Externally Owned Account (EOA) and Contract Account. Transactions can originate only from EOAs. In situations where contracts would like to determine if the \verb|msg.sender| was a contract or not, checking if \verb|msg.sender| is equal to \verb|tx.origin| is an effective check.
+
+\item\textbf{Overflow/Underflow Check}: Until \verb|Solidity| version \verb|0.8.0| which introduced checked arithmetic by default, arithmetic was unchecked and therefore susceptible to overflows and underflows which could lead to critical vulnerabilities. The recommended best-practice for such contracts is to use OpenZeppelin’s SafeMath library for arithmetic.
+
+\item\textbf{OpenZeppelin Libraries}: OpenZeppelin’s smart contract libraries are perhaps the most commonly used libraries in smart contract projects. These include contracts for popular token standards, access control, security, safe math, proxies and other utilities.
+
+\item\textbf{OpenZeppelin ERC20}: Implements the popular ERC20 token standard. The functions are:
+    \begin{enumerate}
+	\item\verb|constructor(string name_, string symbol_)|: Sets the values for name and symbol. The default value of decimals is 18. To select a different value for decimals you should overload it. All three of these values are immutable: they can only be set once during construction.
+	\item\verb|name()|$\rightarrow$\verb|string|: Returns the name of the token.
+	\item\verb|symbol()|$\rightarrow$\verb|string|: Returns the symbol of the token, usually a shorter version of the name.
+	\item\verb|decimalse()|$\rightarrow$\verb|uint8|: Returns the number of decimals used to get its user representation. For example, if \verb|decimals| equals 2, a balance of 505 tokens should be displayed to a user as \verb|5.05 (505 / 10 ** 2)|. Tokens usually opt for a value of 18, imitating the relationship between Ether and Wei. This is the value ERC20 uses, unless this function is overridden.
+	\item\verb|totalSupply()|: Returns the amount of tokens in existence.
+	\item\verb|balanceOf(address account)|$\rightarrow$\verb|uint256|: Returns the amount of tokens owned by account.
+	\item\verb|transfer(address recipient, uint256 amount)|$\rightarrow$\verb|bool|: Moves\linebreak amount tokens from the caller’s account to recipient. Returns a boolean value indicating whether the operation succeeded. Emits a Transfer event.
+	\item\verb|allowance(address owner, address spender)|$\rightarrow$\verb|uint256|: Returns the remaining number of tokens that spender will be allowed to spend on behalf of owner through transferFrom. This is zero by default. This value changes when approve or transferFrom are called.
+	\item\verb|approve(addres spender, uint256 amount)|$\rightarrow$\verb|bool|: Sets amount as the allowance of spender over the caller’s tokens. Returns a boolean value indicating whether the operation succeeded. Emits an Approval event. Warning: changing an allowance with this method brings the risk that someone may use both the old and the new allowance by unfortunate transaction ordering. One possible solution to mitigate this race condition is to first reduce the spender’s allowance to 0 and set the desired value afterwards.
+	\item\verb|transferFrom(address sender, address recipient, uint256 amount)|$\rightarrow$\verb|bool|: Moves amount tokens from sender to recipient using the allowance mechanism. amount is then deducted from the caller’s allowance. Returns a boolean value indicating whether the operation succeeded. Emits a Transfer event.
+	\item\verb|increaseAllowance(address spender, uint256 addedValue)|$\rightarrow$\verb|bool|: Atomically increases the allowance granted to spender by the caller. This is an alternative to approve that can be used as a mitigation for the warning above. Emits an Approval event indicating the updated allowance. Requirement is that spender cannot be the zero address.
+	\item\verb|decreaseAllowance(address spender, uint256 subtractedValue)|$\rightarrow$\verb|bool|: Atomically decreases the allowance granted to spender by the caller. This is an alternative to approve that can be used as a mitigation for the warning described above. Emits an Approval event indicating the updated allowance. Requirements are: 1) spender cannot be the zero address. 2) spender must have allowance for the caller of at least \verb|subtractedValue|.
+    \end{enumerate}
+
+    The different extensions are:
+
+
+    \begin{enumerate}
+    \item\textbf{OpenZeppelin ERC20Burnable}: Extension of ERC20 that allows token holders to destroy both their own tokens and those that they have an allowance for, in a way that can be recognized off-chain (via event analysis).
+
+    \item\textbf{OpenZeppelin ERC20Capped}: Extension of ERC20 that adds a cap to the supply of tokens and enforces it in the mint function.
+
+    \item\textbf{OpenZeppelin ERC20Pausable}: ERC20 token with pausable token transfers, minting and burning. Useful for scenarios such as preventing trades until the end of an evaluation period, or having an emergency switch for freezing all token transfers in the event of a large bug. The \verb|_beforeTokenTransfer()| internal function enforces the not paused condition.
+
+    \item\textbf{OpenZeppelin ERC20Snapshot}: This contract extends an ERC20 token with a snapshot mechanism. When a snapshot is created, the balances and total supply at the time are recorded for later access. This can be used to safely create mechanisms based on token balances such as trustless dividends or weighted voting. Snapshots are created by the internal \verb|_snapshot| function, which will emit the Snapshot event and return a snapshot id. To get the total supply at the time of a snapshot, call the function \verb|totalSupplyAt| with the snapshot id. To get the balance of an account at the time of a snapshot, call the \verb|balanceOfAt| function with the snapshot id and the account address.
+
+    \item\textbf{OpenZeppelin ERC20PresetFixedSupply}: ERC20 token, including:
+        \begin{enumerate}
+        \item Preminted initial supply.
+        \item Ability for holders to burn (destroy) their tokens.
+        \item No access control mechanism (for minting/pausing) and hence no governance.
+        \end{enumerate}
+
+    This contract uses \verb|ERC20Burnable| contract to include burn capabilities.
+
+    \item\textbf{OpenZeppelin ERC20PresetMinterPauser}: ERC20 token, including:
+        \begin{enumerate}
+        \item Ability for holders to burn (destroy) their tokens.
+        \item A minter role that allows for token minting (creation).
+        \item A pauser role that allows to stop all token transfers.
+        \end{enumerate}
+
+        This contract uses \verb|AccessControl| contract to lock permissioned functions using the different roles. The account that deploys the contract will be granted the minter and pauser roles, as well as the default admin role, which will let it grant both minter and pauser roles to other accounts.
+
+\end{enumerate}
+
+\item\textbf{OpenZeppelin SafeERC20}: Wrappers around ERC20 operations that throw on failure when the token contract implementation returns false. Tokens that return no value and instead revert or throw on failure are also supported with non-reverting calls assumed to be successful. Adds \verb|safeTransfer|, \verb|safeTransferFrom|, \verb|safeApprove|, \verb|safeDecreaseAllowance| and \verb|safeIncreaseAllowance|.
+
+\item\textbf{OpenZeppelin TokenTimelock}: A token holder contract that will allow a beneficiary to extract the tokens after a given release time. Useful for simple vesting schedules like "advisors get all of their tokens after 1 year".
+
+\item\textbf{OpenZeppelin ERC721}: Implements the popular ERC721 Non-Fungible Token Standard. The functions are:
+	\begin{enumerate}
+	\item\verb|balanceOf(address owner)|$\rightarrow$\verb|uint256 balance|: Returns the number of tokens in owner's account.
+	\item\verb|ownerOf(uint256 tokenId)|$\rightarrow$\verb|address owner|: Returns the owner of the tokenId token. Requirements:\\\verb|balanceOf(address owner)|$\rightarrow$\verb|uint256 balance|tokenId| must exist.
+	\item\verb|transferFrom(address from, address to, uint256 tokenId)|:\linebreak Transfers tokenId token from from to to. Requirements: \verb|from| cannot be the zero address. \verb|to| cannot be the zero address. \verb|tokenId| token must be owned by \verb|from|. If the caller is not \verb|from|, it must be approved to move this token by either \verb|approve| or \verb|setApprovalForAll|. Emits a Transfer event.
+	\item\verb|safeTransferFrom(address from, address to, uint256 token Id)|: Safely transfers \verb|tokenId| token from \verb|from| to \verb|to|, checking first that contract recipients are aware of the ERC721 protocol to prevent tokens from being forever locked. Requirements: 1) \verb|from| cannot be the zero address 2) \verb|to| cannot be the zero address. 3) \verb|tokenId| token must exist and be owned by \verb|from| 4) If the caller is not \verb|from|, it must be have been allowed to move this token by either \verb|approve| or \verb|setApprovalForAll| 5) If \verb|to| refers to a smart contract, it must implement \verb|IERC721Receiver.onERC721Received|, which is called upon a safe transfer. Emits a Transfer event. (The use of this function is encouraged over the related but unsafe transferFrom function.)
+	\item\verb|approve(address to, uint256 tokenId)|: Gives permission to \verb|to| to transfer \verb|tokenId| token to another account. The approval is cleared when the token is transferred. Only a single account can be approved at a time, so approving the zero address clears previous approvals. Requirements: 1) The caller must own the token or be an approved operator 2) \verb|tokenId| must exist. Emits an Approval event.
+	\item\verb|getApproved(uint256 tokenId)|$\rightarrow$\verb|address operator|: Returns the account approved for tokenId token. Requirements: tokenId must exist.
+	\item\verb|setApprovalForAll(address operator, bool _approved)|:\linebreak Approve or remove operator as an operator for the caller. Operators can call \verb|transferFrom| or \verb|safeTransferFrom| for any token owned by the caller. Requirements: The operator cannot be the caller. Emits an ApprovalForAll event.
+	\item\verb|isApprovedForAll(address owner, address operator)|$\rightarrow$\verb|bool|:\linebreak Returns if the operator is allowed to manage all of the assets of owner.
+	\end{enumerate}
+
+The different extensions/presets/utilities are:
+    \begin{enumerate}
+    \item\textbf{OpenZeppelin ERC721Burnable}: ERC721 Token that can be irreversibly burned (destroyed).
+    \item\textbf{OpenZeppelin ERC721Enumerable}: This implements an optional extension of ERC721 defined in the EIP that adds enumerability of all the token ids in the contract as well as all token ids owned by each account.
+    \item\textbf{OpenZeppelin ERC721Pausable}: ERC721 token with pausable token transfers, minting and burning. Useful for scenarios such as preventing trades until the end of an evaluation period, or having an emergency switch for freezing all token transfers in the event of a large bug.
+    \item\textbf{OpenZeppelin ERC721URIStorage}: ERC721 token with storage based token URI management.
+    \item\textbf{OpenZeppelin ERC721PresetMinterPauserAutoId}: ERC721 token, including:
+        \begin{enumerate}
+        \item ability for holders to burn (destroy) their tokens.
+        \item a minter role that allows for token minting (creation).
+        \item a pauser role that allows to stop all token transfers.
+        \item token ID and URI autogeneration.
+        \end{enumerate}
+    This contract uses \verb|AccessControl| to lock permissioned functions using the different roles. The account that deploys the contract will be granted the minter and pauser roles, as well as the default admin role, which will let it grant both minter and pauser roles to other accounts.
+    \item\textbf{OpenZeppelin ERC721Holder}: Implementation of the\linebreak\verb|IERC721Receiver| interface. Accepts all token transfers.
+    \end{enumerate}
+
+\item\textbf{OpenZeppelin ERC777}: Like ERC20, ERC777 is a standard for fungible tokens with improvements such as getting rid of the confusion around decimals, minting and burning with proper events, among others, but its killer feature is receive hooks. ERC777 is backwards compatible with ERC20 (see \cite{jacques_dafflon_2017}).
+	\begin{enumerate}
+	\item A hook is simply a function in a contract that is called when tokens are sent to it, meaning accounts and contracts can react to receiving tokens. This enables a lot of interesting use cases, including atomic purchases using tokens (no need to do \verb|approve| and \verb|transferFrom| in two separate transactions), rejecting reception of tokens (by reverting on the hook call), redirecting the received tokens to other addresses, among many others.
+	\item Both contracts and regular addresses can control and reject which token they send by registering a \verb|tokensToSend| hook. (Rejection is done by reverting in the hook function.)
+	\item Both contracts and regular addresses can control and reject which token they receive by registering a \verb|tokensReceived| hook. (Rejection is done by reverting in the hook function.)
+	\item The \verb|tokensReceived| hook allows to send tokens to a contract and notify it in a single transaction, unlike ERC-20 which requires a double call (\verb|approve|/\verb|transferFrom|) to achieve this.
+	\item Furthermore, since contracts are required to implement these hooks in order to receive tokens, no tokens can get stuck in a contract that is unaware of the ERC777 protocol, as has happened countless times when using ERC20s.
+	\item It mandates that decimals always returns a fixed value of 18, so there’s no need to set it ourselves
+	\item Has a concept of \verb|defaultOperators| which are special accounts (usually other smart contracts) that will be able to transfer tokens on behalf of their holders
+	\item Implements \verb|send| (besides \verb|transfer|) where if the recipient contract has not registered itself as aware of the ERC777 protocol then transfers to it are disabled to prevent tokens from being locked forever. Accounts can be notified of tokens being sent to them by having a contract implement this \verb|IERC777Recipient| interface and registering it on the ERC1820 global registry.
+	\end{enumerate}
+
+\item\textbf{OpenZeppelin ERC1155}: is a novel token standard that aims to take the best from previous standards to create a fungibility-agnostic and gas-efficient token contract.
+	\begin{enumerate}
+	\item The distinctive feature of ERC1155 is that it uses a single smart contract to represent multiple tokens at once
+	\item Accounts have a distinct balance for each token id, and non-fungible tokens are implemented by simply minting a single one of them.
+	\item This approach leads to massive gas savings for projects that require multiple tokens. Instead of deploying a new contract for each token type, a single ERC1155 token contract can hold the entire system state, reducing deployment costs and complexity.
+	\item Because all state is held in a single contract, it is possible to operate over multiple tokens in a single transaction very efficiently. The standard provides two functions, \verb|balanceOfBatch| and\linebreak\verb|safeBatchTransferFrom|, that make querying multiple balances and transferring multiple tokens simpler and less gas-intensive.
+	\end{enumerate}
+
+\item\textbf{OpenZeppelin Ownable}: provides a basic access control mechanism, where there is an account (an owner) that can be granted exclusive access to specific functions. By default, the owner account will be the one that deploys the contract. This can later be changed with \verb|transferOwnership|. This module is used through inheritance. It will make available the modifier \verb|onlyOwner|, which can be applied to your functions to restrict their use to the owner.
+
+\item\textbf{OpenZeppelin AccessControl}: provides a general role based access control mechanism. Multiple hierarchical roles can be created and assigned each to multiple accounts. Roles can be used to represent a set of permissions. \verb|hasRole| is used to restrict access to a function call. Roles can be granted and revoked dynamically via the \verb|grantRole| and \verb|revokeRole| functions which can only be called by the role’s associated admin accounts.\\
+
+While the simplicity of \verb|Ownable| can be useful for simple systems or quick prototyping, different levels of authorization are often needed. You may want for an account to have permission to ban users from a system, but not create new tokens. Role-Based Access Control (RBAC) offers flexibility in this regard. We will effectively be defining multiple roles, each allowed to perform different sets of actions. An account may have, for example, \verb|moderator|, \verb|minter| or \verb|admin| roles, which you will then check for instead of simply using \verb|onlyOwner|. Separately, you will be able to define rules for how accounts can be granted a role, have it revoked, and more.\\
+
+OpenZeppelin AccessControlEnumerable: Extension of AccessControl that allows enumerating the members of each role.
+
+\item\textbf{OpenZeppelin Pausable}: provides an emergency stop mechanism using functions pause and unpause that can be triggered by an authorized account. This module is used through inheritance. It will make available the modifiers \verb|whenNotPaused| and \verb|whenPaused|, which can be applied to the functions of your contract. Only the functions using the modifiers will be affected when the contract is paused or unpaused.
+
+\item\textbf{OpenZeppelin ReentrancyGuard}: prevents reentrant calls to a function. Inheriting from \verb|ReentrancyGuard| will make the \verb|nonReentrant| modifier available, which can be applied to functions to make sure there are no nested (reentrant) calls to them.
+
+\item\textbf{OpenZeppelin PullPayment}: provides a pull-payment strategy, where the paying contract doesn’t invoke any functions on the receiver account which must withdraw its payments itself. Pull-payments are often considered the best practice when it comes to sending Ether, security-wise. It prevents recipients from blocking execution and eliminates reentrancy concerns.
+
+\item\textbf{OpenZeppelin Address}: Collection of functions related to the address type:
+	\begin{enumerate}
+	\item\verb|isContract(address account)|$\rightarrow$\verb|bool|: Returns true if account is a contract. It is unsafe to assume that an address for which this function returns false is an externally-owned account (EOA) and not a contract. Among others, \verb|isContract| will return \verb|false| for the following types of addresses: 1) an externally-owned account 2) a contract in construction 3) an address where a contract will be created 4) an address where a contract lived, but was destroyed
+	\item\verb|sendValue(address payable recipient, uint256 amount)|: Replacement for \verb|Solidity|’s \verb|transfer|: sends amount wei to recipient, forwarding all available gas and reverting on errors. EIP1884 increases the gas cost of certain opcodes, possibly making contracts go over the 2300 gas limit imposed by \verb|transfer|, making them unable to receive funds via \verb|transfer|. \verb|sendValue| removes this limitation.
+	\item\verb|functionCall(address target, bytes data)|$\rightarrow$\verb|bytes|: Performs a \verb|Solidity| function call using a low level call. A plain \verb|call| is an unsafe replacement for a \verb|functionCall|: use this function instead. If target reverts with a revert reason, it is bubbled up by this function (like regular \verb|Solidity| function calls). Returns the raw returned data. Requirements: target must be a contract. calling target with data must not revert.
+	\item\verb|functionCallWithValue(address target, bytes data, uint256 value)|$\rightarrow$\verb|bytes|: Same as functionCall, but also transferring value wei to target. Requirements: 1) the calling contract must have an ETH balance of at least \verb|value|. 2) the called \verb|Solidity| function must be payable.
+	\item\verb|functionStaticCall(address target, bytes data)|$\rightarrow$\verb|bytes|:\linebreak Same as \verb|functionCall|, but performing a \verb|staticcall|.
+	\item\verb|functionDelegateCall(address target, bytes data)|$\rightarrow$\verb|bytes|:\linebreak Same as \verb|functionCall|, but performing a \verb|delegatecall|.
+	\end{enumerate}
+
+The above \verb|functionCall*| functions have variants which pass an\linebreak\verb|errorMessage| parameter that specifies the fallback revert reason when target reverts.
+
+\item\textbf{OpenZeppelin Arrays}: Collection of functions related to array types:
+	\begin{enumerate}
+	\item \verb|findUpperBound(uint256[] array, uint256 element)|$\rightarrow$\verb|uint256|: Searches a sorted array and returns the first index that contains a value greater or equal to \verb|element|. If no such index exists (i.e. all values in the array are strictly less than element), the array length is returned. Time complexity $\mathcal{O}(\log(n))$. array is expected to be sorted in ascending order, and to contain no repeated elements.
+	\end{enumerate}
+
+\item\textbf{OpenZeppelin Context}: Provides information about the current execution context, including the sender of the transaction and its data. While these are generally available via \verb|msg.sender| and \verb|msg.data|, they should not be accessed in such a direct manner, since when dealing with meta-transactions the account sending and paying for execution may not be the actual sender (as far as an application is concerned). This contract is only required for intermediate, library-like contracts.
+
+\item\textbf{OpenZeppelin Counters}: Provides counters that can only be incremented or decremented by one. This can be used e.g. to track the number of elements in a mapping, issuing ERC721 ids, or counting request ids. Functions are:
+	\begin{enumerate}
+	\item\verb|current(struct Counters.Counter counter)|$\rightarrow$\verb|uint256|
+	\item\verb|increment(struct Counters.Counter counter)|
+	\item\verb|decrement(struct Counters.Counter counter)|
+	\end{enumerate}
+
+\item\textbf{OpenZeppelin Create2}: makes usage of the \verb|CREATE2| EVM opcode easier and safer. \verb|CREATE2| can be used to compute in advance the address where a smart contract will be deployed, which allows for interesting new mechanisms known as 'counterfactual interactions’.
+	\begin{enumerate}
+	\item\verb|deploy(uint256 amount, bytes32 salt, bytes bytecode)|$\rightarrow$\verb|address|: Deploys a contract using \verb|CREATE2|. The address where the contract will be deployed can be known in advance via \verb|computeAddress|. The bytecode for a contract can be obtained from \verb|Solidity| with \verb|type(contractName).creationCode|. Requirements: 1) bytecode must not be empty. 2) \verb|salt| must have not been used for bytecode already. 3) the factory must have a balance of at least amount. 4) if amount is non-zero, bytecode must have a payable constructor.
+	\item\verb|computeAddress(bytes32 salt, bytes32 bytecodeHash)|$\rightarrow$\verb|address|: Returns the address where a contract will be stored if deployed via deploy. Any change in the \verb|bytecodeHash| or \verb|salt| will result in a new destination address.
+	\item\verb|computeAddress(bytes32 salt, bytes32 bytecodeHash, address deployer)|$\rightarrow$\verb|address|: Returns the address where a contract will be stored if deployed via \verb|deploy| from a contract located at deployer. If the deployer is this contract’s address, it returns the same value as \verb|computeAddress|.
+	\end{enumerate}
+
+\item\textbf{OpenZeppelin Multicall}: Provides a function to batch together multiple calls in a single external call.\\\verb|multicall(bytes[] calldata data) external|$\rightarrow$\verb|bytes[]|: Receives and executes a batch of function calls on this contract.
+
+\item\textbf{OpenZeppelin Strings}: String operations:
+	\begin{enumerate}
+	\item\verb|toString(uint256 value)|$\rightarrow$\verb|string|: Converts a \verb|uint256| to its \verb|ASCII| string decimal representation.
+	\item\verb|toHexString(uint256 value)|$\rightarrow$\verb|string|: Converts a \verb|uint256| to its \verb|ASCII| string hexadecimal representation.
+	\item\verb|toHexString(uint256 value, uint256 length)|$\rightarrow$\verb|string|: Converts a \verb|uint256| to its \verb|ASCII| string hexadecimal representation with fixed length.
+	\end{enumerate}
+
+\item\textbf{OpenZeppelin ECDSA}: provides functions for recovering and managing Ethereum account ECDSA signatures. These are often generated via \verb|web3.eth.sign|, and are a 65 byte array (of type bytes in \verb|Solidity|) arranged the following way: \verb|[[v (1)]|, \verb|[r (32)]|, \verb|[s (32)]]|. The data signer can be recovered with \verb|ECDSA.recover|, and its address compared to verify the signature. Most wallets will hash the data to sign and add the prefix \verb|'\x19Ethereum Signed Message:\n'|, so when attempting to recover the signer of an Ethereum signed message hash, you’ll want to use \verb|toEthSignedMessageHash|. The \verb|ecrecover| EVM opcode allows for malleable (non-unique) signature. This library prevents that by requiring the $s$ value to be in the lower half order, and the $v$ value to be either 27 or 28.
+
+\item\textbf{OpenZeppelin MerkleProof}: This deals with verification of Merkle Trees proofs. \verb|verify| can prove that some value is part of a Merkle tree. Returns \verb|true| if a \verb|leaf| can be proved to be a part of a Merkle tree defined by \verb|root|. For this, a \verb|proof| must be provided, containing sibling hashes on the branch from the leaf to the root of the tree. Each pair of leaves and each pair of pre-images are assumed to be sorted.
+
+\item\textbf{OpenZeppelin SignatureChecker}: Provide a single mechanism to verify both private-key (EOA) ECDSA signature and ERC1271 contract signatures. Using this instead of \verb|ECDSA.recover| in your contract will make them compatible with smart contract wallets such as Argent and Gnosis.
+	\begin{enumerate}
+	\item Externally Owned Accounts (EOA) can sign messages with their associated private keys, but currently contracts cannot. This is a problem for many applications that implement signature based off-chain methods, since contracts can't easily interact with them as they do not possess a private key. ERC 1271 proposes a standard way for any contracts to verify whether a signature on behalf of a given contract is valid.
+	\item Note: unlike ECDSA signatures, contract signatures are revocable, and the outcome of this function can thus change through time. It could return \verb|true| at block $N$ and \verb|false| at block $N+1$ (or the opposite).
+	\end{enumerate}
+
+\item\textbf{OpenZeppelin EIP712}: EIP 712 is a standard for hashing and signing of typed structured data. This contract implements the EIP 712 domain separator (\verb|_domainSeparatorV4|) that is used as part of the encoding scheme, and the final step of the encoding to obtain the message digest that is then signed via ECDSA (\verb|_hashTypedDataV4|). Protocols need to implement the type-specific encoding they need in their contracts using a combination of \verb|abi.encode| and \verb|keccak256|.
+	\begin{enumerate}
+	\item\verb|constructor(string name, string version)|: Initializes the domain separator and parameter caches. The meaning of name and version is specified in EIP 712: 1) \verb|name| is the user readable name of the signing domain, i.e. the name of the \DJ App or the protocol 2) \verb|version|: the current major version of the signing domain.
+	\item\verb|_domainSeparatorV4()|$\rightarrow$\verb|bytes32|: Returns the domain separator for the current chain.
+	\end{enumerate}
+
+\item\textbf{OpenZeppelin Escrow}: holds funds designated for a payee until they withdraw them. The contract that uses this escrow as its payment method should be its owner, and provide public methods redirecting to the escrow's deposit and withdraw if the escrow rules are satisfied.
+	\begin{enumerate}
+	\item\verb|depositsOf(address payee)|$\rightarrow$\verb|uint256|
+	\item\verb|deposit(address payee)|: Stores the sent amount as credit to be withdrawn.
+	\item\verb|withdraw(address payable payee)|: Withdraw accumulated balance for a payee, forwarding all gas to the recipient.
+	\end{enumerate}
+
+\item\textbf{OpenZeppelin ConditionalEscrow}: Derived from Escrow and only allows withdrawal if a condition is met by providing the\linebreak\verb|withdrawalAllowed()| function which returns whether an address is allowed to withdraw their funds and is to be implemented by derived contracts.
+
+\item\textbf{OpenZeppelin RefundEscrow}: Derived from \verb|ConditionalEscrow| and holds funds for a beneficiary, deposited from multiple parties. The owner account (that is, the contract that instantiates this contract) may deposit, close the deposit period, and allow for either withdrawal by the beneficiary, or refunds to the depositors.
+
+\item\textbf{OpenZeppelin ERC165}: In \verb|Solidity|, it’s frequently helpful to know whether or not a contract supports an interface you’d like to use. ERC165 is a standard that helps do runtime interface detection using a lookup table. You can register interfaces using \verb|_registerInterface(bytes4)| and \verb|supportsInterface(bytes4 interfaceId)| returns a \verb|bool| indicating if that interface is supported or not.
+
+\item\textbf{OpenZeppelin Math}: Standard math utilities missing in the \verb|Solidity| language:
+	\begin{enumerate}
+	\item\verb|max(uint256 a, uint256 b)|: Returns the larger of two numbers.
+	\item\verb|min(uint256 a, uint256 b)|: Returns the smaller of two numbers.
+	\item\verb|average(uint256 a, uint256 b)|: Returns the average of two numbers. The result is rounded towards zero.
+	\end{enumerate}
+
+\item\textbf{OpenZeppelin SafeMath}: provides mathematical functions that protect your contract from overflows and underflows. Include the contract with \verb|using SafeMath for uint256;| and then call the functions:
+	\begin{enumerate}
+	\item\verb|myNumber.add(otherNumber)|: Returns the addition of two unsigned integers, reverting on overflow. Counterpart to \verb|Solidity|'s \verb|+| operator.
+	\item\verb|myNumber.sub(otherNumber)|: Returns the subtraction of two unsigned integers, reverting on overflow (when the result is negative). Counterpart to \verb|Solidity|'s \verb|-| operator.
+	\item\verb|myNumber.div(otherNumber)|: Returns the division of two unsigned integers, reverting on overflow. The result is rounded towards zero. Counterpart to \verb|Solidity|'s \verb|/| operator.
+	\item\verb|myNumber.mul(otherNumber)|: Returns the multiplication of two unsigned integers, reverting on overflow. Counterpart to \verb|Solidity|'s \verb|*| operator.
+	\item\verb|myNumber.mod(otherNumber)|: Returns the modulus of two unsigned integers, reverting when dividing by zero. Counterpart to Solidity's \verb|%| operator.
+	\end{enumerate}
+
+	The corresponding \verb|try*| fucntions return results with an overflow flag instead of reverting.
+
+\item\textbf{OpenZeppelin SignedSafeMath}: provides the same mathematical functions as \verb|SafeMath| but for signed integers
+	\begin{enumerate}
+	\item\verb|myNumber.add(otherNumber)|: Returns the addition of two signed integers, reverting on overflow. Counterpart to \verb|Solidity|'s \verb|+| operator.
+	\item\verb|myNumber.sub(otherNumber)|: Returns the subtraction of two signed integers, reverting on overflow (when the result is negative). Counterpart to \verb|Solidity|'s \verb|-| operator.
+	\item\verb|myNumber.div(otherNumber)|: Returns the division of two signed integers, reverting on overflow. The result is rounded towards zero. Counterpart to \verb|Solidity|'s \verb|/| operator.
+	\item\verb|myNumber.mul(otherNumber)|: Returns the multiplication of two\linebreak signed integers, reverting on overflow. Counterpart to \verb|Solidity|'s \verb|*| operator.
+	\end{enumerate}
+
+\item\textbf{OpenZeppelin SafeCast}: Wrappers over \verb|Solidity|'s \verb|uintXX|/\verb|intXX| casting operators with added overflow checks. Downcasting from\linebreak\verb|uint256|/\verb|int256| in \verb|Solidity| does not revert on overflow. This can easily result in undesired exploitation or bugs, since developers usually assume that overflows raise errors. \verb|SafeCast| restores this intuition by reverting the transaction when such an operation overflows.
+	\begin{enumerate}
+	\item\verb|toUint128(uint256 value) returns (uint128)|: Returns the\linebreak downcasted \verb|uint128| from \verb|uint256|, reverting on overflow (when the input is greater than largest \verb|uint128|). Similar functions are available for \verb|toUint64(uint256 value)|, \verb|toUint32(uint256 value)|,\linebreak\verb|toUint16(uint256 value)| and \verb|toUint8(uint256 value)|.
+	\item\verb|toInt128(int256 value) internal pure returns (uint256)|:\linebreak Returns the downcasted \verb|int128| from \verb|int256|, reverting on overflow (when the input is less than smallest \verb|int128| or greater than largest \verb|int128|). Similar functions are available for \verb|toInt64(int256 value)|, \verb|toInt32(int256 value)|, \verb|toInt16(int256 value)| and\linebreak\verb|toInt8(int256 value)|.
+	\item\verb|function toInt256(uint256 value) returns (int256)|: Converts an unsigned \verb|uint256| into a signed \verb|int256|.
+	\item\verb|function toUint256(int256 value) returns (uint256)|:\linebreak Converts a signed \verb|int256| into an unsigned \verb|uint256|.
+	\item Similar functions downcasting to \verb|224|/\verb|96|/\verb|64|/\verb|32|/\verb|16|/\verb|8| bits for both unsigned and signed.
+	\end{enumerate}
+
+\item\textbf{OpenZeppelin EnumerableMap}: Library for managing an enumerable variant of \verb|Solidity|’s mapping type. Maps havethe following properties: 1) Entries are added, removed, and checked for existence in constant time ($\mathcal{O}(1)$) 2) Entries are enumerated in $\mathcal{O}(n)$. No guarantees are made on the ordering. As of \verb|v3.0.0|, only maps of type \verb|uint256|$\rightarrow$ \verb|address| (\verb|UintToAddressMap|) are supported.
+	\begin{enumerate}
+	\item\verb|set(struct EnumerableMap.UintToAddressMap map, uint256 key, address value)|$\rightarrow$\verb|bool|: Adds a \verb|(key, value)| pair to a map, or updates the value for an existing key. Returns \verb|true| if the key was added to the map, that is if it was not already present.
+	\item\verb|remove(struct EnumerableMap.UintToAddressMap map, uint256 key)|$\rightarrow$\verb|bool|: Removes a value from a set. Returns \verb|true| if the key was removed from the map, that is if it was present.
+	\item\verb|contains(struct EnumerableMap.UintToAddressMap map, uint256 key)|$\rightarrow$\verb|bool|: Returns \verb|true| if the key is in the map.
+	\item\verb|length(struct EnumerableMap.UintToAddressMap map)|$\rightarrow$\verb|uint256|: Returns the number of elements in the map.
+	\item\verb|at(struct EnumerableMap.UintToAddressMap map, uint256 index)|$\rightarrow$\verb|uint256, address|: Returns the element stored at position \verb|index| in the set. Note that there are no guarantees on the ordering of values inside the array, and it may change when more values are added or removed. Requirements: \verb|index| must be strictly less than \verb|length|.
+	\item\verb|tryGet(struct EnumerableMap.UintToAddressMap map, uint256 key)|$\rightarrow$\verb|bool, address|: Tries to return the \verb|value| associated with \verb|key|. Does not revert if key is not in the map.
+	\item\verb|get(struct EnumerableMap.UintToAddressMap map, uint256 key)|$\rightarrow$\verb|address|: Returns the value associated with \verb|key|. Requirements: \verb|key| must be in the map.
+	\end{enumerate}
+
+\item\textbf{OpenZeppelin EnumerableSet}: Library for managing sets of primitive types. Sets have the following properties: 1) Elements are added, removed, and checked for existence in constant time ($\mathcal{O}(1)$) 2) Elements are enumerated in $\mathcal{O}(n)$. No guarantees are made on the ordering. As of \verb|v3.3.0|, sets of type \verb|bytes32| (\verb|Bytes32Set|), \verb|address| (\verb|AddressSet|) and \verb|uint256| (\verb|UintSet|) are supported.
+	\begin{enumerate}
+	\item\verb|add(struct EnumerableSet.Bytes32Set set, bytes32 value)|$\rightarrow$\verb|bool|: Add a value to a set. Returns \verb|true| if the value was added to the set, that is if it was not already present.
+	\item\verb|remove(struct EnumerableSet.Bytes32Set set, bytes32 value)|$\rightarrow$\verb|bool|: Removes a value from a set. Returns \verb|true| if the value was removed from the set, that is if it was present.
+	\item\verb|contains(struct EnumerableSet.Bytes32Set set, bytes32 value)|$\rightarrow$\verb|bool|: Returns \verb|true| if the value is in the set.
+	\item\verb|length(struct EnumerableSet.Bytes32Set set)|$\rightarrow$\verb|uint256|: Returns the number of values in the set.
+	\item\verb|at(struct EnumerableSet.Bytes32Set set, uint256 index)|$\rightarrow$\verb|bytes32|: Returns the value stored at position \verb|index| in the set. Note that there are no guarantees on the ordering of values inside the array, and it may change when more values are added or removed. Requirements: \verb|index| must be strictly less than \verb|length|.
+	\item\verb|add(struct EnumerableSet.AddressSet set, address value)|$\rightarrow$\verb|bool|: Add a value to a set. Returns \verb|true| if the value was added to the set, that is if it was not already present.
+	\item\verb|remove(struct EnumerableSet.AddressSet set, address value)|$\rightarrow$\verb|bool|: Removes a value from a set. Returns \verb|true| if the value was removed from the set, that is if it was present.
+	\item\verb|contains(struct EnumerableSet.AddressSet set, address value)|$\rightarrow$\verb|bool|: Returns true if the value is in the set. length(struct EnumerableSet.AddressSet set) → uint256: Returns the number of values in the set.
+	\item\verb|at(struct EnumerableSet.AddressSet set, uint256 index)|$\rightarrow$\verb|address|: Returns the value stored at position \verb|index| in the set. Note that there are no guarantees on the ordering of values inside the array, and it may change when more values are added or removed. Requirements: \verb|index| must be strictly less than \verb|length|.
+	\item\verb|add(struct EnumerableSet.UintSet set, uint256 value)|$\rightarrow$\verb|bool|: Add a value to a set. Returns \verb|true| if the value was added to the set, that is if it was not already present.
+	\item\verb|remove(struct EnumerableSet.UintSet set, uint256 value)|$\rightarrow$\verb|bool|: Removes a value from a set. Returns \verb|true| if the value was removed from the set, that is if it was present.
+	\item\verb|contains(struct EnumerableSet.UintSet set, uint256 value)|$\rightarrow$\verb|bool|: Returns \verb|true| if the value is in the set. $\mathcal{O}(1)$.
+	\item\verb|length(struct EnumerableSet.UintSet set)|$\rightarrow$\verb|uint256|: Returns the number of values on the set.
+	\item\verb|at(struct EnumerableSet.UintSet set, uint256 index)|$\rightarrow$\verb|uint256|: Returns the value stored at position \verb|index| in the set. Note that there are no guarantees on the ordering of values inside the array, and it may change when more values are added or removed. Requirements: \verb|index| must be strictly less than \verb|length|.
+	\end{enumerate}
+
+\item\textbf{OpenZeppelin BitMaps}: Library for managing \verb|uint256| to \verb|bool| mapping in a compact and efficient way, providing the keys are sequential.
+	\begin{enumerate}
+	\item\verb|struct BitMap|: \verb|mapping(uint256 => uint256) _data;|
+	\item\verb|get(BitMap storage bitmap, uint256 index)|$\rightarrow$\verb|bool|: Returns\linebreak whether the bit at \verb|index| is set.
+	\item\verb|setTo(BitMap storage bitmap, uint256 index, bool value)|:\linebreak Sets the bit at \verb|index| to the boolean \verb|value|.
+	\item\verb|function set(BitMap storage bitmap, uint256 index)|: Sets\linebreak the bit at \verb|index|.
+	\item\verb|function unset(BitMap storage bitmap, uint256 index)|: Unsets the bit at \verb|index|.
+	\end{enumerate}
+
+\item\textbf{OpenZeppelin PaymentSplitter}: allows to split Ether payments among a group of accounts. The sender does not need to be aware that the Ether will be split in this way, since it is handled transparently by the contract. The split can be in equal parts or in any other arbitrary proportion. The way this is specified is by assigning each account to a number of shares. Of all the Ether that this contract receives, each account will then be able to claim an amount proportional to the percentage of total shares they were assigned.\\
+
+PaymentSplitter follows a pull payment model. This means that payments are not automatically forwarded to the accounts but kept in this contract, and the actual transfer is triggered as a separate step by calling the release function.
+
+\item\textbf{OpenZeppelin TimelockController}: acts as a timelocked controller. When set as the owner of an \verb|Ownable| smart contract, it enforces a timelock on all \verb|onlyOwner| maintenance operations. This gives time for users of the controlled contract to exit before a potentially dangerous maintenance operation is applied. By default, this contract is self administered, meaning administration tasks have to go through the timelock process. The proposer (resp executor) role is in charge of proposing (resp executing) operations. A common use case is to position this TimelockController as the owner of a smart contract, with a multisig or a DAO as the sole proposer.
+	\begin{enumerate}
+	\item\verb|constructor(uint256 minDelay, address[] proposers, address[] executors)|: Initializes the contract with a given \verb|minDelay|.
+	\item\verb|receive()|: Contract might receive/hold ETH as part of the maintenance process.
+	\item\verb|isOperation(bytes32 id)|$\rightarrow$\verb|bool pending|: Returns whether an id corresponds to a registered operation. This includes both Pending, Ready and Done operations.
+	\item\verb|isOperationPending(bytes32 id)|$\rightarrow$\verb|bool pending|: Returns\linebreak whether an operation is pending or not.
+	\item\verb|isOperationReady(bytes32 id)|$\rightarrow$\verb|bool ready|: Returns whether an operation is ready or not.
+	\item\verb|isOperationDone(bytes32 id)|$\rightarrow$\verb|bool done|: Returns whether an operation is done or not.
+	\item\verb|getTimestamp(bytes32 id)|$\rightarrow$\verb|uint256 timestamp|: Returns the\linebreak timestamp at which an operation becomes ready (0 for unset operations, 1 for done operations).
+	\item\verb|getMinDelay()|$\rightarrow$\verb|uint256 duration|: Returns the minimum delay for an operation to become valid. This value can be changed by executing an operation that calls \verb|updateDelay|.
+	\item\verb|hashOperation(address target, uint256 value, bytes data,|\linebreak\verb|bytes32 predecessor, bytes32 salt)|$\rightarrow$\verb|bytes32 hash|: Returns the identifier of an operation containing a single transaction.
+	\item\verb|hashOperationBatch(address[] targets, uint256[] values,|\linebreak\verb|bytes[] datas, bytes32 predecessor, bytes32 salt)|$\rightarrow$\verb|bytes32 hash|: Returns the identifier of an operation containing a batch of transactions.
+	\item\verb|schedule(address target, uint256 value, bytes data,|\linebreak\verb|bytes32 predecessor, bytes32 salt, uint256 delay)|: Schedule an operation containing a single transaction. Emits a \verb|CallScheduled| event. Requirements: the caller must have the 'proposer' role.
+	\item\verb|scheduleBatch(address[] targets, uint256[] values,|\linebreak\verb|bytes[] datas, bytes32 predecessor, bytes32 salt, uint256 delay)|: Schedule an operation containing a batch of transactions. Emits one \verb|CallScheduled| event per transaction in the batch. Requirements: the caller must have the 'proposer' role.
+	\item\verb|cancel(bytes32 id)|: Cancel an operation. Requirements: the caller must have the 'proposer' role.
+	\item\verb|execute(address target, uint256 value, bytes data,|\linebreak\verb|bytes32 predecessor, bytes32 salt)|: Execute an (ready) operation containing a single transaction. Emits a CallExecuted event. Requirements: the caller must have the 'executor' role.
+	\item\verb|executeBatch(address[] targets, uint256[] values, bytes[] datas,|\linebreak\verb|bytes32 predecessor, bytes32 salt)|: Execute an (ready) operation containing a batch of transactions. Emits one \verb|CallExecuted| event per transaction in the batch. Requirements: the caller must have the 'executor' role.
+	\item\verb|updateDelay(uint256 newDelay)|: Changes the minimum timelock duration for future operations. Emits a \verb|MinDelayChange| event. Requirements: the caller must be the timelock itself. This can only be achieved by scheduling and later executing an operation where the timelock is the target and the data is the ABI-encoded call to this function.
+	\end{enumerate}
+
+\item\textbf{OpenZeppelin ERC2771Context}: A Context variant for ERC2771. ERC2771 provides support for meta transactions, which are transactions that have been:
+	\begin{enumerate}
+	\item Authorized by the Transaction Signer. For example, signed by an externally owned account
+	\item Relayed by an untrusted third party that pays for the gas (the Gas Relay)
+	\end{enumerate}
+
+The problem is that for a contract that is not natively aware of meta transactions, the \verb|msg.sender| of the transaction will make it appear to be coming from the Gas Relay and not the Transaction Signer. A secure protocol for a contract to accept meta transactions needs to prevent the Gas Relay from forging, modifying or duplicating requests by the Transaction Signer. The entities are:
+    \begin{enumerate}
+    \item Transaction Signer - entity that signs \& sends to request to Gas Relay.
+    \item Gas Relay - receives a signed request off-chain from Transaction Signer and pays gas to turn it into a valid transaction that goes through Trusted Forwarder.
+    \item Trusted Forwarder - a contract that is trusted by the Recipient to correctly verify the signature and nonce before forwarding the request from Transaction Signer.
+    \item Recipient - a contract that can securely accept meta-transactions through a Trusted Forwarder by being compliant with this standard.
+    \end{enumerate}
+
+\item\textbf{OpenZeppelin MinimalForwarder}: provides a simple minimal forwarder (as described above) to be used together with an ERC2771 compatible contract. It verifies the nonce and signature of the forwarded request before calling the destination contract.
+	\begin{enumerate}
+	\item\verb|struct ForwardRequest {address from; address to;|\linebreak\verb|uint256 value; uint256 gas; uint256 nonce; bytes data;}|
+	\item\verb|verify(ForwardRequest calldata req,|\linebreak\verb|bytes calldata signature) public view|$\rightarrow$\verb|(bool)|
+	\item\verb|execute(ForwardRequest calldata req,|\linebreak\verb|bytes calldata signature) → (success, returndata)|
+	\end{enumerate}
+
+\item\textbf{OpenZeppelin Proxy}: This abstract contract provides a fallback function that delegates all calls to another contract using the EVM instruction \verb|delegateCall|. We refer to the second contract as the implementation behind the proxy, and it has to be specified by overriding the virtual \verb|_implementation| function. Additionally, delegation to the implementation can be triggered manually through the \verb|_fallback| function, or to a different contract through the \verb|_delegate| function. The success and return data of the delegated call will be returned back to the caller of the proxy. Upgradeability is only provided internally through \verb|_upgradeTo|.
+	\begin{enumerate}
+	\item\verb|constructor(address _logic, bytes _data)|: Initializes the upgradeable proxy with an initial implementation specified by \verb|_logic|. If \verb|_data| is nonempty, it’s used as data in a delegate call to \verb|_logic|. This will typically be an encoded function call, and allows initializing the storage of the proxy like a \verb|Solidity| constructor.
+	\item\verb|_implementation()|$\rightarrow$\verb|address impl|: Returns the current implementation address.
+	\item\verb|_upgradeTo(address newImplementation)|: Upgrades the proxy to a new implementation. Emits an Upgraded event.
+	\end{enumerate}
+
+\item\textbf{OpenZeppelin TransparentUpgradeableProxy}: implements a proxy that is upgradeable by an admin. To avoid proxy selector clashing, which can potentially be used in an attack, this contract uses the transparent proxy pattern. This pattern implies two things that go hand in hand: 1) If any account other than the admin calls the proxy, the call will be forwarded to the implementation, even if that call matches one of the admin functions exposed by the proxy itself 2) If the admin calls the proxy, it can access the admin functions, but its calls will never be forwarded to the implementation. If the admin tries to call a function on the implementation it will fail with an error that says "admin cannot fallback to proxy target”.\\
+
+These properties mean that the admin account can only be used for admin actions like upgrading the proxy or changing the admin, so it’s best if it’s a dedicated account that is not used for anything else. This will avoid headaches due to sudden errors when trying to call a function from the proxy implementation.
+    \begin{enumerate}
+    \item\verb|constructor(address _logic, address admin_, bytes _data)|:\linebreak Initializes an upgradeable proxy managed by \verb|_admin|, backed by the implementation at \verb|_logic|, and optionally initialized with \verb|_data|.
+    \item\verb|admin()|$\rightarrow$\verb|address admin_|: Returns the current admin.
+    \item\verb|implementation()|$\rightarrow$\verb|address implementation_|: Returns the current implementation.
+    \item\verb|changeAdmin(address newAdmin)|: Changes the admin of the proxy. Emits an \verb|AdminChanged| event.
+    \item\verb|upgradeTo(address newImplementation)|: Upgrade the implementation of the proxy.
+    \item\verb|upgradeToAndCall(address newImplementation, bytes data)|:\linebreak Upgrade the implementation of the proxy, and then call a function from the new implementation as specified by data, which should be an encoded function call. This is useful to initialize new storage variables in the proxied contract.
+    \item\verb|_admin()|$\rightarrow$\verb|address adm|: Returns the current admin.
+    \item\verb|_beforeFallback()|: Makes sure the admin cannot access the fallback function.
+    \end{enumerate}
+
+\item\textbf{OpenZeppelin ProxyAdmin}: This is an auxiliary contract meant to be assigned as the admin of a \verb|TransparentUpgradeableProxy|.
+	\begin{enumerate}
+	\item\verb|getProxyImplementation(contract TransparentUpgradeableProxy proxy)|$\rightarrow$\verb|address|: Returns the current implementation of proxy. Requirements: This contract must be the admin of proxy.
+	\item\verb|getProxyAdmin(contract TransparentUpgradeableProxy proxy)|$\rightarrow$\verb|address|: Returns the current admin of proxy. Requirements: This contract must be the admin of proxy.
+	\item\verb|changeProxyAdmin(contract TransparentUpgradeableProxy proxy,|\linebreak\verb|address newAdmin)|: Changes the admin of proxy to \verb|newAdmin|. Requirements: This contract must be the current admin of proxy.
+	\item\verb|upgrade(contract TransparentUpgradeableProxy proxy,|\linebreak\verb|address implementation)|: Upgrades proxy to implementation. Requirements: This contract must be the admin of proxy.
+	\item\verb|upgradeAndCall(contract TransparentUpgradeableProxy proxy,|\linebreak\verb|address implementation, bytes data)|: Upgrades proxy to implementation and calls a function on the new implementation. Requirements: This contract must be the admin of proxy.
+	\end{enumerate}
+
+\item\textbf{OpenZeppelin BeaconProxy}: implements a proxy that gets the implementation address for each call from a \verb|UpgradeableBeacon|. The beacon address is stored in storage slot\\\verb|uint256(keccak256('eip1967.proxy.beacon')) - 1|, so that it doesn’t conflict with the storage layout of the implementation behind the proxy.
+	\begin{enumerate}
+	\item\verb|constructor(address beacon, bytes data)|: Initializes the proxy with beacon. If data is nonempty, it’s used as data in a delegate call to the implementation returned by the beacon. This will typically be an encoded function call, and allows initializing the storage of the proxy like a \verb|Solidity| constructor. Requirements: beacon must be a contract with the interface IBeacon.
+	\item\verb|_beacon()|$\rightarrow$\verb|address beacon|: Returns the current beacon address.
+	\item\verb|_implementation()|$\rightarrow$\verb|address|: Returns the current implementation address of the associated beacon.
+	\item\verb|_setBeacon(address beacon, bytes data)|: Changes the proxy to use a new beacon. If data is nonempty, it’s used as data in a delegate call to the implementation returned by the beacon. Requirements: 1) beacon must be a contract 2) The implementation returned by beacon must be a contract.
+	\end{enumerate}
+
+\item\textbf{OpenZeppelin UpgradeableBeacon}: is used in conjunction with one or more instances of \verb|BeaconProxy| to determine their implementation contract, which is where they will delegate all function calls. An owner is able to change the implementation the beacon points to, thus upgrading the proxies that use this beacon.
+	\begin{enumerate}
+	\item\verb|constructor(address implementation_)|: Sets the address of the initial implementation, and the deployer account as the owner who can upgrade the beacon.
+	\item\verb|implementation()|$\rightarrow$\verb|address|: Returns the current implementation address.
+	\item\verb|upgradeTo(address newImplementation)|: Upgrades the beacon to a new implementation. Emits an Upgraded event. Requirements: 1) \verb|msg.sender| must be the owner of the contract 2) \verb|newImplementation| must be a contract.
+	\end{enumerate}
+
+\item\textbf{OpenZeppelin Clones}: EIP 1167 is a standard for deploying minimal proxy contracts, also known as “clones". To simply and cheaply clone contract functionality in an immutable way, this standard specifies a minimal bytecode implementation that delegates all calls to a known, fixed address. The library includes functions to deploy a proxy using either \verb|create| (traditional deployment) or \verb|create2| (salted deterministic deployment). It also includes functions to predict the addresses of clones deployed using the deterministic method.
+	\begin{enumerate}
+	\item\verb|clone(address implementation)|$\rightarrow$\verb|address instance|: Deploys and returns the address of a clone that mimics the behaviour of implementation. This function uses the \verb|create| opcode, which should never revert.
+	\item\verb|cloneDeterministic(address implementation,|\linebreak\verb|bytes32 salt)|$\rightarrow$\verb|address instance|: Deploys and returns the address of a clone that mimics the behaviour of implementation. This function uses the \verb|create2| opcode and a \verb|salt| to deterministically deploy the clone. Using the same implementation and \verb|salt| multiple times will revert, since the clones cannot be deployed twice at the same address.
+	\item\verb|predictDeterministicAddress(address implementation,|\linebreak\verb|bytes32 salt, address deployer)$\rightarrow$\verb|address predicted|: Computes the address of a clone deployed using \verb|Clones.cloneDeterministic|.
+	\item\verb|predictDeterministicAddress(address implementation,|\linebreak\verb|bytes32 salt)|$\rightarrow$\verb|address predicted|: Computes the address of a clone deployed using \verb|Clones.cloneDeterministic|.
+	\end{enumerate}
+
+\item\textbf{OpenZeppelin Initializable}: aids in writing upgradeable contracts, or any kind of contract that will be deployed behind a proxy. Since a proxied contract cannot have a constructor, it is common to move constructor logic to an external initializer function, usually called \verb|initialize|. It then becomes necessary to protect this initializer function so it can only be called once. The initializer modifier provided by this contract will have this effect.\\
+
+To avoid leaving the proxy in an uninitialized state, the initializer function should be called as early as possible by providing the encoded function call as the \verb|_data| argument. When used with inheritance, manual care must be taken to not invoke a parent initializer twice, or to ensure that all initializers are idempotent. This is not verified automatically as constructors are by \verb|Solidity|.
+
+\item\textbf{Dappsys DSProxy}: implements a proxy deployed as a standalone contract which can then be used by the owner to execute code. A user would pass in the bytecode for the contract as well as the \verb|calldata| for the function they want to execute. The proxy will create a contract using the bytecode. It will then \verb|delegatecall| the function and arguments specified in the calldata.
+
+\item\textbf{Dappsys DSMath}: provides arithmetic functions for the common numerical primitive types of \verb|Solidity|. You can safely add, subtract, multiply, and divide \verb|uint| numbers without fear of integer overflow. You can also find the minimum and maximum of two numbers. Additionally, this package provides arithmetic functions for two new higher level numerical concepts called \verb|wad| (18 decimals) and \verb|ray| (27 decimals). These are used to represent fixed-point decimal numbers. A wad is a decimal number with 18 digits of precision and a ray is a decimal number with 27 digits of precision. These functions are necessary to account for the difference between how integer arithmetic behaves normally, and how decimal arithmetic should actually work.\\
+
+The standard functions are the \verb|uint| set, so their function names are not  prefixed: \verb|add|, \verb|sub|, \verb|mul|, \verb|min| and \verb|max|. There is no \verb|div| function, as divide-by-zero checking is built into the \verb|Solidity| compiler. The \verb|int| functions have an \verb|i| prefix: \verb|imin| and \verb|imax|. Wad functions have a \verb|w| prefix: \verb|wmul|, \verb|wdiv|. Ray functions have a \verb|r| prefix: \verb|rmul|, \verb|rdiv| and \verb|rpow|.
+
+\item\textbf{Dappsys DSAuth}: Provides a flexible and updatable auth pattern which is completely separate from application logic. By default, the auth modifier will restrict function-call access to the including contract owner and the including contract itself. The auth modifier provided by DSAuth triggers the internal \verb|isAuthorized| function to require that the \verb|msg.sender| is authorized ie. the sender is either: 1) the contract owner 2) the contract itself or 3) has been granted permission via a specified authority.
+
+\item\textbf{Dappsys DSGuard}: Manages an Access Control List which maps source and destination addresses to function signatures. Intended to be used as an authority for DSAuth where it acts as a lookup table for the \verb|canCall| function to provide boolean answers as to whether a particular address is authorized to call a given function at another address. The ACL is a mapping of \verb|[src][dst][sig] =>; boolean| where an address \verb|src| can be either permitted or forbidden access to a function \verb|sig| at address \verb|dst| according to the boolean value. When used as an authority by \verb|DSAuth| the \verb|src| is considered to be the \verb|msg.sender|, the \verb|dst| is the including contract and \verb|sig| is the function which invoked the auth modifier.
+
+\item\textbf{Dappsys DSRoles}: A role-driven authority for ds-auth which facilitates access to lists of user roles and capabilities. Works as a set of lookup tables for the \verb|canCall| function to provide boolean answers as to whether a user is authorized to call a given function at given address. \verb|DSRoles| provides 3 different ways of permitting/forbidding function call access to users
+    \begin{enumerate}
+    \item\textbf{Root Users}: any users added to the \verb|_root_users| whitelist will be authorized to call any function regardless of what roles or capabilities might be defined.
+    \item\textbf{Public Capabilities}: public capabilities are global capabilities which apply to all users and take precedence over any user specific role-capabilities which might be defined.
+    \item\textbf{Role Capabilities}: capabilities which are associated with a particular role.
+    \end{enumerate}
+    Role capabilities are only checked if the user does not have root access and the capability is not public.
+
+\item\textbf{WETH}: WETH stands for Wrapped Ether. For protocols that work with ERC-20 tokens but also need to handle Ether, WETH contracts allow converting Ether to its ERC-20 equivalent WETH (called wrapping) and vice-versa (called unwrapping). WETH can be created by sending ether to a WETH smart contract where the Ether is stored and in turn receiving the WETH ERC-20 token at a 1:1 ratio. This WETH can be sent back to the same smart contract to be “unwrapped” i.e. redeemed back for the original Ether at a 1:1 ratio. The most widely used WETH contract is WETH9 which holds more than 7 million Ether for now.
+
+\item\textbf{Uniswap V2}: Uniswap is an automated liquidity protocol powered by a constant product formula and implemented in a system of non-upgradeable smart contracts on the Ethereum blockchain. The automated market making algorithm used by Uniswap is \verb|x*y=k|, where \verb|x| and \verb|y| represent a token pair that allow one token to be exchanged for the other as long as the “constant product” formula is preserved i.e. trades must not change the product (\verb|k|) of a pair’s reserve balances (\verb|x| and \verb|y|). Core concepts:
+	\begin{enumerate}
+	\item\textbf{Pools}: Each Uniswap liquidity pool is a trading venue for a pair of ERC20 tokens. When a pool contract is created, its balances of each token are 0; in order for the pool to begin facilitating trades, someone must seed it with an initial deposit of each token. This first liquidity provider is the one who sets the initial price of the pool. They are incentivized to deposit an equal value of both tokens into the pool. Whenever liquidity is deposited into a pool, unique tokens known as liquidity tokens are minted and sent to the provider’s address. These tokens represent a given liquidity provider’s contribution to a pool.
+	\item\textbf{Swaps}: allows one to trade one ERC-20 token for another, where one token is withdrawn (purchased) and a proportional amount of the other deposited (sold), in order to maintain the constant \verb|x*y=k|.
+	\item\textbf{Flash Swaps}: allows one to withdraw up to the full reserves of any ERC20 token on Uniswap and execute arbitrary logic at no upfront cost, provided that by the end of the transaction they either: 1) pay for the withdrawn ERC20 tokens with the corresponding pair tokens 2) return the withdrawn ERC20 tokens along with a small fee.
+	\item\textbf{Oracles}: enables developers to build highly decentralized and\linebreak manipulation-resistant on-chain price oracles. A price oracle is any tool used to view price information about a given asset. Every pair measures (but does not store) the market price at the beginning of each block, before any trades take place i.e. price at the end of the previous block which is added to a single cumulative-price variable weighted by the amount of time this price existed. This variable can be used by external contracts to track accurate time-weighted average prices (TWAPs) across any time interval.
+	\end{enumerate}
+For more information, see \cite{uniswapv2_blog}.
+
+\item\textbf{Uniswap V3} introduces:
+	\begin{enumerate}
+	\item\textbf{Concentrated liquidity}: giving individual LPs granular control over what price ranges their capital is allocated to. Individual positions are aggregated together into a single pool, forming one combined curve for users to trade against.
+	\item\textbf{Multiple fee tiers}: allowing LPs to be appropriately compensated for taking on varying degrees of risk.
+	\item V3 oracles are capable of providing time-weighted average prices (TWAPs) on demand for any period within the last \~9 days. This removes the need for integrators to checkpoint historical values.
+	\end{enumerate}
+For more information, see \cite{uniswapv3_blog}.
+
+\item\textbf{Chainlink Oracles \& Price Feeds}: Chainlink Price Feeds provide aggregated data (via its \verb|AggregatorV3Interface| contract interface) from various high quality data providers, fed on-chain by decentralized oracles on the Chainlink Network. To get price data into smart contracts for an asset that isn’t covered by an existing price feed, such as the price of a particular stock, one can customize Chainlink oracles to call any external API.
+
+\end{enumerate}

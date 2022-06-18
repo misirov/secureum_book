@@ -1,0 +1,171 @@
+\section{Audit Findings 101 Quiz}
+
+All questions in this quiz are based on the \verb|InSecureumDAO| contract snippet.
+This is the same contract snippet you will see for all the 8 questions in this quiz.
+The \verb|InSecureumDAO| contract snippet illustrates some basic functionality of a Decentralized Autonomous Organization (DAO) which includes the opening of the DAO for memberships, allowing users to join as members by depositing a membership fee, creating proposals for voting, casting votes, etc\dots
+Assume that all the other functionality (that is not shown or represented by ``\verb|...|'') is implemented correctly.
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+pragma solidity 0.8.4;
+import 'https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/security/ReentrancyGuard.sol';
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/security/Pausable.sol";
+
+contract InSecureumDAO is Pausable, ReentrancyGuard{
+
+    // Assume that all functonality represented by ... below is implemented as expected
+    
+    address public admin;
+    mapping (address => bool) public members;
+    mapping (uint256 => uint8[]) public votes;
+    mapping (uint256 => uint8) public winningOutcome;
+    uint256 memberCount = 0;
+    uint256 membershipFee = 1000;
+
+    modifier onlyWhenOpen() {
+        require(address(this).balance > 0, 'InSecureumDAO: This DAO is closed');
+        _;
+    }
+
+    modifier onlyAdmin() {
+        require(msg.sender == admin);
+        _;
+    }
+    
+    modifier voteExists(uint256 _voteId) {
+        // Assume this correctly checks if _voteId is present in votes
+        // ...
+        
+        _;
+    }
+    
+    constructor (address _admin) {
+        require(_admin == address(0));
+        admin = _admin;
+    
+    }
+    
+    function openDAO() external payable onlyAdmin {
+        // Admin is expected to open DAO by making a notional deposit
+        // ...
+    }
+    
+    function join() external payable onlyWhenOpen nonReentrant {
+        require(msg.value == membershipFee, 'InSecureumDAO: Incorrect ETH amount');
+        members[msg.sender] = true;
+        // ...
+    }
+    
+    function createVote(uint256 _voteId, uint8[] memory _possibleOutcomes) external onlyWhenOpen whenNotPaused {
+        votes[_voteId] = _possibleOutcomes;
+        // ...
+    }
+    
+    function castVote(uint256 _voteId, uint8 _vote) external voteExists(_voteId) onlyWhenOpen whenNotPaused {
+        // ...
+    }
+    
+    function getWinningOutcome(uint256 _voteId) public view returns (uint8) {
+        // Anyone is allowed to view winning outcome
+        // ...
+        return(winningOutcome[_voteId]);
+    }
+    
+    function setMembershipFee(uint256 _fee) external onlyAdmin {
+        membershipFee = _fee;
+    }
+    
+    function removeAllMembers() external onlyAdmin {
+        delete members[msg.sender];
+    }
+}
+\end{lstlisting}
+
+\textbf{1. Based on the comments and code shown in the \texttt{InSecureumDAO} snippet}
+
+\begin{enumerate}[label=\Alph*.]
+    \item The DAO is meant to be opened only by the \verb|admin| by making an Ether deposit to the contract.
+    \item DAO can be opened by anyone by making an Ether deposit to the contract.
+    \item DAO requires an exact payment of \verb|membershipFee| to join the DAO.
+    \item None of the above.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam7_q1]{here}.\\
+
+\pagebreak
+
+\textbf{2. Based on the comments and code shown in the \texttt{InSecureumDAO} snippet}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Guarded launch via circuit breakers has been implemented correctly for all state modifying functions.
+    \item Zero-address check(s) has/have been implemented correctly.
+    \item All critical privileged-role functions have events emitted.
+    \item None of the above.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam7_q2]{here}.\\
+
+\textbf{3. Reentrancy protection only on \texttt{join()} (assume it's correctly specified) indicates that}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Only \verb|payable| functions require this protection because of handling \verb|msg.value|.
+    \item\verb|join()| likely makes untrusted external call(s) but not the other contract functions.
+    \item Both A and B.
+    \item Neither A nor B.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam7_q3]{here}.\\
+
+\textbf{4. Access control on \texttt{msg.sender} for DAO membership is required in}
+
+\begin{enumerate}[label=\Alph*.]
+    \item \verb|createVote()| to prevent non-members from creating votes.
+    \item \verb|castVote()| to prevent non-members from casting votes.
+    \item \verb|getWinningOutcome()| to prevent non-members from viewing winning outcomes.
+    \item None of the above.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam7_q4]{here}.\\
+
+\textbf{5. A commit/reveal scheme (a cryptographic primitive that allows one to commit to a chosen value while keeping it hidden from others, with the ability to reveal the committed value later) is relevant for}
+
+\begin{enumerate}[label=\Alph*.]
+    \item \verb|join()| to not disclose \verb|msg.sender| while joining the DAO.
+    \item \verb|createVote()| to not disclose the possible outcomes during creation.
+    \item \verb|castVote()| to not disclose the vote being cast.
+    \item All the above.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam7_q5]{here}.\\
+
+\textbf{6. Security concern(s) from missing input validation(s) is/are present in}
+
+\begin{enumerate}[label=\Alph*.]
+    \item \verb|createVote()| for duplicate \verb|_voteId|.
+    \item \verb|castVote()| for existing \verb|_voteId|.
+    \item \verb|getWinningOutcome()| for existing \verb|_voteId|.
+    \item \verb|setMembershipFee()| for sanity/threshold checks on \verb|_fee|.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam7_q6]{here}.\\
+
+\textbf{7. \texttt{removeAllMembers()} function}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Will not work as expected to remove all the members from the DAO.
+    \item Will work as expected to remove all the members from the DAO.
+    \item Is a critical function missing an event emission.
+    \item None of the above.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam7_q7]{here}.\\
+
+\textbf{8. \texttt{InSecureumDAO} will \textit{not} be susceptible to something like the 2016 ``DAO exploit''}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Because it derives from \verb|ReentrancyGuard.sol| which protects all contract functions by default.
+    \item Only if it does not have a withdraw Ether function vulnerable to reentrancy and makes no external calls.
+    \item Because Ethereum protocol was fixed after the DAO exploit to prevent such exploits.
+    \item Because Solidity language was fixed after the DAO exploit to prevent such exploits.
+\end{enumerate}
+
+Find the solution \hyperref[sec:exam7_q8]{here}.\\

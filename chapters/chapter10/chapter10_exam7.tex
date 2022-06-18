@@ -1,0 +1,70 @@
+\section{Audit Findings 101 Quiz Solutions}
+
+\textbf{1. Based on the comments and code shown in the \texttt{InSecureumDAO} snippet}\label{sec:exam7_q1}\\
+
+\textbf{Solution: A, B \& C.}
+
+While the payable \verb|openDAO()| function is protected by the correctly implemented \verb|onlyAdmin| modifier, it is always possible to force send Ether into a contract via \verb|selfdestruct()|.
+The \verb|onlyWhenOpen()| modifier only checks for the contracts own balance which can be bypassed by doing that.
+The payable \verb|join()| function indeed checks for the \verb|msg.value| to exactly match \verb|membershipFee|.\\
+
+\textbf{2. Based on the comments and code shown in the \texttt{InSecureumDAO} snippet}\label{sec:exam7_q2}\\
+
+\textbf{Solution: D.}
+
+All state modifying functions, that can be accessed by users other than admin, are indeed correctly ``protected'' by the \verb|onlyWhenOpen| modifier, but that modifier is, as explained in the previous answer, not correctly implemented itself.
+The only zero-address check is made during construction, but it's made against a state variable that will be in zero-state already (default value).
+The zero-address check should instead be made against the \verb|_admin| variable which is to be set as the admin.
+There are several functions that sound more than critical enough to have events (e.g. \verb|removeAllMembers|), but this contract isn't using events at all.\\
+
+\textbf{3. Reentrancy protection only on \texttt{join()} (assume it's correctly specified) indicates that}\label{sec:exam7_q3}\\
+
+\textbf{Solution: B.}
+
+A simply sounds like nonesense.
+Since it says that we should assume that reentrancy protection has been used correctly, and a reentrancy vulnerability requires making untrusted external calls, we can assume that it is at least likely, although not certain, that other functions do not.\\
+
+\textbf{4. Access control on \texttt{msg.sender} for DAO membership is required in}\label{sec:exam7_q4}\\
+
+\textbf{Solution: A \& B.}
+
+ It wouldn't make much sense to pay a membership fee if you are allowed to create and cast votes without it.
+ There's no clear reason to prevent non-members from accessing winning outcomes though, since they'd be publicly readable on the blockchain anyway.\\
+
+\pagebreak
+
+\textbf{5. A commit/reveal scheme (a cryptographic primitive that allows one to commit to a chosen value while keeping it hidden from others, with the ability to reveal the committed value later) is relevant for}\label{sec:exam7_q5}\\
+
+\textbf{Solution: C.}
+
+It's not possible to hide the \verb|msg.sender| using a simple commit/reveal scheme and it wouldn't make much sense to try, since there's no clear advantage from temporarily hiding your membership.
+It also wouldn't make much sense to not disclose possible outcomes of a new vote, unless you want to make your members vote blindly on the options.
+It does make sense to hide what you are voting for until voting closes, since this makes it impossible to calculate how many members voted for a specific option and how many fake/sibyl members you'd exactly need to create in order to manipulate the vote.\\
+
+\textbf{6. Security concern(s) from missing input validation(s) is/are present in}\label{sec:exam7_q6}\\
+
+\textbf{Solution: A \& D.}
+
+The \verb|createVote()| function currently allows overwriting existing votes by specifying a previously used \verb|_voteId|.
+It would probably be better to use an array instead of a mapping here and simply push new votes into it.
+\verb|castVote()| has a modifier in place ensuring that a vote can only be cast on existing votes.
+Since function body should be assumed as correctly implemented, we should also assume there are no security concerns in regards to validation either.
+Without sanity/threshold checks when setting fees in \verb|setMembershipFee()|, admins could practically close the DAO off, preventing new members from joining, which could certainly be considered a security concern for the protocol.\\
+
+\textbf{7. \texttt{removeAllMembers()} function}\label{sec:exam7_q7}\\
+
+\textbf{Solution: A \& C.}
+
+What the function actually does is only removing the admin as member from the DAO, he'd still stay the admin though.
+Properly implementing this function would actually be rather difficult, since a simple delete on the mapping variable without specifying a key would not actually delete any of its values.
+Assuming it would work as advertised by its name you can certainly say it would be a critical function that should emit an event, which it currently does not.\\
+
+\textbf{8. \texttt{InSecureumDAO} will \textit{not} be susceptible to something like the 2016 ``DAO exploit''}\label{sec:exam7_q8}\\
+
+\textbf{Solution: B.}
+
+The 2016 ``DAO exploit'' was indeed a reentrancy issue caused by an external call within an Ether withdrawal function.
+But simply inheriting from \verb|ReentrancyGuard.sol| will not prevent them since you actually have to apply the \verb|nonReentrant| modifier to relevant functions.
+There have indeed been some efforts to prevent reentrancy issues with changes made in Ethereum and \verb|Solidity|, but none of them can be considered a ``fix''.\\
+
+A recurrence of the 2016 ``DAO exploit'' is indeed still possible, although more unlikely since, thanks to all the attention it got, this anti-pattern is now widely known and rarely found anymore during audits.\\

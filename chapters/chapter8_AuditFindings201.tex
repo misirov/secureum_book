@@ -1,0 +1,850 @@
+\chapter{Audit Findings 201}
+
+\setcounter{subsection}{101}
+
+Welcome to the eighth and final module of the securium bootcamp this module is about audit findings 201 where we will review 100 more findings from public audit reports of leading audit firms to get a sense for the kinds of issues reported during audits and their suggested fixes or recommendations the civility range of these 100 findings spans a spectrum, but mainly focuses on medium to low severity informational best practice guidelines and some of the more application level business logic and software engineering aspects to get critical perspectives different from those in the previous module to help level set expectations again we will only be able to touch upon key aspects of these findings in this video presentation and hope to discuss any particular ones of interest in other forums of the bootcamp the reason is that these findings \verb|require| a lot of context from the deepest details of the protocol implementations which will certainly not have the time to do, so for all hundred findings this will need to be done by interested bootcamp participants in their own time by reviewing the audit reports and their corresponding protocol code bases to whatever depth possible I would strongly encourage everyone to do, so and at least read the audit reports covered here, if not the actual code basis of the audited projects themselves for each finding we will review the vulnerability category its finding summary, the proposed recommendation while relating some of these aspects to our learnings from the earlier models, so with that let's get started.
+
+\section{Audit Finding \#102}
+
+One or two is a finding from ConsenSys audit of Umbra, related to access control and input validation in which potential edge cases for hook receiver contracts were not documented or validated.
+
+For context there were very few constraints on arguments to certain external calls in the emperor contract. Anyone could force a call to a hook contract by transferring a small amount of tokens to an address that they controlled and withdrawing those tokens passing the target address as the hook receiver. 
+
+The recommendation was for the developers to document and validate such \verb|external| function calls and untrusted parameters for potential edge cases. 
+
+This is related to validation of function parameter arguments in 138 and 139 and broad aspects of access control specification in 148 and tests in 155 that we discussed in security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#103}
+
+103 is another finding from ConsenSys audit of Umbra related to specification and documentation of token behavior restrictions. 
+
+For context as with any protocol that interacts with arbitrary \verb|ERC20| tokens it is important to clearly document which tokens are supported. 
+
+This is best done by providing a specification for the behavior of the expected \verb|ERC20| tokens and only relaxing the specification after careful review of a particular class of tokens and their interactions with the protocol. 
+
+The recommendation was that node deviations from normal \verb|ERC20| behavior should be explicitly noted as not supported by Umbra protocol such as one deflationary or fee on transferred tokens. 
+
+These are tokens in which the balance of the recipient of a transfer may not be increased by the amount of the transfer there may also be some alternative mechanism by which balances are unexpectedly decreased. 
+
+While these tokens can be successfully sent the internal accounting of Umbra contract will be out of sync with the balance as recorded in the token contract resulting in loss of funds. 
+
+Second, inflationary tokens the opposite of deflationary tokens where Umbra contract provided no mechanism for claiming positive balance adjustments for such tokens.  
+
+Third, rebasing tokens a corporation of the above two cases of deflationary and inflationary tokens rebasing tokens are tokens in which an account's balance increases or decreases along with expansions or contractions in their supplies. 
+
+The contract provided no mechanism to obtain its internal accounting in response to these unexpected balance adjustments and funds may be lost as a result. 
+
+This is related to token deflation via fees in 107, total inflation via interest in 108, garden launch via asset types and 129, and broader aspects of token handling in 159, system specification and documentation in 136, 137 and accounting issues in 171, that we discussed in security pitfalls and best practices 201 model.
+
+\section{Audit Finding \#104}
+
+104 is a finding from ConsenSys audit of DEFI Saver related to testing, the test suite was not complete and many of the tests failed to \verb|execute|. 
+
+For complicated systems such as DEFI Saver which uses many different modules and interacts with different DEFI protocols it is crucial to have a full test coverage that includes edge cases and \verb|fail| scenarios which is critical for safer development and future upgrades.
+
+As seen in some smart contact incidents a complete test suite could have prevented issues that might be hard to find with manual reviews. 
+
+So the recommendation was to add a full coverage test suite.
+
+This is related to the broad aspect of testing in 155 that we discussed in security pitfalls and best practices 201 modules.
+
+\section{Audit Finding \#105}
+
+105 is another finding from ConsenSys audit of DEFI Saver related to naming documentation and refactoring, where hyper get rates code was unclear because function names did not reflect their true functionalities, the code used some undocumented assumptions as well. 
+
+The recommendation was to refactor the code to separate getting rate functionality with get sell rate and get pi rate and also to explicitly document any assumptions in the code. 
+
+This is related to broad aspects of system documentation in 137 and clarity in 188 that we discussed in security pitfalls and best practices to one module.
+
+\section{Audit Finding \#106}
+
+106 is another finding from ConsenSys audit of DEFI Saver related to error checking, where \verb|return| value was not used for token utils withdraw tokens. 
+
+For context the \verb|return| value of tokens withdraw tokens which represented the actual amount of tokens that were transferred was never used in the entire repository. This could cause discrepancy in the case where the requested transfer amount was uint256 max for some reason, in which case the amount actually transferred would be less than that requested and returned back, but never checked.
+
+The recommendation therefore was to check the \verb|return| value to validate the withdrawal and use that in the event committed. 
+
+This is related to function \verb|return| values in 142 and accounting issues in 171 that we discussed in security pitfalls and best practices to one module.
+
+\section{Audit Finding \#107}
+
+107 is another finding from ConsenSys auditor of Umbra related to access control and logging where there was missing access control for DEFISaverLogger.log, which was used as a logging aggregator within the system, but anyone could create logs the. 
+
+Recommendation was to add access control to all functions appropriately.
+
+This is related to broad aspects of access control implementation in 149 and auditing and logging in 173 that we discussed in security pitfalls and best practices to one module.
+
+\section{Audit Finding \#108}
+
+108 is a finding from ConsenSys audit of DAOfi related to documentation, where stale comments were present in the code base about storage slots. 
+
+The recommendation was to remove such stale compounds.
+
+This is related to comments in 154 redundant constructs in 157 and broad aspects of system documentation in 137 that we discussed in security pitfalls and best practices to one module.
+
+\section{Audit Finding \#109}
+
+109 is a finding from ConsenSys audit of \verb|MStable| related to documentation, where there was a mismatch between what the code implemented and what the corresponding comment described.
+
+The recommendation was to update the code or the comment to be consistent.
+
+This is related to comments in 154 and broad aspects of system documentation in 137 and clarity issues in 188 that we discussed in security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#110}
+
+110 is another finding from ConsenSys audit of DAOfi related to unnecessary code or logic where there was an unnecessary call to DAOfiV1 factory formula function for context few to DAOfiV1 pair functions used a \verb|external| function, which made a call to the factory to retrieve the immutable formula address set in the constructor. Instead such calls could simply be replaced with that immutable value.
+
+The recommendation was therefore to remove such unnecessary calls and replace them with variable rates.
+
+This is related to broad aspects of redundant constructs in 157, the principle of economy of mechanism in 197 that we discussed in security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#111}
+
+111 is another finding from ConsenSys audit of DAOfi related to testing, where increased testing of edge cases in complex mathematical operations, could have identified at least one issue raised in the report.
+
+The recommendation was additional unit tests as well as Fuzzing or property based testing of curve related operations for more validation of mathematical operations.
+
+This is related to the broad aspect of testing in 155 and numerical issues in 170 that we discussed in security pitfalls and best practices to one module.
+
+\section{Audit Finding \#112}
+
+112 is a finding from ConsenSys audit of the fake protocol related to application logic where governor alpha proposals could be cancelled by the proposer, even after they had been accepted and queued. 
+
+For context governor alpha allows proposals to be cancelled via council, but a proposal could cancel proposals in any of pending active cancelled defeated succeeded queued or expired states.
+
+The recommendation was to prevent proposals from being cancelled unless they were in pending or active states.
+
+This is related to function invocation timeliness and order in 143 and 145, the broad aspects of ordering in 178 and business logic in 191 that we discussed in security pitfalls and best practices to one module.
+
+\section{Audit Finding \#113}
+
+113 is a finding from ConsenSys audit of eRLC related to access control and timing. 
+
+For context the KYC admin had the ability to freeze the funds of any user at any time by revoking the KYC member role, the trust requirements from users could be slightly decreased by implementing a delay on granting this ability to new addresses such a delay could also help protect the development team, the system itself in the event of a private key compromise of the KYC ad.
+
+The recommendation therefore was to use a TimelockController as the KYC default admin of the eRLC contract.
+
+This is related to OpenZeppelin's \verb|Timelock| controller library we discussed in 182 of \verb|Solidity| 201 module and time delay change of critical parameters in 163, along with broader aspects of access control changes in 153, timing in 177 and trust issues in 181, that we discussed in security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#114}
+
+114 is a finding from ConsenSys Audit of 1inch related to documentation and testing, where the source code hardly contained any inline documentation which made it hard to reason about functions and how they were supposed to be used. 
+
+Additionally the test coverage seemed to be limited whereas especially for a public facing exchange contract system test coverage should have been extensive covering all functions especially those that could be directly accessed including potentially security relevant and edge cases. This would have helped in detecting some of the findings raised with the report.
+
+The recommendations were to consider adding NATSpec format compliant inline code documentation, describe functions what they were used for and who was supposed to interact with them to document specific assumptions and to increase test coverage.
+
+This is related to system documentation in 137 comments in 154 and broad aspects of testing in 155 and clarity issues in 188 that we discussed in security pitfalls and best practices 201 modules.
+
+\section{Audit Finding \#115}
+
+115 is another finding from ConsenSys audit of 1inch related to configuration, where the compiler version \verb|pragma| was unspecific in that it was floating or unlocked with caret  \verb|^0.6.0|. 
+
+Which that often makes sense for libraries to allow them to be included with multiple different versions of an application it may be a security risk for the application implementation itself a known vulnerable compiler version may accidentally be selected for deployment or security tools might fall back to an older compiler version ending up actually checking a different version from what is ultimately deployed in the blockchain.
+
+The recommendation was to avoid floating parameters and pin a concrete compiler version, the latest without known security issues in at least the top level deployed contracts to make it unambiguous as to which compiler version was being used. The suggested rule of thumb was that a flattened source unit should have at least one non-floating concrete \verb|Solidity| compiler version.
+
+This is related to unlocked \verb|pragma| in number two of security pitfalls and best practices 101 module and broader aspects of tests in 155 of security pitfalls and best practices 201 model.
+
+\section{Audit Finding \#116}
+
+116 is another finding from ConsenSys audit of 1inch related to denial of service (DoS), where hard-coded Gas assumptions were pointed out as being problematic because Gas economics and Ethereum have changed in the past and made change again like with the recent EIP 1559 potentially rendering the contract system unusable in the future.
+
+Recommendation was to be aware of this potential limitation and be prepared by documenting and validating for situations where Gas prices might change in a way that negatively affected the contracts.
+
+This is related to Gas impact on denial of service in 42, 43 and 44 of security pitfalls and best practices 101 module and broader aspects of Gas issues in 182 of security pitfalls and best practices to a one module.
+
+\section{Audit Finding \#117}
+
+117 is another finding from ConsenSys audit of 1inch related to access control and input data validation where it was a critical vulnerability, in which anyone could steal all the funds that belong to the referral fee receiver. 
+
+For context any token or ETH that belonged to the referee receiver was at risk and could be drained by any user by providing a custom Mooniswap pool contract that referenced existing token holdings because none of the functions in the refrigerate receiver verified that the user provided Mooniswap pool address was actually deployed by the linked Mooniswap factory.
+
+The recommendations were: 
+
+\begin{enumerate}
+\item to enforce that the user provided money swap contract was actually deployed by the link factory because other contracts can't be trusted 
+\item consider implementing token sorting and deduplication in the pool contract constructor as well.
+\item consider employing a re-entrancy card to safeguard the contract from the ancestry attacks
+\item improve testing because the vulnerable functions were not covered at all and 
+\item improve documentation and provide a specification that outlined how this contract was supposed to be used.
+\end{enumerate}
+
+This is related to system specification and documentation in 136, 137 access control specification and implementation in 148, 149 and broader aspects of testing in 155 data validation issues in 169 and access control issues in 172 that we discussed in security pitfalls and best practices 201 model.
+
+\section{Audit Finding \#118}
+
+180 is another finding from ConsenSys audit of 1inch related to privileged roles and timing, where there could be unpredictable behavior for users due to admin Front-running or in general. 
+
+For context administrators of contracts could update or upgrade things in the system without warning which could violate security goals of the system. Specifically privileged roles could use Front-running to make malicious changes just ahead of incoming transactions or purely accidental negative effects that could occur due to unfortunate timing of such changes.
+
+The recommendation was to give users advanced notice of changes with the time lock, for example by making all system parameter and upgrades to \verb|require| two steps, with a mandatory time window between them.
+
+The first step would broadcast to users that a particular change was coming. 
+
+The second step would, then commit that change after a suitable waiting period this would allow users that do not want to accept such change to exit and others who are okay with those changes to continue engaging with the protocol.
+
+This is related to OpenZeppelin's TimelockController library we discussed in 182 or \verb|Solidity| 201 module and two-step change of privileged roles in 162 time delay change of critical parameters and 163 along with broader aspects of timing in 177 and trust issues in 181 that we discussed in security pitfalls and best practices 201 model.
+
+\section{Audit Finding \#119}
+
+119 is the finding from ConsenSys audit of Growth DEFI related to specification and documentation, where the only documentation for growth DEFI was a single README file as well as some code comments, 
+
+A system's design specification and supporting documentation should be as important as the system's implementation itself because users rely on high level documentation to understand the big picture of how a system works. 
+
+Without spending time and effort to create such documentation a user's only resource is the code itself something the vast majority of users can't understand. 
+
+Security assessments depend on a complete technical specification to understand the specifics of how a system works when a behavior is not specified or is specified incorrectly security assessments must base their knowledge in assumptions leading to less effective review. 
+
+Also maintaining an updating code relies on supporting documentation to know why the system is implemented in a specific way, if code maintainers can't reference documentation they must rely on memory or assistance to make high quality changes.
+
+The recommendation therefore was to improve system documentation and create a complete technical specification.
+
+This is related to broad aspects of system specification and documentation in 136 and 137 undefined behavior issues in 179 and clarity issues in 188 that we discussed in security pitfalls and best practices 201 modules.
+
+\section{Audit Finding \#120}
+
+120 is another finding from ConsenSys audit of Growth DEFI related to access control and lease privilege mechanism, where system states roles and permissions were not sufficiently restricted.
+
+Smart contract code should strive to be strict where it behaves predictably is easier to maintain and increases the system's ability to handle non-ideal conditions. Whereas many of Growth DEFI states roles and permissions were loosely defined.
+
+The recommendation was to document and monitor the use of administrative permissions and also specify strict operational requirements for each contract as it pertains to roles and permissions.
+
+This is related to access control specification implementation and changes in 148, 149 and 153 and broader aspects of access control issues in 172 and principle of least privilege in 192 that we discussed in security pitfalls and best practices to one module.
+
+\section{Audit Finding \#121}
+
+121 is another finding from ConsenSys audit of Growth DEFI related to specification and access control where the concern was about tokens with non-standard behavior, such as \verb|ERC777| callbacks which would enable an attacker to \verb|execute| potentially arbitrary code during the transaction or inflationary deflationary and rebasing tokens.
+
+The recommendation was to evaluate all tokens prior to inclusion in the system.
+
+This is related to token deflation via fees in 107 token inflation we are interest in 108 garden launch we asset types in 129 and broader aspects of token handling in 159 system specification and documentation in 136 and 137 and accounting issues in 171 that we discussed in security pitfalls and best practices 201.
+
+\section{Audit Finding \#122}
+
+122 is another finding from ConsenSys audit of Growth DEFI related to naming convention and readability in which the code base made use of many different contracts, abstract contracts, interfaces and libraries for inheritance and code reuse. Which is in principle a good practice to avoid repeated use of similar code, but with no descriptive naming conventions to indicate which files would contain meaningful logic the code pairs became difficult to navigate.
+
+The recommendation was to use descriptive names for contracts and libraries.
+
+This is related to broad aspects of programming style code layout and any convention in number 97 to 101 of \verb|Solidity| 101 module and clarity issues in 188 principle of economy of mechanism at 197 and principle of psychological acceptability in 199 that we discussed in security pitfalls and best practices 201.
+
+\section{Audit Finding \#123}
+
+123 is another finding from ConsenSys audit of Growth DEFI related to initialization and timing, in which many contracts allowed users to deposit or withdraw assets before the contracts were completely initialized, or while they were in a semi-configured state. 
+
+Because these contracts allowed interaction on semi-configured states the number of configurations possible when interacting with the system made it very difficult to determine whether the contracts behaved as expected in every scenario or even what behavior was expected from them the first place.
+
+The recommendation was to prevent contract from being used before they were entirely initialized.
+
+This is related to broad aspects of initialization issues in 166 and also the timing and ordering issues in 177 and 178 that we discussed in security pitfalls and best practices to one module.
+
+\section{Audit Finding \#124}
+
+124 is another finding from ConsenSys audit of Growth DEFI related to denial of service (DoS) in which there was a potential for resource exhaustion by external calls performed within an unbounded loop. 
+
+For context request flash flow performed external calls in a potentially unbounded loop and in the worst case changes to system state could make it impossible to \verb|execute| that code due to the block Gas the limit 
+
+The recommendation was to reconsider that logic or bound the loop.
+
+This is related to the Gas impact on denial of service in 42, 43 and 44 of security pitfalls and best practices 101 module and broader aspects of denial of service in 176 and Gas issues in 182 of security pitfalls and best practices to one module.
+
+\section{Audit Finding \#125}
+
+125 is a finding from ConsenSys audit of Paxos related to stale privileges and access control in which old owners could never be removed. 
+
+For context the intention of set owners was to replace the current set of owners with a new set of owners. However the is Owner mapping was never updated, which meant that any address that was ever considered an Owner was permanently considered as an Owner for purposes of signing transactions.
+
+The recommendation was to change set owners such that before adding new owners it would loop through the current set of honors and clear, there is Owner \verb|boolean|s.
+
+This is related to aspects of access control implementation and changes in 149 and 153 and broad aspects of access control issues in 172 that we discussed in security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#126}
+
+126 is a finding from ConsenSys audit of Aave V2 related to potential manipulation of interest rates using flash loans. Remember that flash loans allow users to borrow large amounts of liquidity from the protocol because of which it was possible in Aave to adjust the stable interest rate up or down by momentarily removing or adding large amounts of liquidity to reserves. Given that this type of manipulation is difficult to prevent especially when flash loans are available.
+
+The recommendation was for Harvey to monitor the protocol at all times to make sure that interest rates were being rebalanced to same values.
+
+This is related to aspects of flash loans in 120 and Scarcity in 186 and auditing and logging issues in 173 of security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#127}
+
+127 is a finding from ConsenSys audit of Aave governance down related to validation in which the concern was that because some protocol functionality relied on correct token behavior problems could arise. If a malicious token were to be white listed because it could block people from voting with that specific token or gain unfair advantage, if the balance could be manipulated, so.
+
+The recommendation was to make sure to audit any new whitelisted asset.
+
+This is related to aspects of carded launch via composability limit in 132 token handling in 159 external interactions in 180 and dependency issues in 183 of security pitfalls and best practices 201.
+
+\section{Audit Finding \#128}
+
+128 is a finding from ConsenSys audit of Aave CPM related to specification and validation, where there was a risk of integer underflow, if token decimals were to be greater than 18 because in latest answer function an assumption was made that token decimals was less than 18
+
+The recommendation was to add a simple check to the constructor to ensure that the added token had 18 decimals or less.
+
+This is related to dangers of integer overflow underflow we discussed in number 19 of security pitfalls and best practices 101 module and system specification and documentation in 136, 137 and broader aspects of data validation in 169 and numerical issues in 170 of security pitfalls and best practices 201 body.
+
+\section{Audit Finding \#129}
+
+129 is another finding from ConsenSys audit of Aave CPM related to testing of chain links performance at times of price volatility where.
+
+The recommendation was that in order to understand the risk of changing Oracle deviating significantly it would help to compare historical prices on Chainlink, when prices were moving rapidly and see what the largest historical delta was compared to the live price on a large exchange.
+
+This is related to the broad aspect of testing in 155 external interaction in 180 and freshness issues in 185 that we discussed in security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#130}
+
+130 is a finding from ConsenSys audit of Lien protocol related to configuration, where the concern was that the system had many components with complex functionality leading to a high attack surface, but no operand upgrade path, if any vulnerabilities were to be discovered after launch.
+
+The recommendation was to identify which components were crucial for a minimum viable system, to focus efforts on ensuring the security of those components first, then moving on to others. Also to have a method for pausing and upgrading the system at least at the early phases of the project.
+
+This is related to the various guarded launch approaches in 128 to 135, the broader principles of economy of mechanism and work factor in 197 and 200 of security pitfalls and best practices 201.
+
+\section{Audit Finding \#131}
+
+131 is a finding from ConsenSys audit or Balancer protocol related to code factoring, where it is generally considered Error-prone to have repeated checks across the code base and therefore it was recommended to use modifiers for common checks within different functions, because that would result in less code duplication and increased readability.
+
+This is related to function modifiers in 141 and broader aspects of clarity in 188 and cloning issues in 190 of security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#132}
+
+132 is another finding from ConsenSys audit of Balancer protocol related to ordering, where \verb|BPool| functions used modifiers \verb|_logs| and \verb|_lock| in that order. Because \verb|_lock| is a reentrancy guard it should have taken precedence over \verb|_logs| in that order to prevent \verb|_logs| from executing first before checking for re-entrancing.
+
+The recommendation was to place \verb|_lock| before other modifiers to ensure that it was the very first and very last thing to run when a function was called because we call that the order of execution is from left to right for modifiers.
+
+This is related to function modifiers and 141 incorrectly used modifiers in 152 and broader aspects of ordering in 178 and business logic issues in 191 of security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#133}
+
+133 is a finding from ConsenSys audit of MCDEX V2 where the concern was code based fragility. Software is considered fragile when issues or changes in one part of the system can have Side-effects in conceptually unrelated parts of the code base. Fragile software tends to break easily and may be challenging to maintain.
+
+The recommendation was to prioritize two concepts: one follow the single responsibility principle for functions where one function does exactly one thing and nothing else and two reduce reliance on external systems.
+
+This is related to broad aspects of external interactions in 180 dependency 183 clarity in 188 and principle of economy of mechanism in 197 of security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#134}
+
+134 is a finding from Trail of Bits audit of Liquidity protocol where the concern was that reentrancy could lead to incorrect order of emitted events. Because there were events emitted after external calls in some functions. 
+
+In the case of a reentrant call such events would be emitted in the incorrect order that's the event for the second operation would be emitted first followed by the event for the first operation causing any off-chain monitoring tools to have an inconsistent \verb|view| of on-chain state.
+
+The recommendation was to apply the checks effects interactions pattern and move the event emissions before the external calls to avoid any effects of potential re-entrancing.
+
+This is related to reentrancy vulnerabilities in number 13 of security pitfalls and best practices 101 module along with broader aspects of timing issues in 177 and auditing logging in 173 that we discussed in security pitfalls and best practices 201 modules.
+
+\section{Audit Finding \#135}
+
+135 is a finding from Trail of Bits audit of Origin Dollar where the concern was that variable Shadowing in ousd from \verb|ERC20| could result in undefined behavior. 
+
+For context osd inherited from \verb|ERC20|, but redefined the allowances and total supply private state variables. Because of which accessing those variables could lead to returning different values from what was expected. Note that these were private state variables and, so the one in \verb|ERC20| was not visible in OUSD, the concern was more of developer clarity than the variable scope and visibility.
+
+The recommendation was to remove the shadowed variables in OUSD.
+
+This is related to state variable Shadowing in 106 and 136 of \verb|Solidity| 201 where we saw that \verb|Solidity| version 0.6.0 made state variable Shadowing an error where the same named state variables were visible or accessible in both base and derived classes. This is also related to the broad aspect of clarity in 188 of security pitfalls and best practices 201 modules.
+
+\section{Audit Finding \#136}
+
+136 is another finding from Trail of Bits audit of Origin Dollar where the concern was about error handling because world core rebase functions had no return statements. 
+
+For context world core rebase functions were declared to return and you end, but lacked a return statement. As a result these functions would always return the default value of 0 and were likely to cause issues for their callers. Third party code relying on the \verb|return| values might therefore not have worked as intended.
+
+The recommendation was therefore to add the missing return statements or remove the return type in those functions, then adjust the documentation as necessary.
+
+This is related to function \verb|return| values in 142 and error reporting issues in 175 of security pitfalls and best practices to one module.
+
+\section{Audit Finding \#137}
+
+137 is another finding from Trail of Bits audit of Origin Dollar, where the concern was about multiple contracts missing inheritances. Multiple contracts where the implementations of their interfaces inferred based on their names and implemented functions, but did not inherit from them. This behavior is Error-prone and might lead the implementation did not follow the interface, if the code were to be updated.
+
+The recommendation was to ensure that contracts inherit from their interfaces.
+
+This is related to unused constructs in 156 and undefined behavior issues in 179 of security pitfalls and best practices to one body.
+
+\section{Audit Finding \#138}
+
+138 is a finding from Trail of Bits audit of Yield protocol where the concern was that \verb|Solidity| compiler optimizations could be dangerous. 
+
+Yield protocol had enabled optional compiler optimizations in \verb|Solidity|, but there have been bugs with security implications related to such optimizations. \verb|Solidity| compiler optimizations are disabled by default therefore it was unclear how many contracts in the wild actually used them and how well they were being tested and exercised. 
+
+So the short-term recommendation was to measure Gas savings from optimizations and evaluate the trade-offs against the possibility of an optimization related bug. And in the long term monitor the development and adoption of \verb|Solidity| compiler optimizations to assess their maturity. 
+
+This is generally related to \verb|Solidity| versions in number one and compiler bugs in 77 to 94 of \verb|Solidity| 101 module and dependency issues in 183 of security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#139}
+
+139 is another finding from Trail of Bits audit of Yield protocol where the concern was that permission granting was too simplistic and not flexible enough. 
+
+For context the yield protocol implemented several contracts that needed to call privileged functions from each other. However there was no way to specify which operation could be called for every privileged user. All the authorized addresses could call any restricted function, the Owner could add any number of them. Also the privileged addresses were supposed to be smart contracts, but there was no check for that and moreover once an address was added it could not be deleted therefore.
+
+The recommendation was to rewrite the authorization system to allow only certain addresses to access certain functions.
+
+This is related to access control and trust issues we discussed in 148, 149, 160 and 172 and principles of least privilege in 192 and principle of separation of privilege in 193 of security pitfalls and best practices 201 modules.
+
+\section{Audit Finding \#140}
+
+140 is another finding from Trail of Bits audit of Yield protocol where the concern was that there was lack of validation when setting the maturity value. 
+
+For context when fyDAI contract was deployed one of the deployment parameters was a maturity date passed as a unix timestamp. This was the date at which point fyDAI tokens could be redeemed for the underlying time.
+
+The contract constructor however performed no validation of that timestamp to ensure that it was within an acceptable range. As a result it was possible to mistakenly deploy a wide-eyed contract that had a maturity date in the past or many years into the future which may not be immediately noticed.
+
+The recommendation therefore was to add sanity and threshold checks to the wide eye contract constructor, to ensure that maturity timestamps were within an acceptable range, to prevent maturity dates from being mistakenly set in the past or too far into the future.
+
+This is related to system documentation in 137 function parameter validation in 138 and broader aspect of data validation issues in 169 we discussed in security pitfalls and best practices 201 modules.
+
+\section{Audit Finding \#141}
+
+141 is another finding from Trail of Bits audit of Yield protocol where the concern was about auditing and logging that delegates could be added or removed repeatedly to bloat logs. 
+
+For context when a user added or removed a delegate a corresponding event was emitted to log this operation. However there was no check to prevent the user from repeatedly adding or removing a delegation which could allow redundant events to be emitted repeatedly.
+
+The recommendation was to add a \verb|require| statement to check that the delegate address was not already enabled or disabled for the user to ensure that log messages are only emitted when a delegate is activated or deactivated to prevent bloated logs.
+
+This is generally related to redundant constructs in 157 and broad aspects of auditing and logging in 173 that we discussed in security pitfalls and best practices to one module.
+
+\section{Audit Finding \#142}
+
+142 is a finding from Trail of Bits audit of 0x protocol where the concern was about auditing and logging that there was a lack of events for critical operations. 
+
+For context several critical operations did not trigger events which would make it difficult to review the correct behavior of the contracts once deployed. Users and blockchain monitoring systems would not be able to easily detect suspicious behaviors without events.
+
+The recommendation was to add events where appropriate for all critical operations and in the long term to consider using a blockchain monitoring system to track any suspicious behavior in the contract.
+
+This is related to the missing events aspect discussed in 45 of security pitfalls and best practices 101 module and broader auditing logging issues of 173 along with principle of compromise recording of 201 we discussed in security pitfalls and best practices to one module.
+
+\section{Audit Finding \#143}
+
+143 is another finding from Trail of Bits audit of 0x protocol where the concern was about error handling, in that the function asserts taking pool exists should have returned a \verb|boolean| to determine, if the staking pool existed or not, but it did not use a return statement and therefore would always return false or revert.
+
+The recommendation was to add a return statement or remove the return type and change the documentation accordingly.
+
+This is related to function \verb|return| values in 142 and error reporting issues in 175 of security pitfalls and best practices to a one module.
+
+\section{Audit Finding \#144}
+
+144 is a finding from Trail of Bits audit of DFX Finance where the concern was about specification in that the min and max family of functions had unorthodox semantics.
+
+throughout the curve contract min target amount and max origin amount were used as open ranges that is ranges that exclude the value itself. This is unlike the conventional interpretation of the terms minimum and maximum which are generally used to describe close ranges, so.
+
+The recommendation was to make the inequalities in the required statements non-strict unless they are intended to be strict or alternatively document to convey that they are meant to be exclusive bonds. And in the long term ensure that mathematical terms such as minimum at least and at most are used in the typical way to describe values inclusive of minimums or maximums.
+
+This is related to dangerous equalities in 28 now security pitfalls and best practices 101 module and broad aspects of system specification and documentation in 136 and 137 and numerical issues in 170 that we discussed in security pitfalls and best practices to one body.
+
+\section{Audit Finding \#145}
+
+145 is another finding from Trail of Bits audit of DFX Finance, where the concern was about undefined behavior in that, if an operator attempted to create a new curve in the context of the protocol for a base and quote currency pair that already existed curve factory would return the existing curve instance without any indication of that causing a naive operator to maybe overlook this issue.
+
+The recommendation was to consider rewriting that logic such that it reverted, if a base and code currency pair already existed and provide a \verb|view| function to check for and retrieve existing curves prior to an attempt at curve creation.
+
+This is related to the broad aspect of undefined behavior in 179 and clarity in 188 of security pitfalls and best practices to one module.
+
+\section{Audit Finding \#146}
+
+146 is another finding from Trail of Bits audit of DFX Finance where the concern was about data validation in that few functions were missing Zero-address checks.
+
+For example a Zero-address check should have been added to the router constructor to prevent the deployment of an invalid router which would \verb|revert| upon a call to the \verb|zero| items, so.
+
+The recommendation was to review address type state variables to ensure that the code that sets the state variables performs Zero-address checks when necessary as a best practice.
+
+This is related to missing Zero-address validation in 49 or security pitfalls and best practices 101 module and broader aspects of function parameters in 138 function invocation arguments and 146 two-step change of privileged roles in 162 and data validation issues in 169 of security pitfalls and best practices to one.
+
+\section{Audit Finding \#147}
+
+147 is another finding from Trail of Bits audit of DFX Finance where the concern was about error handling in that the custom safe \verb|approve| function did not check \verb|return| values for approved call. 
+
+For context the router contract used OpenZeppelin's Safe \verb|ERC20| library to perform safe calls to \verb|ERC20|'s \verb|approve| function, but the orchestrator library defined its own safe \verb|approve| function. 
+
+This function check that a call to \verb|approve| was successful, but did not check the return data to verify whether the call indeed returned true. In contrast OpenZeppelin's Safe \verb|approve| function checks \verb|return| values appropriately this issue could have resulted in uncaught \verb|approve| errors in successful curve deployments causing undefined behavior.
+
+The recommendation was to leverage OpenZeppelin's Safe save \verb|approve| function wherever possible and also ensure that all low level calls have accompanying contract existence checks and \verb|return| value checks where appropriate.
+
+This is related to function \verb|return| values in 142 error reporting issues and 175 and cloning issues in 190 of security pitfalls and best practices 201.
+
+\section{Audit Finding \#148}
+
+148 is another finding from Trail of Bits audit of DFX Finance where the concern was about configuration. In that curve being an \verb|ERC20| token implemented all six required \verb|ERC20| methods balance of, total supply, allowance, transfer, \verb|approve| and transfer from. But it did not implement the optional, but extremely common \verb|view| methods for symbol name and decimals.
+
+The recommendation was to implement simple name and decimals on curve contracts to ensure that contacts confirm to all required and recommended aspects of the \verb|ERC20| specification.
+
+This is related to \verb|ERC20| name decimals and simple functions in 103 and configuration issues in 169 of security pitfalls and best practices 201 modules.
+
+\section{Audit Finding \#149}
+
+149 is another finding from Trail of Bits audit of DFX Finance where the concern was about data validation in that although SafeMath was used throughout the code base to prevent underflows and overflows it was not used in a few calculations. 
+
+Although the audit could not prove that the lack of SafeMath would cause an arithmetic issue in practice, all calculations would benefit from the use of safe.
+
+The recommendation was to review all critical arithmetic to ensure that it accounted for underflows, overflows and loss of precision by considering the use of SafeMath and safe functions of ABDKMath where possible to prevent any underflows and overflows.
+
+This is related to dangers of integer overflow underflow we discussed in 19 of security pitfalls and best practices 101 module and broader aspects of data validation in 169 and numerical issues in 170 of security pitfalls and best practices 201.
+
+\section{Audit Finding \#150}
+
+150 is another finding from Trail of Bits audit of DFX Finance where the concern was about timing and denial of service (DoS). In that the function set frozen could be used by the contract Owner to front run to deny deposits or swaps. The contract Owner could, then unfreeze them at a later time.
+
+The recommendation was to consider rewriting the set frozen function, such that any contract freeze would not last long enough for a malicious Owner to easily \verb|execute| an attack or alternatively consider implementing permanent freezes.
+
+This is related to the transaction order dependence aspect discussed in 21 of security pitfalls and best practices 101 module denial of service in 176 and trust issues in 181 of security pitfalls and best practices 201.
+
+\section{Audit Finding \#151}
+
+151 is a finding from Trail of Bits audit of Hermez network where the concern was about denial of service (DoS) by account creation span Hermez had no fees on about creation and, so an attacker could spam the network by creating the maximum number of accounts. Remember that Ethereum miners do not have to pay for Gas and, so they themselves could spam the network with account creation.
+
+The recommendation was to add a fee for account creation and to also monitor account creation and alert users, if a malicious coordinator spam the system.
+
+This is related to broad aspects of audit and logging in 173 denial of service in 176 and trust issues in 181 of security pitfalls and best practices 201.
+
+\section{Audit Finding \#152}
+
+152 is another finding from Trail of Bits audit of Hermez network where the concern was about undefined behavior from using empty functions instead of interfaces because that leaves contracts errored. 
+
+For context withdrawal delayer interface was a contract meant to be an interface because it contained functions with empty bodies instead of function signatures, which might lead to unexpected behavior. Contract inheriting from withdrawal delayer interface would not \verb|require| an override of those functions and, so would not benefit from the compiler checks on its correct interface.
+
+The recommendation was to use an interface instead of a contract in withdrawal the layer interface, which would make derived contracts follow the interface properly and to also document the inheritance schema of the contracts.
+
+This is related to unused constructs in 156, the undefined behavior issues in 179 or security pitfalls and best practices 201.
+
+\section{Audit Finding \#153}
+
+153 is another finding from Trail of Bits audit of Hermez network where the concern was about data validation in that canceled transaction could be called on a non queued transaction. 
+
+Without a transaction existence check in cancel transaction an attacker could confuse monitoring systems because that emitted an event without checking that the transaction to be cancelled existed.
+
+The recommendation was to check that the transaction to be cancelled existed in cancel transaction function to ensure that monitoring tools could rely on limited events.
+
+This is related to data validation in 169 and auditing and logging in 173 that we discussed in security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#154}
+
+154 is another finding from Trail of Bits audit of Hermez network where the concern was about patching, in that contracts used as dependencies did not track upstream changes. 
+
+For context third-party contracts like concat storage were copy pasted into the Hermez repository, the code documentation did not specify the exact version used or, if it was modified. 
+
+This would make updates and security fixes on such dependencies unreliable since they would have to be updated manually specifically concat storage was borrowed from the \verb|Solidity| Bytes Utils library which provided helper functions for bite-related operations and a critical vulnerability was discovered in that library's slice function, that allowed arbitrary rights for user supplied inputs.
+
+The recommendation was to review the code base and document each dependency source and version and also include the third party sources as sub modules and git repository, so that internal path consistency could be maintained and dependencies could be updated periodically.
+
+This is related to the broad aspect of configuration issues in 165 external interaction of 180 dependency of 183 and cloning issues in 190 that we discussed in security pitfalls at best practices 201 modules.
+
+\section{Audit Finding \#155}
+
+155 is another finding from Trail of Bits audit of Hermez network where the concern was about access control in that the expected behavior regarding authorization for adding new tokens was unclear. 
+
+For context ad token allowed anyone to list a new token on Hermez which contradicted the online documentation that implied that only the governance should have had this authorization it was therefore unclear whether the implementation or the documentation was correct.
+
+The recommendation was to update either the implementation or the documentation to standardize the authorization specification for adding new tokens.
+
+This is related to the broad aspects of guarded launch via asset types and 129 system specification in 136 access control in 172 and clarity issues of 180a we discussed in security pitfalls and best practices to one module.
+
+\section{Audit Finding \#156}
+
+156 is another finding from Trail of Bits audit to Hermez network where the concern was about undefined behavior in that contract name duplication left the code page error-prone. 
+
+The code base had multiple contracts that shared the same name which allowed Builder Waffle to generate incorrect JSON artifacts preventing third parties from using their tools. Builder Waffle did not currently support a code base with duplicate contact names, the compilation overwrote its artifacts and prevented the use of third-party tools such as Slither.
+
+The recommendation was to avoid duplicate contact names change the compilation framework or use Slither which helps detect duplicate contract names.
+
+This is related to broad aspects of programming style code layout and aiming convention in 97 to 101 percentage 101 module and clarity issues in 188 principle of economy of mechanism in 197 and principle of psychological acceptability in 199 that we discussed in security pitfalls and best practices to one module.
+
+\section{Audit Finding \#157}
+
+157 is a finding from Trail of Bits audit of Advanced Blockchain where the concern was about patching, in that there was use of hard-coded addresses which may have caused errors. 
+
+For context each contract needed contract addresses in order to be integrated into other protocols and systems, these addresses were hard coded which could have cost errors and resulted in the code basis deployment with a correct asset. Using hard coded values instead of deploying provided values would have made these contracts difficult to test.
+
+The recommendation was to set addresses when contacts were created rather than using hard coded values which would also facilitate testing.
+
+This is related to tests in 155 configuration and initialization issues in 165 and 166 that we discussed in security pitfalls and best practices 201.
+
+\section{Audit Finding \#158}
+
+158 is another finding from Trail of Bits audit of Advanced Blockchain where the concern was about configuration in that the borrow rate formula used an approximation of the number of blocks mined annually.
+
+This number could change across different blockchains and years. The value assumed that a new block was mined every 15 seconds, but on Ethereum min net a new block is mined every 13 seconds approximately.
+
+The recommendation was to analyze the effects of a deviation from the actual number of blocks mined annually in borrow rate calculations and document associated risks.
+
+This is related to block values as time proxies in 18 of security pitfalls and best practices 101 module and configuration and initialization in 165 and 166 and \verb|constant| issues at 184 that we discussed in security pitfalls and best practices 201 model.
+
+\section{Audit Finding \#159}
+
+159 is another finding from Trail of Bits audit of Advanced Blockchain where the concern was about data validation. In that there were no lower upper bounds on the flash load rate implemented in the contract. This would therefore allow setting it to an arbitrarily high rate to secure higher fees.
+
+The recommendation was to introduce lower and upper bound checks for all configurable parameters in the system to limit privileged users abilities.
+
+This is related to function parameter validation in 138 function invocation arguments in 146 and broader aspect of data validation issues in 169 that we discussed in security pitfalls and best practices 201 modules.
+
+\section{Audit Finding \#160}
+
+160 is another finding from Trail of Bits audit of Advanced Blockchain where the concern was about patching, in that the logic in the repositories contained a significant amount of duplicated code which increase the risk that new bugs would be introduced into the system as bug fixes must be copied and pasted into files across the system.
+
+The recommendation was to use inheritance to allow code to be used across contracts and to minimize the amount of manual copying and pasting required to apply changes made in one file to other files.
+
+This is related to programming style code layout and naming convention in 97 to 101 of \verb|Solidity| 101 module and broad aspects of configuration in 165 clarity 188 cloning in 190 principle of economy of mechanism in 197 and principle of psychological acceptability in 199 that we discussed in security pitfalls and best practices 201 modules.
+
+\section{Audit Finding \#161}
+
+161 is another finding from Trail of Bits audit of Advanced Blockchain where the concern was about insufficient testing. The repositories under review lacked appropriate testing which increased the likelihood of errors in the development process and made code more difficult to review.\\
+
+The recommendation was to ensure that unit tests cover all public functions at least once as well as all known corner cases, and also to integrate coverage analysis tools into the development process and regularly review the coverage. This is related to broad aspect of testing in 155 that we discussed in security pitfalls and best practices 201.
+
+\section{Audit Finding \#162}
+
+162 is another finding from Trail of Bits audit of Advanced Blockchain where the concern was about project dependencies containing vulnerabilities. Yarn audit identified off-chain dependencies with no vulnerabilities and due to the sensitivity of the deployment code and its environment it was important to ensure that dependencies were not malicious.\\
+
+The recommendation was to ensure that dependencies were tracked verified patched and audited. This is related to the broad aspects of configuration in 165 external interaction in 180 and dependency of 183 that we discussed in security pitfalls and best practices to one module.
+
+\section{Audit Finding \#163}
+
+163 is another finding from Trail of Bits audit of Advanced Blockchain where the concern was about the code base lacking code documentation, high level descriptions and examples, making the contracts difficult to review and increasing the likelihood of user mistakes.\\
+
+The recommendation was to review and properly document the code base and also consider writing a formal specification of the protocol. This is related to broader aspects of system specification and documentation in 136 and 137, the principle of psychological acceptability in 199 that we discussed in security pitfalls and best practices 201.
+
+\section{Audit Finding \#164}
+
+164 is another finding from Trail of Bits audit of Advanced Blockchain where the concern was about API encoder V2 not being production ready. At the time of this order, given that more than three percent of all GitHub issues for the \verb|Solidity| compiler were related to experimental features, primarily ABI encoder V2. ABI encoder V2 had been associated with more than 20 high severity bugs at that point in time.\\
+
+The recommendation was to not use API encoder V2 by refactoring the code such that structs do not need to be passed to, or returned from functions, which is a feature enabled by it. This is related to compiler bugs in 77 to 94 of \verb|Solidity| 101 module and dependency issues in 183 of security pitfalls and best practices 201 modules.
+
+\section{Audit Finding \#165}
+
+165 is the finding from Trail of Bit's audit of dForce lending protocol where the concern was about the contract Owner having too many privileges compared to standard users of the protocol. Users could lose all of their assets if a contract owner's private keys were to be compromised. The contract Owner could, for example do the following:
+    \begin{enumerate}
+    \item Upgrade the system's implementation to steal funds.
+    \item Upgrade the tokens implementation to act maliciously.
+    \item Increase the amount of high tokens for remote distribution to such an extent that rewards could not be dispersed.
+    \item Arbitrarily update the interest model contracts.
+    \end{enumerate}
+    
+Such concentration of privileges created a single point of failure and increased the likelihood that the Owner would be targeted by an attacker, especially given the insufficient protection on sensitive Owner private keys. Additionally it incentivized the Owner to act maliciously.\\
+
+The recommendations were:
+    \begin{enumerate}
+    \item Clearly document the functions and implementations the Owner could change.
+    \item Split privileges to ensure that no one address had excessive ownership of the system.
+    \item Document the risks associated with privileged users and single points of failure.
+    \item Ensure that users were aware of all the risks associated with the system.
+    \end{enumerate}
+This is related to access control and trust issues we discussed in 148, 149, 160 and 172 and principle of least privilege in 192 and principle of separation of privilege in 193 of security pitfalls at best practices 201.
+
+\section{Audit Finding \#166}
+
+166 is another finding from Trail of Bits audit of dForce lending protocol where the concern was about poor error handling practices in the test suite. For context, the test suite did not properly test expected behavior and certain components lacked error handling methods, which would cause failed tests to be overlooked. For example errors were silenced with a \verb|try|/\verb|catch| statement, which meant that there was no guarantee that a call had reverted for the right reason. As a result, if the test suite passed, it would have provided no guarantee that the transaction call had reverted correctly.\\
+
+The recommendation was to test operations against a specific error message and ensure that errors were never silenced to check that a contact call had reverted for the right reason and overall follow standard testing best practices for smart contracts to minimize the number of issues during development. This is related to the broad aspect of testing in 155 of security pitfalls and best practices 201 modules.
+
+\section{Audit Finding \#167}
+
+167 is a finding from Sigma Prime's audit of synthetix Ether collateral protocol where the concern was about redundant and unused code. For example, the \verb|recordLoanClosure| function returned a \verb|bool| which was never used by the calling function, and there were also some \verb|if| statements that were redundant and unnecessary.\\
+
+The recommendation was to remove such redundant constructs or use them in meaningful ways. This is related to redundant construction 157 of security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#168}
+
+168 is another finding from Sigma Prime's audit of synthetix Ether collateral protocol where the concern was that a single account could capture all the supply in the protocol. For context, the protocol did not rely on a \verb|MAX_LOAN_SIZE| to limit the amount of Eth that can be locked for a loan. As a result, a single account could issue a loan that could reach the total minting supply.\\
+
+The recommendation was to make sure that this behavior was understood and documented, and also considered introducing and enforcing a cap on the size of the loans allowed to be open. This is related to (youth?) handling in 158 data validation in 169 and numerical and accounting issues in 170 and 171 of security pitfalls and best practices to one module.
+
+\section{Audit Finding \#169}
+
+169 is another finding from Sigma Prime's audit of synthetix Ether collateral protocol where the concern was about insufficient input validation, specifically in that the Ether collateral constructor did not check the validity of the addresses and other types provided as input parameters. This, for example, made it possible to deploy an instance of the contract with critical Addresses set to zero.\\
+
+The recommendation was to consider introducing required statements to perform adequate input validation. This is related to missing zero-address validation in 49 of security pitfalls and best practices 101 module and broader aspects of function parameters in 138 function invocation arguments in 149 and data validation issues in 169 or security pitfalls and best practices 201.
+
+\section{Audit Finding \#170}
+
+170 is another finding from Sigma Prime's audit of synthetix Ether collateral protocol where the concern was about unused event logs in that log events were declared, but never emitted.\\ 
+
+The recommendation was to emit these events where required appropriately or remove them entirely. This is related to unused constructs in 156 and auditing and locking in 173 of security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#171}
+
+171 is a finding from Sigma Prime's audit of InfiniGold where the concern was about unintentional token burning in \verb|transferFrom|. For context, InfiniGold allowed users to convert their PMGT tokens to gold certificates, which were digital artifacts effectively redeemable for actual gold. To do so, users were supposed to send their PMGT tokens to a specific burn address. however, the \verb|transferFrom| function did not check its \verb|to| address parameter against this burn address, which would allow users to accidentally send their tokens to the special burn address using the \verb|transferFrom| function without triggering the emission of the burn event, which dictated how the gold certificates were created and distributed, so effectively users would lose their tokens without redeeming them for gold certificates.\\
+
+The recommendation was to prevent sending tokens to the burn address in the \verb|transferFrom| function by adding a \verb|require| within \verb|transferFrom|, which disallow the two address to be the burn address. This is generally related to missing zero-address validation in 49 of security pinfalls and best practices 101 module and broader aspects of function parameters in 138 function invocation arguments in 146 data validation in 169 accounting issues in 171 and error reporting issues in 175 of security pitfalls and best practices 201.
+
+\section{Audit Finding \#172}
+
+172 is another finding from Sigma Prime's audit of InfiniGold where the concern was about denial derivative service from unbounded lists. For context, the \verb|reset| function reset the role linked list by deleting all its elements. Calling the reset function would exceed the block Gas Limit, 8 million, at the time of the audit for more than 371 total elements in the role linked list. Similarly, other functions also looped through linked lists which meant that certain protocol actors could perform denial of service attacks on the lists they administered.\\
+
+The recommendation was:
+    \begin{enumerate}
+    \item Either check that the linked list size is strictly less than 371 elements before adding a new element or
+    \item use the \verb|gasLeft| \verb|Solidity| primitive to make sure that traversing the linked list did not exceed the block Gas Limit at any point or
+    \item Change reset to take a specific number of elements as a function parameter
+    \end{enumerate}
+This is related to the Gas impact on DoS in 42, 43 and 44 of security pitfalls and best practices 101 module and broader aspects of denial of service in 176 and Gas issues in 182 of security pitfalls and best practices 201.
+
+\section{Audit Finding \#173}
+
+173 is another finding from Sigma Prime's audit of InfiniGold where the concern was about the \verb|ERC20| \verb|approve| function being vulnerable to Front-running.\\
+
+The recommendation was to be aware of Front-running issues and approved and potentially use OpenZeppelin's library with \verb|increaseAllowance()| and \verb|decreaseAllowance()| functions with the caveat that deviating from the \verb|ERC20| standard to address this issue could lead to backward incompatibilities with external third-party software. This is related to transaction order dependence in 21 and \verb|ERC20| approved Race-condition in 22 of security pitfalls and best practices 101 module along with \verb|ERC20| approved Race-condition in 105 and broader aspects of timing issues in 177 of security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#174}
+
+174 is another finding from Sigma Prime's audit of InfiniGold where the concern was about an unnecessary \verb|require| statement in blacklistable contract which implemented a Zero-address check on the two address, when this check was also implemented in the transfer function of \verb|ERC20| contract.\\
+
+The recommendation was to consider removing the \verb|require| statement for Gas saving purposes. This is related to redundant constructs in 157 now security pitfalls and best practices 201.
+
+\section{Audit Finding \#175}
+
+175 is another finding from Sigma Prime's audit of InfiniGold where the concern was about the reward rate rounding to zero if duration was greater than reward. The reward rate value was calculated as reward divided by duration and due to the integer representation of these variables, if duration were to be larger than reward, the value of reward rate would round down to zero. Thus, stakers would not receive any reward for their stakes and there would be other implications as well such as collection of task tokens.\\
+
+The recommendation was to be aware of the surrounding issue and also consider providing a way to claim the dust SNX rewards from rounding. This is generally related to divide before multiply in number 20 of security pitfalls and best practices 101 module and broadly related to data validation and numerical issues in 169 and 170 of security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#176}
+
+176 is another finding from Sigma Prime's auditor InfiniGold where the concern was about event log poisoning. For context, calling the withdrawal function would emit the withdrawal event where no UD tokens were required because this function could be called with 0. As a result, a user could continuously call this function creating a potentially infinite number of events which could lead to an event log poisoning situation where malicious external users could spam the unipool contract to generate arbitrary withdrawal events.\\
+
+The recommendation was to consider adding a \verb|require| or \verb|if| statement to prevent the withdrawal function from emitting the withdrawal event when the amount variable was zero This is related to validation of function parameters in 138 and auditing and logging in 173 of security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#177}
+
+177 is a finding from OpenZeppelin's audit of HoldeFi where the concern was about insufficient incentives to liquidators for context the liquidation process is a very important part of every DEFI project because it addresses the problem of a system being under collateralized under critical conditions in the market and therefore needs a design that incentivizes speed of liquidation execution as per modify specification and implementation the liquidators would end up paying for the expensive liquidation process without receiving any benefit other than buying potentially discounted collateral assets.\\ The recommendation was to consider improving the incentive design to give liquidators higher incentives to \verb|execute| the liquidation process this is related to function invocation timeliness in 143 and incentive issues in 187 of security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#178}
+
+178 is another finding from OpenZeppelin's audit of HoldeFi where the concern was that markets could become insolvent. For context, when the value of all collateral is worth less than the value of all borrowed assets, a market is considered insolvent. The HoldeFi code base could do many things to reduce the risk of market insolvency, such as selection of collateral ratios, incentivizing third-party collateral liquidation, careful selection of tokens listed on the platform, etc\dots\, However, the risk of insolvency would not be entirely eliminated and there are numerous ways a market could still become insolvent. This risk is not unique to the HoldeFi project and all collateralized loans. Even non-blockchain ones have a risk of insolvency. However it was important to recognize that this risk does exist, that it could be difficult to recover from it.\\
+
+The recommendation was therefore to consider adding more targeted tests for insolvency scenarios to better understand the behavior of the protocol and designing relevant mechanics to make sure the platform operated properly under such conditions, and also consider communicating the potential risk to the users if needed. This is related to garden launch via asset types and 129 and broader aspects of token handling in 159 system specification and documentation in 136 137 and accounting issues in 171 of security pitfalls and best practices 201.
+
+\section{Audit Finding \#179}
+
+179 is another finding from OpenZeppelin's audit of HoldeFi where the concern was that the project re-implemented some of OpenZeppelin's libraries and copied them as is in some others, instead of importing the official ones. OpenZeppelin maintains a library of standard audited community reviewed and partly tested smart contracts. Re-implementing or copying them increases the amount of code that the whole defined team would have to maintain and missed all the improvements and bug fixes that the OpenZeppelin team was constantly implementing with the help of the community.\\
+
+The recommendation was to consider importing the open zipline libraries instead of re-implementing or copying them and further extend them where necessary to add extra functionalities this is specifically related to cloning issues in 190 of security pitfalls and best practices 201.
+
+\section{Audit Finding \#180}
+
+180 is another finding from OpenZeppelin's audit of HoldeFi where the concern was that there was a lack of in-text parameters in events throughout the whole device code base: none of the parameters in the events defined in the contracts were in text.\\
+
+The recommendation was to consider indexing event parameters to facilitate off-chain services searching and filtering for specific events because remember that in-text event parameters are put into the topic part of the event log, which is faster to look up than the data part. This is specifically related to unindexed event parameters and 46 or security pitfalls and best practices 101 module and broadly related to auditing logging issues in 173 of security pitfalls and best practices 201 modules.
+
+\section{Audit Finding \#181}
+
+181 is another finding from OpenZeppelin's audit of HoldeFi where the concern was that there was an inconsistent use of named return variables across the code base that affected explicitness and readability.\\
+
+The recommendation was to consider removing all named return variables explicitly declaring them as local variables in the function body and adding the necessary explicit return statements where appropriate. This is related to function return values in 142 explicit over implicit in 164 and clarity issues in 188 of security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#182}
+
+182 is another finding from OpenZeppelin's audit of HoldeFi where the concern was that as part of some calculations and time checks, it used \verb|block.timestamp| which is unreliable because timestamps can be slightly altered by miners to favor them in contracts that have logic depending strongly on them.\\
+
+The recommendation was to consider taking into account this issue and warning users that such a scenario was possible and, if the alteration of time stamps couldn't affect the protocol in any way. to consider documenting that reasoning and writing tests to enforce that those guarantees would be preserved even if the code changed in future. This is related to weak PRNG and block values is type proxies in 17 and 18 or security pitfalls and best practices 201 module and broader aspects of trusted actors in 160 and timing issues in 177 of security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#183}
+
+183 is a finding from OpenZeppelin's audit of BarnBridge where the concern was about a \verb|require| statement that made an assignment which deviates from standard usage and intention of \verb|require| statements, and could lead to confusion.\\
+
+The recommendation was to consider moving the assignment to its own line before the \verb|require| statement. Then, using the \verb|require| statement only for condition checking. This is related to \verb|assert|/\verb|require| state change in 51 of security pitfalls and best practices 101 module and broader aspects of error reporting in 175 and clarity issues in 188 of security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#184}
+
+184 there's another finding from OpenZeppelin's audit of BarnBridge where the concern was about commented code in that the code base had lines of code that had been commented up. This could lead to confusion and affected code readability and auditability.\\
+
+The recommendation was to consider removing commented out lines of code that were no longer needed. This is related to comments in 154 and clarity issues in 188 of security pitfalls and best practices 201.
+
+\section{Audit Finding \#185}
+
+185 is a finding from OpenZeppelin's audit of compound where the concern was about misleading reward messages. Error messages are intended to notify users about failing conditions and should provide enough information so that appropriate corrections needed to interact with the system can be applied. Uninformative error messages affect user experience.\\
+
+The recommendation therefore was to consider reviewing the code pairs to make sure error messages were informative and meaningful and also reuse error messages for similar conditions. This is related to error reporting issues in 175 clarity issues in 188 and principle of psychological acceptability in 199 of security pitfalls and best practices 201 modules.
+
+\section{Audit Finding \#186}
+
+186 is a finding from OpenZeppelin's audit of Fei protocol where the concern was about multiple outdated \verb|Solidity| versions being used across contracts. The compiler options in the Truffle config file specified version \verb|0.6.6| which was released in april 2020, and throughout the code base there were also different versions of \verb|Solidity| being used.\\
+
+The recommendation was that given \verb|Solidity|'s fast release cycle to consider using a more recent version of the compiler and specifying explicit \verb|Solidity| versions in \verb|pragma| statements to avoid unexpected behavior. This is related to \verb|Solidity| versions unlocked \verb|pragma@ and multiple \verb|Solidity| \verb|pragma|s in 1, 2 and 3 of security pitfalls and best practices 101 module and explicit over implicit in configuration in 165 and dependency issues in 183 of security pitfalls and best practices 201.
+
+\section{Audit Finding \#187}
+
+187 is another finding from OpenZeppelin's audit of Fei protocol where the concern was about test and production constants being in the same code base. For example, the core orchestrator contract defined the test mode \verb|boole| variable which was then used to define several other test constants in the system. This decreased the legibility of production code and made the system's integral values more available.\\
+
+The recommendation was to consider having different environments for production and testing with different contracts. This is related to tests in 155 and configuration issues in 165 of security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#188}
+
+188 is another finding from OpenZeppelin's audit of Fei protocol where the concern was about the use of unnecessarily smaller sized integer variables. In \verb|Solidity|, using integers smaller than 256 bits (which is the EVM word size) tends to increase Gas Cost because the EVM must then perform additional operations to zero or mask out the unused bits in remaining parts of storage slots for such integers. This can be justified by savings and storage costs in some scenarios. However that was not the case for this code base.\\
+
+The recommendation was to consider using integers of size 256 bits to improve Gas efficiency. This is related to system specification in 136 and principle of economy of mechanism in 197 of security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#189}
+
+189 is another finding from OpenZeppelin's audit of Fei protocol where the concern was the use of \verb|uint| instead of \verb|uint256| across the code base.\\ 
+
+he recommendation was to consider replacing all instances of \verb|uint| with \verb|uint256| in favor of explicitness. This is related to explicit over implicit in 164 and clarity 188 of security pitfalls at best practices 201.
+
+\section{Audit Finding \#190}
+
+190 is a finding from OpenZeppelin's audit of UMA protocol where the concern was about functions with unexpected Side-effects. For example, the \verb|getLatestFundingRate| function of the funding rate applier contract might also update the funding rate and send rewards. The \verb|getPrice| function of the optimistic Oracle might also settle a price request. These setter like Side-effect actions were not clear in the getter like names of functions and were thus unexpected and could lead to mistakes if the code were to be modified by new developers not experienced in all the implementation details of the project.\\
+
+The recommendation was to consider splitting such functions into separate getters and setters, or alternatively consider renaming the functions to describe all the actions that they performed. This is related to broad aspects of programming style code layout and naming convention in 97 to 101 of \verb|Solidity| 101 module and clarity in 188 principle of economy of mechanism in 197 and principle of psychological acceptability in 199 that we discussed in security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#191}
+
+191 is a finding from OpenZeppelin's audit of GEB protocol where the concern was about unSafeCasting. For example, one of the contracts used an unsigned integer which was cast to a signed integer, then negated however since \verb|uint| could store higher values than \verb|int|, it was possible that casting from \verb|uint| to \verb|int| may have created an overflow.\\
+
+The recommendation was to consider verifying that values of such unsigned integers were within the acceptable range for signed integer time before casting, indicating and to consider using OpenZeppelin's SafeCast library which provides functions for safely casting between types. This is related to OpenZeppelin's SafeCast in 177 of solarity 201 module integer overflow underflow in 19 or security pitfalls and best practices 101 module and broader aspects of data validation and numerical issues in 169 and 170 of security pitfalls and best practices 201.
+
+\section{Audit Finding \#192}
+
+192 is another finding from OpenZeppelin's audit of GEB protocol where the concern was about missing error messages in \verb|require| statements. There were many places where \verb|require| statements were correctly followed by their error messages, clarifying what the triggered exception was. However, there were also places where \verb|require| statements were not followed by corresponding error messages. If any of those required statements were to fail the check condition, the transaction would revert silently without an informative error message.\\
+
+The recommendation was to consider including specific and informative error messages in all \verb|require| statements. This is related to error reporting issues in 175 clarity issues in 188 and principle of psychological acceptability in 199 of security pitfalls and best practices to one module.
+
+\section{Audit Finding \#193}
+
+193 is another finding from OpenZeppelin's audit of GEB protocol where the concern was about the use of Assembly in multiple contracts. While this did not pose a security risk per se, it is a complicated and critical part of the system. Remember that the use of Assembly discards several important safety features of \verb|Solidity| which may render the code unsafe and more error-prone.\\
+
+The recommendation therefore was to consider implementing thorough tests to cover all potential use cases of these functions to ensure that they behaved as expected and to consider including extensive documentation regarding the rationale behind its use, clearly explaining what every single Assembly instruction does, which would make it easier for users to trust the code, for reviewers to verify it and for developers to build on top of it or update it. This is related to Assembly usage in 63 of security pitfalls and best practices 101 module and broader aspects of system documentation in 137 tests in 155 clarity 188 and principle of psychological acceptability in 199 security pitfalls and best practices 201.
+
+\section{Audit Finding \#194}
+
+194 is another finding from OpenZeppelin's audit of GEB protocol where the concern was about \verb|catch| clause not being handled appropriately in a couple of functions. The \verb|catch| clause of \verb|Solidity|'s \verb|try|/\verb|catch| exception handling primitive was neither emitting events nor handling the error, but simply continuing the execution.\\
+
+The recommendation was that, even if continuing execution after a possible fail was something explicitly wanted, to consider handling the \verb|catch| clause by either emitting an appropriate event or registering the failed (tricol?) in the spirit of the failed early and loudly principle. This is related to error reporting in 175 clarity in 188 and principle of psychological acceptability in 199 of security pitfalls and best practices 201 modules
+
+\section{Audit Finding \#195}
+
+195 is another finding from OpenZeppelin's audit of GEB protocol where the concern was about unnecessary event emission. For example, the pop dead from \verb|q|(?) function of the accounting engine contract was emitting an unnecessary event whenever it was called with a dead block timestamp that had not been saved before.\\
+
+The recommendation was to remove such event emits and prevent Gas wastage. This is related to redundant constructs in 157 of security pitfalls and best practices 201.
+
+\section{Audit Finding \#196}
+
+196 is a finding from OpenZeppelin's audit of Opyn Gamma protocol where the concern was that the protocol's \verb|O| token could be created with a non-white listed collateral asset. A product consisted of a set of assets and an auction time, and each product had to be whitelisted by the admin using the whitelist product function from the whitelist contract.\\
+
+The recommendation was to consider validating if the assets involved in a product had already been whitelisted before allowing creation of \verb|O| tokens. This is related to aspects of carded launch via composability limit in 132 token handling in 159 external interactions at 180 and dependency issues in 183 of security pitfalls and best practices 201.
+
+\section{Audit Finding \#197}
+
+197 is another finding from OpenZeppelin's audit of Opyn Gamma protocol where the concern was about mismatches between contracts and interfaces. Interfaces define the exposed functionality of implemented contracts. However, in several interfaces there were functions from the counterpart contracts that were not defined.\\
+
+The recommendation was to consider applying necessary changes in the mentioned interfaces and contracts, so that definitions and implementations fully match. This is related to system specification in 136 undefined behavior in 179 and clarity issues in 188 of security pitfalls and best practices 201.
+
+\section{Audit Finding \#198}
+
+198 is another finding from OpenZeppelin's audit of Opyn Gamma protocol where the concern was about inconsistent state resulting from actions not executed. For context, the set asset pricing, set locking period and set dispute period functions of the Oracle contract executed actions that were always expected to be performed atomically. Failing to do so, could lead to inconsistent states in the system.\\
+
+The recommendation was therefore to consider implementing an additional function that calls all three set asset pricing, set locking period and set dispute period functions, so that all these actions could be executed atomically in a single transaction. This is related to function invocation timeliness in 143 configuration and initialization in 165 and 166 timing in 177 and undefined behavior issues in 179 of security pitfalls and best practices 201.
+
+\section{Audit Finding \#199}
+
+199 is another finding from OpenZeppelin's audit of Opyn Gamma protocol where the concern was about using a deprecated Chainlink API. The Chainlink pricer was using multiple functions from the deprecated Chainlink V2 API, such as latest answer and get timestamp. Such functions might certainly stop working if Chainlink stops supporting deprecated APIs.\\
+
+The recommendation was to consider using the latest Chainlink V3 API. This is related to external interaction in 180 and dependency issues in 183 of security pitfalls and best practices to one body.
+
+\section{Audit Finding \#200}
+
+200 is a finding from OpenZeppelin's audit of PoolTogether V3 protocol where the concern was that funds could be lost. For context the sweep timelock balances function accepted a list of users with unlocked balances to distribute. However, if there were duplicate users in the list, their balances would be counted multiple times while calculating the total amount of withdrawal from the yield service, which could lead to loss of their funds.\\
+
+The recommendation was to consider checking for duplicate users when calculating the amount to withdraw. Rhis is related to token handling in 159 and numerical and accounting issues in 170 and 171 of security pitfalls and best practices 201 module.
+
+\section{Audit Finding \#201}
+
+201 is a finding from OpenZeppelin's audit of Set Protocol where the concern was about clearing address variables by setting them to zero-addresses instead of using \verb|delete|.\\
+
+The recommendation was to consider replacing assignments of zero with \verb|delete| statements because \verb|delete| better conveyed the intention and was also more idiomatic. This is related to explicit over implicit in 164 cleanup in 167 and clarity issues in 188 of security pitfalls and best practices 201 module.
+
+\vfill
+
+With that, hopefully we now have a much better appreciation for such application level business logic software engineering best practices and guidelines that are not immediately identifiable as vulnerabilities leading to fund loss, lock, etc\dots\, but are nevertheless critical to adhere to, so that they do not translate into critical vulnerabilities unknowingly or at a later time under some assumptions considerations interactions threat trust models not considered by the developers or the auditors.

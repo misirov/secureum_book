@@ -1,0 +1,443 @@
+\section{RACE-X: Certora Quiz}
+
+This RACE-X is composed of 24 questions split into 3 sections:
+\begin{itemize}
+    \item Part 1: Propositional Logic (Q1-Q10)
+    \item Part 2: Properties of DeFi Systems (Q11-Q22)
+    \item Part 3: Questions on (earlier shared) Certora Video (Q23-Q24)
+\end{itemize}
+
+This RACE-X uses well known logic symbols as shown in the below table:
+
+\begin{table}[htbp!]
+    \centering
+    \begin{tabular}{|c|c|c|}
+        \hline
+        \textbf{Symbol}&\textbf{Free Language}&\textbf{Logic Meaning}\\
+        \hline
+        $\wedge$&And&And\\
+        $\neg$&Not&Not\\
+        $\vee$&Or&Or\\
+        $\Rightarrow$&Imply/Implies&Implication\\
+        $\Leftrightarrow$&Iff/Equivalent&Equivalency\\
+        \hline
+    \end{tabular}
+\end{table}
+
+\textbf{1. When is the expression $p\Rightarrow q$ false?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item $\neg p\wedge\neg q$
+    \item $p\wedge q$
+    \item $\neg p\wedge q$
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q1]{here}.\\
+
+\textbf{2. Is the following expression true? $p\wedge q\Rightarrow p$}
+
+\begin{enumerate}[label=\Alph*.]
+    \item True in all cases
+    \item False in all cases
+    \item True for some cases, false for others
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q2]{here}.\\
+
+\pagebreak
+
+\textbf{3. Is the following expression true? $(p\wedge(q\vee\neg p))\wedge\neg q$}
+
+\begin{enumerate}[label=\Alph*.]
+    \item True in all cases
+    \item False in all cases
+    \item True for some cases, false for others
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q3]{here}.\\
+
+\textbf{4. Is the following expression true? $\neg (\neg p\vee\neg q\vee\neg r)\Leftrightarrow p\wedge q\wedge r$}
+
+\begin{enumerate}[label=\Alph*.]
+    \item True in all cases
+    \item False in all cases
+    \item True for some cases, false for others
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q4]{here}.\\
+
+\textbf{5. Is the following expression true? $\neg((\neg p\vee\neg q)\vee (\neg p\wedge\neg q))$}
+
+\begin{enumerate}[label=\Alph*.]
+    \item True in all cases
+    \item False in all cases
+    \item True for some cases, false for others
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q5]{here}.\\
+
+\textbf{6. Is the following expresison true? $\neg((p\wedge q)\vee(\neg p\wedge\neg q))$}
+
+\begin{enumerate}[label=\Alph*.]
+    \item True in all cases
+    \item False in all cases
+    \item True for some cases, false for others
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q6]{here}.\\
+
+\pagebreak
+
+\textbf{7. Given the expression: $M:p\vee\neg p$\\
+Which of the following expressions implies the above given expression $M$?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item $p\vee\neg p$
+    \item $p\wedge\neg p$
+    \item $(p\wedge\neg p)\vee\neg p$
+    \item $(\neg p\vee p)\wedge\neg p$
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q7]{here}.\\
+
+\textbf{8. Given the expression: $M:p\wedge\neg p$\\
+Which of the following expressions implies the above given expression $M$?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item $p\vee\neg p$
+    \item $p\wedge\neg p$
+    \item $(p\wedge\neg p)\vee\neg p$
+    \item $(\neg p\vee p)\wedge\neg p$
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q8]{here}.\\
+
+\textbf{9. Is the following expression true? $(p\Rightarrow (q\Rightarrow r))\Rightarrow((p\Rightarrow q)\Rightarrow r)$}
+
+\begin{enumerate}[label=\Alph*.]
+    \item True in all cases
+    \item False in all cases
+    \item True for some cases, false for others
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q9]{here}.\\
+
+\pagebreak
+
+\textbf{10. Is the following expression true? $(()p\Rightarrow q)\Rightarrow r)\Rightarrow(p\Rightarrow (q\Rightarrow r))$}
+
+\begin{enumerate}[label=\Alph*.]
+    \item True in all cases
+    \item False in all cases
+    \item True for some cases, false for others
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q10]{here}.\\
+
+\textbf{11. Given the below four properties for \href{https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol}{OpenZeppelin's ERC20 implementation}, answer questions 11 to 13}\\
+
+\textbf{P1}: Forall user: \verb|balanceOf(user)| can only change on \verb|mint()|, \verb|burn()|, \verb|transfer()|, \verb|transferFrom()|\\
+\textbf{P2}: \verb|totalSupply()| is the sum of \verb|balanceOf()| over all users\\
+\textbf{P3}: Forall user: \verb|balanceOf(user) <= totalSupply()|\\
+\textbf{P4}: Forall user: \verb|balanceOf(user)| can only change on operation performed when \verb|msg.sender == user| or when \verb|allowance(user, msg.sender)| is not zero\\
+
+\textbf{Which of the below properties are correct properties of \texttt{ERC20}?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Property P1
+    \item Property P2
+    \item Property P3
+    \item Property P4
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q11]{here}.\\
+
+\pagebreak
+
+\textbf{12. Given the four properties for \href{https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol}{OpenZeppelin's ERC20 implementation} shown in question 11,\\ and given the following buggy version of transferFrom:}
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {
+   require(_to != address(0));
+   require(_value <= balances[_from]);
+   require(_value <= allowed[_from][msg.sender]);
+   balances[_from] = balances[_from].add(_value);
+   balances[_to] = balances[_to].sub(_value);
+   allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
+   emit Transfer(_from, _to, _value);
+   return true;
+ }
+\end{lstlisting}
+
+\textbf{Which of the below properties are violated?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Property P1
+    \item Property P2
+    \item Property P3
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q12]{here}.\\
+
+\textbf{13. Given the four properties for \href{https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol}{OpenZeppelin's ERC20 implementation} shown in question 11,\\ Is there an implication between P3 and P2?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Yes, P2 $\Rightarrow$ P3
+    \item Yes, P3 $\Rightarrow$ P2
+    \item Yes, P2 $\Leftrightarrow$ P3
+    \item No
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q13]{here}.\\
+
+\pagebreak
+
+\textbf{14. Assuming a correct implementation of \texttt{transferFrom}, as in \href{https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol}{OpenZeppelin's ERC20 implementation}, and given the following pseudo unit-test code}
+
+\begin{lstlisting}[language=Solidity, style=Solstyle]
+uint256  bFrom = balances[from];
+uint256 bTo = balances[to];
+transferFrom(from, to, x);
+assert($exp$);
+\end{lstlisting}
+
+\textbf{Which of the following expressions are valid choices (should always hold) for \texttt{\$exp\$}?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|balances[from] ==  bFrom - x|
+    \item\verb?from != to  ||  balances[to] == bTo?
+    \item\verb|balances[to] + balances[from] == bFrom + bTo|
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q14]{here}.\\
+
+\pagebreak
+
+\textbf{15. The below contract (same contract for questions 15 to 17) has a bug:}
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+contract test {
+   // Assume other required functionality is correctly implemented
+   uint256 private constant MAX_FUND_RAISE = 100 ether;
+   mapping (address => uint256) contributions;
+
+    function contribute() external payable {
+       require(address(this).balance != MAX_FUND_RAISE);
+       contributions[msg.sender] += msg.value;
+   }
+}
+\end{lstlisting}
+
+\textbf{Which of the following invariants should hold on a correct implementation of the contribute function?}\\
+
+\textbf{P1}: Forall user: \verb|address(this).balance <= contributions[user]|\\
+\textbf{P2}: Forall user: \verb|contributions[user] <= address(this).balance|\\
+\textbf{P3}: Forall user: \verb|contributions[user] <= MAX_FUND_RAISE|\\
+\textbf{P4}: \verb|address(this).balance <= MAX_FUND_RAISE|
+
+\begin{enumerate}[label=\Alph*.]
+    \item P1
+    \item P2
+    \item P3
+    \item P4
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q15]{here}.\\
+
+\textbf{16. Following the same contract of question 15, which of the following invariant(s) that is/are supposed to hold is/are violated due to the buggy implementation?}
+
+\textbf{P1}: Forall user: \verb|address(this).balance <= contributions[user]|\\
+\textbf{P2}: Forall user: \verb|contributions[user] <= address(this).balance|\\
+\textbf{P3}: Forall user: \verb|contributions[user] <= MAX_FUND_RAISE|\\
+\textbf{P4}: \verb|address(this).balance <= MAX_FUND_RAISE|
+
+\begin{enumerate}[label=\Alph*.]
+    \item P1
+    \item P2
+    \item P3
+    \item P4
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q16]{here}.\\
+
+\pagebreak
+
+\textbf{17. Following the same contract of question 15, the revert characteristic (conditions in which the function should revert) of a correct implementation of \texttt{contribute} is}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|msg.value == 0|
+    \item\verb|address(this).balance + msg.value > MAX_FUND_RAISE|
+    \item\verb|msg.value == MAX_FUND_RAISE|
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q17]{here}.\\
+
+\textbf{18. In the below contract (same contract for questions 18 \& 19)}
+
+\begin{lstlisting}[language=Solidity, style=solStyle]
+pragma solidity 0.7.0;
+
+contract InSecureumToken {
+
+mapping(address => uint) private balances;
+uint public decimals = 10**18; // decimals of the token
+uint public totalSupply; // total supply
+uint MAX_SUPPLY = 100 ether; // Maximum total supply
+event Mint(address indexed destination, uint amount);
+
+function balanceOf(address u) public returns (uint256) {
+   return balances[u];
+}
+
+function ethBalance(address u) public returns (uint256) {
+   return u.balance;
+}
+
+function transfer(address to, uint amount) public {
+   // save the balance in local variables
+   // so that we can re-use them multiple times
+   // without paying for SLOAD on every access
+   uint balance_from = balances[msg.sender];
+   uint balance_to = balances[to];
+   require(balance_from >= amount);
+   balances[msg.sender] = balance_from - amount;
+   balances[to] = safeAdd(balance_to, amount);
+}
+
+/// @notice Allow users to buy a token. 1 ether = 10 tokens
+/// @dev Users can send more ether than token to be bought, to donate a fee to the protocol team.
+function buy(uint desired_tokens) public payable {
+    // Check if enough ether has been sent
+    uint required_wei_sent = (desired_tokens / 10) * decimals;
+    require(msg.value >= required_wei_sent);
+    // Mint the tokens
+    totalSupply = safeAdd(totalSupply, desired_tokens);
+    balances[msg.sender] = safeAdd(balances[msg.sender], desired_tokens);
+    emit Mint(msg.sender, desired_tokens);
+}
+
+/// @notice Add two values. Revert if overflow
+function safeAdd(uint a, uint b) pure internal returns(uint) {
+    if (a + b < a) {
+        revert();
+    }
+    return a + b;
+}
+}
+\end{lstlisting}
+
+\textbf{Given the following two properties:}\\
+\textbf{P1}: \verb|totalSupply()| is the sum of \verb|balanceOf()| over all users.\\
+\textbf{P2}: Monotonicity of \verb|totalSupply| vs the contract's ether balance:
+\begin{enumerate}[label=(\alph*)]
+    \item\verb|totalSupply| is increased iff ($\Leftrightarrow$) \verb|this.balance| is increased and
+    \item\verb|totalSupply| is decreased iff ($\Leftrightarrow$) \verb|this.balance| is decreased
+\end{enumerate}
+
+\textbf{Which of the existing issues in the code violates which property?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item An issue in \verb|buy()| violates P1
+    \item An issue in \verb|buy()| violates P2
+    \item An issue in \verb|transfer()| violates P1
+    \item An issue in \verb|transfer()| violates P2
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q18]{here}.\\
+
+\pagebreak
+
+\textbf{19. Following the same contract of question 18 and assuming a correct implementation of \texttt{buy()} and \texttt{transfer()}, which properties should hold?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item The order of operation \verb|buy()| and \verb|transfer()| is not important, i.e. first calling \verb|buy| and then \verb|transfer| has the same outcome as first calling \verb|transfer| and then \verb|buy|.
+    \item\verb|transfer| is additive i.e. performing \verb|transfer| in two steps:
+        \begin{lstlisting}[language=Solidity, style=solStyle]
+transfer(to,x);
+transfer(to,y);
+\end{lstlisting}
+        is equivalent yo performing it in one step:
+        \begin{lstlisting}[language=Solidity, style=solStyle]
+transfer(to,x+y);
+\end{lstlisting}
+    \item\verb|buy| is additive i.e. performing \verb|buy| in two steps:
+        \begin{lstlisting}[language=Solidity, style=solStyle]
+buy(x1){value:x};
+buy(y1){value:y};
+\end{lstlisting}
+        is equivalent yo performing it in one step:
+        \begin{lstlisting}[language=Solidity, style=solStyle]
+buy(x1+y1){value:x+y};
+\end{lstlisting}
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q19]{here}.\\
+
+\textbf{20. In \href{https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/ERC721.sol}{OpenZeppelin’s implementation of ERC721}, which of the following properties are correct specification assuming \texttt{user != 0}?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|ownerOf(tokenId) == user| $\Leftrightarrow$ \verb|balanceOf(user) == tokenId|
+    \item\verb|ownerOf(tokenId) == user| $\Leftrightarrow$ \verb|balanceOf(user) == 1|
+    \item\verb|ownerOf(tokenId) == user| $\Rightarrow$ |balanceOf(user) >= 1|
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q20]{here}.\\
+
+\pagebreak
+
+\textbf{21. In \href{https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/ERC721.sol}{OpenZeppelin’s implementation of ERC721}, which of the following is necessarily correct after a successful (non-reverting) call to \texttt{transferFrom(from, to, tokenId)}?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|ownerOf(tokenId) == to|
+    \item\verb|ownerOf(tokenId) == from|
+    \item\verb|balanceOf(to) >= 1|
+    \item\verb|balanceOf(from) >= balanceOf(to)|
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q21]{here}.\\
+
+\textbf{22. In \href{https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/extensions/ERC721Enumerable.sol}{OpenZeppelin’s implementation of ERC721 Enumerable}, which of the following expressions is true?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item\verb|tokenByIndex(i) == j| $\Rightarrow$ \verb|i < totalSupply()|
+    \item\verb|i < totalSupply()| $\Rightarrow$ \verb|tokenByIndex(i)| $\neq$ \verb|0|
+    \item\verb|(u != o && tokenOfOwnerByIndex(o, i) == j)| $\Rightarrow$ \verb|ownerOf(j)| $\neq$ u
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q22]{here}.\\
+
+\textbf{23. Based on the lecture on \href{https://www.youtube.com/watch?v=VGSsPIsbb6U}{"Auditing and Formal Verification: Better together"} by Certora's CEO Mooly Sagiv, which of the following is generally accepted?}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Formal verification eliminates the need for auditing
+    \item Auditing eliminates the need for formal verification
+    \item Auditing may find bugs after a project been formally verified
+    \item Formal verification may find bugs after a project has been audited
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q23]{here}.\\
+
+\textbf{24. Based on the lecture on \href{https://www.youtube.com/watch?v=VGSsPIsbb6U}{"Auditing and Formal Verification: Better together"} by Certora's CEO Mooly Sagiv, the takeaways are}
+
+\begin{enumerate}[label=\Alph*.]
+    \item Spec is the law
+    \item Writing correct spec is challenging
+    \item Spec should be audited
+    \item None of the above
+\end{enumerate}
+
+Find the solution \hyperref[sec:raceXcertora_q24]{here}.\\

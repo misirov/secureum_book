@@ -1,0 +1,883 @@
+\chapter{Security Pitfalls \& Best Practices 101}
+
+\section{Solidity versions}
+The \texttt{Solidity} language has evolved considerably in the last several years. There have been many features added, some of them removed. Security has been improved in several cases, optimizations have been made.\\
+
+As a result, there are many versions of \texttt{Solidity} that are available for projects and developers to choose from. At least one version is released every few months that make some optimizations and fixes some bugs a couple of breaking changes are introduced every year or so. As a result, the question is always about which version of the \texttt{Solidity} compiler to use for a particular project, so that the best combination of features and security aspects are considered.\\
+
+The older compiler versions are time tested, but they have bugs. The newer versions have the bug fixes which is good, but they may also have new bugs which have been undetected so far.\\
+
+The older versions have lesser features compared to the newer versions, that have more features. Some of these are language level features that are visible syntactically. Some of them are semantic changes. Some of them are security features. Some of them are optimizations that are not very visible.\\
+
+As a result, the choice of an optimal version of the compiler for a particular project is always a tricky thing. This has to take account not just the functionality, but also the security aspect. As a result, there is a trade-off to be made, there are risks as well as rewards. As of this point many of the projects are transitioning to the \texttt{Solidity} version 0.8.0 and beyond, because among other things, this version has introduced default arithmetic checks for underflow and overflows. So these aspects of security and functionality, the range of choices available across the various \texttt{Solidity} compiler versions, have to be kept in mind when determining which version to use for a particular project.
+
+\section{Unlocked Pragma}
+We remember that \texttt{Solidity} supports the concept of \texttt{pragma} directives and one of them is related to the \texttt{Solidity} compiler version, that can be used with this smart contract.\\
+
+There are many aspects related to that fragment directive, but the one that is relevant from a security perspective, is the concept of that \texttt{pragma} being unlocked or floating and what this means is that in the \texttt{pragma} directive that specifies the compiler version, if the \verb|^| symbol is used, then it is referred to as being unlocked. What this means, is that the use of this caret symbol, specifies that any compiler version starting from the one specified in that \texttt{pragma} directive all the way to the end of that breaking version can be used to compile this smart contract. As an example, if the \texttt{pragma} directive is \verb|^0.8.0| it means that any compiler version from \texttt{0.8.0} all the way to the last version in the \texttt{0.8.z} range can be used according to this \texttt{pragma} for compiling this smart contract.\\
+
+This becomes interesting from a security perspective. The use of such an unlocked or floating \texttt{pragma} allows one \texttt{Solidity} compiler version to be used for testing, but potentially, a different one that is used for compiling the contracts while being deployed. This aspect of using a different version for testing and deployment is risky from a security perspective. That's because one could test with a totally different set of compiler features and security checks, the newer version or a different version that is used for deployment may support a different set of features and a different set of security checks, so this mismatch between testing and deployment is allowed by the use of this unlocked \texttt{pragma} and hence is not recommended to be used.\\
+
+So what is recommended is to \texttt{lock} the \texttt{pragma} by not using the caret symbol in that \texttt{pragma} directive, this will enforce that the same compiler version is used for testing as well as for deployment.
+
+\section{Multiple Pragma}
+
+Another security aspect related to the use of the solution compiler \texttt{pragma} in contracts is the use of different pragmas across different contracts.\\
+
+Remember that the \texttt{pragma} applies only to the contract where it is used so. If there are different multiple contracts that are used within a single project, then each one of them could have a different \texttt{pragma} specifying a different compiler version.\\
+
+The reason why this is not recommended is because these different compiler versions like we just discussed can have different bugs, different bug fixes, different features and even different security checks across the versions. This will result in different components of the application having different security properties which is not desirable.\\
+
+So from a security perspective, what is recommended is to use the same \texttt{pragma} across all the different contracts that form that smart contract application. This will result in all of them having the same set of bugs, features and security checks which can be accounted for while one is testing that smart contact application.
+
+\section{Access Control}
+
+Access control is perhaps the most significant and fundamental aspect of security. When it comes to smart contracts, what it means is access to functions.\\
+
+Remember that functions can have different visibility. \texttt{public} and \texttt{external} functions are those that can be called by any user interacting with the smart contract.\\
+
+So from an access control perspective, we need to make sure that the right set of addresses can call these functions. We need to ask know if it might be okay for anyone to access these functions, any address to access this function, or it might be required only for the Owner to access this or there could be an extensive role based access control that is desirable as well.\\
+
+This means that when we are reviewing smart contracts for security, we need to make sure that the right access control is enforced by the use of the correct modifiers. That make sure that the correct checks are enforced on the different sets of addresses used with the smart contract. Any of these missing checks either missing modifiers or the use of incorrect addresses or even the access control specification might allow attackers to control critical logic that is executed within some of these critical functions.\\
+
+\section{Withdraw Funds}
+
+Smart contracts typically manage a significant amount of funds related to the amount of Ether or the \texttt{ERC20} tokens that they hold and manage it in different ways for different users. So they have different functionality for users to deposit these funds and similarly they have different mechanisms for users to withdraw their funds.\\
+
+These withdrawal functions need to be protected, from an access control perspective. What this means is that, if these withdrawal functions are unprotected, that's if they are public and external and they do not have the right access control enforced on the different addresses via checks implemented within the modifiers applied on these functions, then it may let attackers call these unprotected withdrawal functions and withdraw Ether or \texttt{ERC20} tokens that belong to other users. This unauthorized withdrawal leads to loss of funds for the users and loss of funds for the protocol itself.\\
+
+So in this context of withdrawal of funds access control again becomes important, the security checks have to make sure that the right access control is applied with respect to the different addresses or different modifiers on these withdrawal.
+
+\section{selfdestruct}
+
+The use of the self-destruct primitive is critical and dangerous from a security perspective. Remember that self-destruct is an EVM instruction that is further supported by a \texttt{Solidity} primitive, which when used within the smart contract, destroys or kills that contract and transfers all its Ether balance to the specified recipient address.\\
+
+So from a security perspective, any smart contract that uses self-destruct within a particular function, needs to protect access to that function because, if not, an user can mistakenly call that function or an attacker can intentionally call that function to kill that contract and remove its existence thereafter.\\ 
+
+This means that from a security perspective, unauthorized calls to functions within smart contracts that may use the self-destruct primitive should be prevented, so that the contract does not get killed intentionally or mistakenly.\\ 
+
+Access control to such functions again becomes critical to make sure that only authorized users may call such functions. At a high level, even the use of self-destruct is considered as being very risky and dangerous from a security perspective.
+
+\section{Modifiers Side-effects}
+
+Modifiers in \texttt{Solidity} smart contracts are typically used to implement different kinds of security checks access control checks, or accounting checks on fund balances and so on. Such modifiers should not have any side-effects, they should not be making any state changes to the contract or external calls to other contracts.\\
+
+The reason for that is any such side-effects made by the modifiers, may go unnoticed both by the developers as well as the smart contract security auditors evaluating the security of these contracts. They go unnoticed not only because developers and auditors assume that modifiers don't make side-effects, but also because the modified code is typically declared in a different location from the function implementation itself. Remember that the best practice is for the modifiers to be declared in the beginning of the contract and function implementations in the later part of the contract.\\ 
+
+So as a security check, one should make sure that modifiers declared in contract should not have any side-effects and they should be only enforcing checks on different aspects of the contract.
+
+\section{Incorrect Modifier}
+
+Incorrect modifiers are a security risk. Modifiers should not only implement the correct access control or accounting checks as relevant to the smart contract logic, but they should also \texttt{execute} underscore or \texttt{revert} along all the control flow paths within that modifier. Remember that in the context of \texttt{Solidity} underscore inlines the function code on which the modifier is applied.\\
+
+So, if this does not happen along any particular control flow path within the modifier, then the default value for that function is return.\\ 
+
+This may be unexpected from the context of the caller who called this function on which this modifier is applied, so the security check is to make sure that all the control flow paths within the modifier either \texttt{execute} undiscovered or revert.
+
+\section{Constructor Names}
+
+Constructor names in \texttt{Solidity} have had security implications historically. If you go back all the way to \texttt{Solidity} compiler version 0.4.22 versions until that version, required the use of the contract name as the name of the constructor. And between that version and 0.5.0 one could either use the contract name as a constructor or use the constructor keyword itself. It was only after 0.5.0 that \texttt{Solidity} forced the use of the constructor keyword for constructors.\\ 
+
+So this flexibility, the use of the contract name as the constructor name, has historically caused bugs, where the contact name was misspelled which led to that function not being the constructor, but a regular function. Also the flexibility between allowing both the old style, the new style constructor names caused security issues, because there was a precedence that was followed, if both of them existed. So this constructor naming confusion has been a historical source of bugs and \texttt{Solidity} smart contracts, this is not a concern anymore.
+
+\section{Void Constructor}
+
+There's a security concern related to \texttt{void} constructors. What this means is that if a contract derives from other contracts, then it makes calls to the constructors of base contracts assuming they're implemented, but if in fact they are not, then this assumption leads to security implications.\\
+
+So the best practice for derived contracts is to check if the base constructor is actually implemented and remove the call to that constructor, if it is not implemented at all.
+
+\section{Constructor callValue}
+
+This security pitfall is related to constructors, the checks for any value sent in contact creation transactions triggering those constructors. \\ 
+
+Typically, if a constructor is not explicitly payable and there is value Ether that is sent in a contract create transaction, that triggers such a constructor, then the constructor reverts that transaction.\\ 
+
+However because of a compiler bug, if contract did not have an explicit constructor, but the contract had a base contract that did define constructor, then in those cases, it was possible to send Ether value in a contract creation transaction, that would not cause that reward to happen. This compiler bug was present all the way from version 0.4.5 to version 0.6.8.
+
+\section{delegateCall}
+
+The security pitfall is related to the use of \texttt{delegateCall} in contracts where the \texttt{delegateCall} may be made to an address that is user controlled. Remember that in the case of \texttt{delegateCall}s, the calling contract makes a \texttt{delegateCall} to a called contract, where the called contract executes its logic on the state of the calling contract.\\
+
+So, if the address of the called contract is user controlled, then the user may accidentally or maliciously make this \texttt{delegateCall} to a malicious contract, that can make unauthorized modifications to the state of the calling contract. Therefore, \texttt{delegateCall}s should be used with extreme care in contracts. All precautions should be used to ensure that the destination addresses for such \texttt{delegateCall}s are trusted.
+
+\section{Reentrancy}
+
+The reentrancy security pitfall is perhaps unique to smart contracts where external calls made to contracts can result in what can be thought of as callbacks to the called contract itself.\\ 
+
+So for example, if there is a contract \texttt{C1}, that makes a call to an external contract \texttt{C2}, where \texttt{C2} could potentially be untrusted could be malicious because it is not developed by the same team or within the same project as \texttt{C1}, then that external contract \texttt{C2} could call back into \texttt{C1} to the same function that called it or to any other function of \texttt{C1} that allows such a call.\\ 
+
+This could be exploited to do malicious things, such as multiple withdrawals or something less harmful, such as out of order emission of events. There have been multiple exploits that have taken advantage of this class of reentrancy attacks, some of them are historical in nature such as the DAO hack on Ethereum.\\
+
+So this class of security vulnerabilities, that is specific to smart contracts needs to be paid attention to, the best practice to prevent such reentrancy vulnerabilities from being exploited is to follow what is known as the \textbf{Checks Effects Interactions} pattern or the CEI pattern for short, where the interactions with external potentially untrusted contracts is only made after performing all the checks and all the effects where effects are nothing, but changes to the state of the calling contract, so that any anticipated side-effects of interactions with the external contracts are already reflected in the state of the calling contract.\\
+
+So this CEI pattern is recommended as a best practice to be followed in all functions that are making external contract calls specifically to contact calls that could be malicious because they're untrusted. The other best practice is to use what are known as reentrancy guards, we talked about this in the context of the reentrancy guard library from OpenZeppelin where a modifier, a non re-entrant modifier, is provided. This modifier when applied to specific functions prevents them from being called within a callback, so it avoids any reentrances to that function itself.
+
+\section{ERC777}
+
+This security pitfall is related to the use of \texttt{ERC777} standard, the potential for re-entrancy vulnerabilities due to the callbacks it supports. \\
+
+Remember that \texttt{ERC777} standard is considered as an extension to the \texttt{ERC20} standard it's considered as making improvements to it. One improvement is the notion of hooks that it supports during token transfers, if such an \texttt{ERC777} token contract is potentially malicious, then it could use these hooks to cause reentrancy into the calling contract. So for example, if there's a contract \texttt{C1} that calls an \texttt{ERC777} token contract that is malicious, then that contract could use the hook functionality to cause a reentrancy into the calling contract \texttt{C1} and take advantage of it as we just mentioned.\\
+
+The best practice again is to follow the Checks Effects Interaction (CEI) pattern in the calling contract and also to consider the use of reentrancy guards.
+
+\section{transfer() \& send()}
+
+This security pitfall is related to the use of the \texttt{transfer} and \texttt{send} primitives in \texttt{Solidity}. \\
+
+These primitives were introduced as reentrancy mitigations, because they only forward 2300 Gas to the called contract, which is typically sufficient only for basic processing such as emitting a few logs or something even simpler, this Gas is not enough to make a real currency call back to the calling contract which requires more than 2300 gas.\\ 
+
+So this has been recommended for a long time as a security best practice for preventing reentrancy attacks however over time some of the opcodes have been reprised when it comes to their Gas usage, so their Gas Cost has increased in some of the recent hard forks on Ethereum and because of that the use of these primitives that enforce the Gas subsidiary 2300 Gas could break the contract because it might not allow the called contract to even do the basic processing that we just talked about.\\
+
+So the latest security best practice recommendation is to not rely on transfer and send as reentrancy mitigations, but instead to use the low-level call directly that does not have those hard-coded Gas Limits and couple that with a CEI pattern or reentrancy guard or both for re-entrance mitigation.
+
+\section{Private Data}
+
+This security pitfall is related to the notion of what is private data on a blockchain or the privacy of on-chain data. \\
+
+Remember that state variables and \texttt{Solidity} have a function visibility specifier. By making this specified private, such private state variables can't be read only by other smart contracts on the blockchain, this does not mean that they can't be read at all. We don't have to believe that they are considered private in a confidentiality perspective because the state of such variables and contracts and transactions in general on the blockchain can be read by anyone on the chain itself or via off-chain interfaces by querying the mempools for transactions or by querying the contract state itself to look at what values such private variables contain.\\
+
+This effectively means that, there is no notion of data being private on the blockchain and any such data for confidentiality reasons that needs to be private should be encrypted and stored off-chain.
+
+\section{PRNG}
+
+This security pitfall is related to pseudo-random number generation on the blockchain within smart contracts applications that \texttt{require} such random numbers. \\
+
+Remember that these values could be influenced to a certain extent by miners who are mining the blocks that contain these values. So if the stakes in those applications using these as sources of randomness is high, then such actors could use their influence to a certain extent to gain advantage.\\
+
+So this is a risk from randomness that needs to be paid attention to something to be aware of and, if the stakes are high for the applications where you desire a much better source of randomness then, there are some alternatives such as the verifiable random function.
+
+\section{Time}
+
+Similar to randomness, the notion of getting the time on-chain is also tricky. Often smart contracts resort to using \texttt{block.timestamp} or \texttt{block.number} as sources for inferring the time within the application's logic. \\
+
+Again, what needs to be paid attention to is that this notion of time can be influenced to a certain extent by the miners. There are issues with synchronization across the different blockchain nodes and there are also aspects of the block times that change by a certain degree over time.\\
+
+This is again a risk that needs to be paid attention to and, there are some alternatives to this using the concept of Oracles. 
+
+\section{Overflow/Underflow}
+
+This security pitfall is related to the notion of overflows and underflows in \texttt{Solidity} smart contracts. This is applicable to any integer arithmetic that is used within the contracts which is very often encountered. \\
+
+When such arithmetic is used in a way where the increments or decrements to those integer variables are done without checking for the bounds, then they could result in wrapped values where the value exceeds the maximum storage for that integer type and hence overflows or wraps to the lower end of that type or, If it's being decremented it could be decremented below \texttt{zero} in which case it results in wrapping to the maximum value of that integer type.\\
+
+If those extremely high or extremely low data values resulting because of wrapping are invalid in the applications logic, then it is okay. But if it is not, if it's valid in the applications logic, then this could result in unexpected behavior in the best case or in the worst case it could result in some very serious vulnerabilities that can be exploited. We have seen multiple vulnerabilities and exploits led to overflow and underflow historically.\\
+
+So the recommended best practice is to use the SafeMath libraries from OpenZeppelin that enforce the overflow and underflow checks during integer arithmetic or to use the latest \texttt{Solidity} versions greater than or equal to 0.8.0 that introduce check arithmetic by default.
+
+\section{Divide before Multiply}
+
+Another security pitfall or best practice related to integer arithmetic is the use of divide before multiply. \texttt{Solidity} integer division might truncate the value of results therefore, if division is done before multiplication, then this may result in the loss of precision of the values being computed.\\
+
+So the recommended best practice is to always do the multiplication operations first followed by any division that is required.
+
+\section{TOD}
+
+This security pitfall is related to \textbf{transaction order dependence} or TOD for short. Remember that in Ethereum transactions submitted by users sit in a data structure known as the \texttt{mempool} and get picked by the different miners for inclusion within blocks. \\
+
+The specific transactions that are picked, the specific order of those transactions included within the blocks depends on multiple factors and specifically the Gas Price of those transactions itself.\\
+
+So from an attacker's perspective one can monitor the \texttt{mempool} for interesting transactions that may be exploited by submitting transactions with a Gas Price appropriately chosen, so that the attackers transaction either executes right before or right after the interesting transaction. This is typically known as Front-running and Back-running and may lead to what are known as sandwich attacks.\\
+
+All these aspects are related to assumptions being made on the transaction being included in a specific order by the minor within a block. \\
+
+So from a security perspective logic within smart contracts should be evaluated to check, if transactions triggering that logic can be front run or background to exploit any aspect of it. A classic example of transaction order dependence is the \texttt{approve()} functionality in the popular \texttt{ERC20} token standard.
+
+\section{ERC20 approve()}
+
+Remember that the \texttt{ERC20} token standard has the notion of an owner of a certain balance of those tokens and there's also the notion of a spender which is a different address that the owner of tokens can \texttt{approve} for a certain allowance amount which the spender is, then allowed to transfer.\\ 
+
+This approval mechanism is susceptible to a Race-condition. So let's take an example to see how that works let's say that I am the owner of a certain number of tokens of an \texttt{ERC20} contract and I want to \texttt{approve} a particular spender with 100 tokens of allowance, so I go ahead and do that with an \texttt{approve()} 100 transaction and later I change my mind and I want to reduce the allowance of the spender from 100 to 50. \\
+
+So I submit a second approved 50 transaction and, if that spender happens to be malicious or untrustworthy and monitors the \texttt{mempool} for this approval transactions they would see that I'm reducing their approval to 50 by noticing the \texttt{approve()} 50 transaction.\\
+
+In that case they can front run the reduction of approval transaction with a transaction that they send that spends the earlier approved hundred tokens. So that goes through first because of Front-running and when my \texttt{approve()} 50 transaction goes through that, would give the spender an allowance of 50. \\
+
+Now the spender would further go ahead and spend those 50 tokens as well, so effectively instead of allowing the spender to spend only 50 tokens I have let them spend 150 tokens of mine, this is made possible because of transaction order dependence or Front-running.\\
+
+The mitigation to this the best practice recommended is to not use the \texttt{ERC20} \texttt{approve()} that is susceptible to this Race-condition, but to instead use the \texttt{increaseAllowance()}, the \texttt{decreaseAllowance()} functions that are supported by such contracts.
+
+\section{ercrecover}
+
+This security pitfall is related to the use of the \texttt{ercrecover} primitive in EVM and supported by \texttt{Solidity}.\\
+
+The specific pitfall is that it is susceptible to what is known as signature malleability or non-unique signatures. Remember that elliptic curve signatures in Ethereum have three components \texttt{v}, \texttt{r} and \texttt{s}. The \texttt{ercrecover} function takes in a message hash the signature associated with that message hash and returns the Ethereum address that corresponds to the private key that was used to create that signature.\\
+
+In the context of this pitfall, if an attacker has access to one of these signatures, then they can create a second valid signature without having access to the private key to generate that signature. \\
+
+This is because of the specific range that the \texttt{s} value or the \texttt{s} component of that signature can be in it can be in an upper range or a lower range and both ranges are allowed by this primitive which results in the malleability.\\
+
+This depending on the logic of the smart contract, the context in which it is using these signatures can result in replay attacks, so the mitigation is to check that the \texttt{s} component is only in the lower range and not in the higher range, this mitigation is enforced in OpenZeppelin's ECDSA library which is the recommended best practice.
+
+\section{transfer()}
+
+This security pitfall is related to the transfer function of \texttt{ERC20} tokens. The \texttt{ERC20} specification says that a transfer function should return a \texttt{boolean} value, however a token contract might not adhere to the specification completely and may not return a \texttt{boolean} value may not return any value.\\
+
+This was okay until the service compiler version \texttt{0.4.22}, but any contract compiled with a more recent \texttt{Solidity} compiler version will \texttt{revert} in such scenarios. So the recommended best practice for dealing with this scenario is to use the OpenZeppelin's \texttt{SafeERC20} wrappers for such interactions.
+
+\section{ownerOf()}
+
+This pitfall is similar to the previous one and applies to the \texttt{ownerOf()} function of the \texttt{ERC721} token standard. \\
+
+The specification says that this function should return an address value however contracts that did not adhere to this specific aspect would return a \texttt{boolean} value. \\
+
+It used to be okay until the \texttt{Solidity} version \texttt{0.4.22}, but with any newer compiler version returning a \texttt{boolean} value would cause a revert. So the best practice again is to use the \texttt{ERC721} contract from \texttt{OpenZeppelin}.
+
+\section{Contract Balance}
+
+This security pitfall is related to the Ether balance of a smart contract and how that can change unexpectedly outside the assumptions made by the developer.\\
+
+Remember that smart contracts can be created to begin with a specific Ether balance. Also there are also functions within the smart contract that can be specified as being payable, which means that they can receive Ether via message value. \\
+
+These two ways can be anticipated by the developer to change the Ether balance of the contract. But there are also other ways in which the Ether balance of the contract can change.\\
+
+One such way is the use of \texttt{coinbase} transactions. These are the beneficiary addresses used in the block headers where the miner typically specifies the address to which the block rewards and all the transaction Gas fees should go to. That \texttt{coinbase} address could point to a specific smart contract where all the rewards, the Gas fees go to, if that block is successfully included in the blockchain.\\
+
+The other unexpected way could be via the \texttt{selfdestruct} primitive where, if a particular smart contract is specified as the recipient address of \texttt{selfdestruct()}, then upon that executing the balance of the contract being destructed would be transferred to the specified recipient contract.\\
+
+So these two ways the \texttt{coinbase} and \texttt{selfdestruct} although very unusual and unexpected could in theory change the Ether balance of any smart contract, this could be well outside the assumptions made by the developer or the team behind the smart contract.\\
+
+So what this means is that, if the application logic implemented by a smart contract makes assumptions on the balance of Ether in this contract and how that can change, then those assumptions could become invalid because of these extreme situations in which it can be changed. So this is something to be paid attention to while analyzing the security for contract from the perspective of the Ether balance that it holds.
+
+\section{fallback vs receive}
+
+This security consideration is related to the use of \texttt{fallback} and \texttt{receive} functions within a smart contract. \\
+
+Remember from our discussion in the \texttt{Solidity} modules, there are differences between these two functions, there are some similarities. These are related to the visibility, the mutability and the way that Ether transfers are handled by these two different functions.\\
+
+So from a security perspective, if these functions are used in a contract, then one should check that the assumptions are valid and if not, what are the implications thereof.
+
+\section{Strict Equalities}
+
+From a security perspective strict equalities are considered as dangerous in specific contexts of the smart content applications. \\
+
+Strict equality is referred to the equal to operator or the not equal to operator as compared to the less stricter less than or greater than or equal to operators.\\
+
+When these strict equalities are applied to Ether or token values, then such checks could fail because the transferred Ether or tokens could be slightly less or greater than what the strict equalities expect or the balances computed could be different because of the different number of decimals expected or the precision of the operations being slightly different from the assumptions being made. Hence the use of strict equalities with such operands and operations is considered dangerous because they could lead to failed checks.\\
+
+So the security best practice is to default to less stricter equalities and make sure that those constraints are satisfied as per the assumptions.
+
+\section{Locked Ether}
+
+Locked Ether refers to the situation where the contract has an Ether balance that gets locked because Ether can be sent to that contract via payable functions, but there's no way for users to withdraw that Ether from that contract. \\
+
+This is in a very simple scenario possible when smart contact has functionality to allow users to deposit Ether. But there is no functionality to withdraw the Ether from that smart contract.\\
+
+The obvious solutions are to remove the payable attributes for functions to prevent Ether from being deposited via those functions or to add withdrawal capabilities to the smart contract. The simple situations for this particular pitfall can be easily recognized and fixed. But also, there could be complex scenarios where the contract can be taken to a particular state either accidentally or maliciously where the Ether or the token balance of the contract gets locked and can't be withdrawn.
+
+\section{tx.origin}
+
+The use of \texttt{tx.origin} is considered dangerous in certain situations within smart contracts. Remember that in the context of Ethereum, \texttt{tx.origin} gives the address of the externally owned account that originated the transaction. \\
+
+If the \texttt{tx.origin} address is used for authorization, then it can be abused by attackers for launching replay attacks by coming in between the user and the smart contract of concern.\\
+
+This is sometimes known as man in the middle replay attack or MITM as an abbreviation because attacker comes in between the user and the contract, captures the transaction and later replace it. Because the smart contract uses \texttt{tx.origin}, it fails to recognize that this transaction actually was originated from the attacker in the middle. \\
+
+So in this case the recommended best practice for smart contracts using authorization is to use \texttt{message.sender} instead of \texttt{tx.origin}, because \texttt{message.sender} would give the address of the most recent or the closest entity. So in this case, if there is a man in the middle attacker, then \texttt{message.sender} would give the address of the attacker and not that of the authorized user pointed to by \texttt{tx.origin}.
+
+\section{Contract check}
+
+There may be situations where a particular smart contract may want to know, if the transaction or the call made to it is coming from a contract account or an externally owned account.\\
+
+There are two popular ways for determining that. The first one is to check, if the code size of the account of the originating transaction is greater than zero and if this is not zero, it means that that account has code and therefore is a contract account, the second technique is to check, if the \texttt{message.sender} is the same as the \texttt{tx.origin} and, if it is, then it means that the \texttt{message.sender} is an externally owned account. Remember that \texttt{tx.origin} can only be an externally owned account in Ethereum as of now.\\
+
+So these two techniques have pros and cons and depending on the specific application it may make more sense to use one over the other. \\
+
+There are risks associated and implications thereof of either of these two approaches particularly with the code size approach the risk is that, if this check is made while a contract is still being constructed within the constructor the code size will still be zero for that account so, if we determine based on that aspect that this is an externally owned account, then it would be a wrong assumption.
+
+\section{delete Mapping}
+
+The next security pitfall is related to the concept of the \texttt{delete} primitive and \texttt{Solidity} and how it applies to mappings. If there is a struct data structure in a smart contract that contains a mapping as one of its fields, then deleting that structure would \texttt{delete} all the fields of the struct, but the mapping field itself would remain intact, so this is one of the \texttt{Solidity}'s behaviors that needs to be kept in mind.\\
+
+That can have unintended consequences, if the developer assumes that the mapping field within the struct also got deleted and re-initialized to its default values.\\
+
+The best practice is to use an alternative approach such as considering the data structure that is meant to be deleted as being logged to prevent future logic from using the data structure or the mapping fields within that data structure.
+
+\section{Tautology Contradiction}
+
+An interesting security consideration is that of tautologies and contradictions. A tautology is something that is always true whereas a contradiction is something that is always false.\\
+
+Within smart contracts this can be found in certain primitives used, such as an unsigned integer variable \texttt{x} and then there is a predicate that checks, if \texttt{x} is greater than or equal to 0. This predicate because of \texttt{x} being an unsigned integer is a tautology it's always going to be true because \texttt{x} can't take a negative value.\\
+
+The presence of such tautologies or contradictions in smart contracts indicates either flawed logic or mistaken assumptions made by the developer or these may just be redundant checks.\\
+
+In either scenario these may be interesting from a security perspective, so it is something to be paid attention to and flagged as potential concerns.
+
+\section{Boolean Constant}
+
+The use of \texttt{boolean} constants \texttt{true} or \texttt{false}, directly in conditionals is unnecessary. \\
+
+The reason for this is that if there's a conditional whose predicate is true, then that can be removed because that code block would get executed nevertheless and similarly, if the predicate is the \texttt{boolean} constant \texttt{false}, then that could be removed as well and along with the code in that associated block because that code would never \texttt{execute} because the conditional is always going to be \texttt{false}.\\
+
+So these usages of \texttt{boolean} constants specifically within conditionals is indicative of flawed logic or assumptions or they could just be used in a redundant manner. The recommendation upon identifying such usage, it is removing those constants and any code blocks associated with them, so that it becomes simpler to read and to maintain.
+
+\section{Boolean Equality}
+
+An aspect related to \texttt{boolean} constants is that of \texttt{boolean} equality, this is where the \texttt{boolean} constants true or false are used within conditionals for an equality check, so the \texttt{x} variable is checked against the \texttt{true} constant.\\
+
+This usage is redundant because the variable \texttt{x} can be used directly within the conditionals predicate without actually comparing it to true and both of them are equivalent\\
+
+So the use of the \texttt{boolean} constant \texttt{true} within the predicate is actually unnecessary, so while this may not be a big security consideration and perhaps indicative of the developer not fully understanding how \texttt{Solidity} \texttt{boolean}s work. \\
+
+It is interesting from an optimization perspective and certainly improves the readability aspect of the code.
+
+\section{State Modification}
+
+Contract state modifications made in functions whose mutability is declared as \texttt{view}  or \texttt{pure} will \texttt{revert} in contracts compiled with \texttt{solc} version greater than or equal to \texttt{0.5.0}.\\
+
+This is because this compiler version started using the \texttt{staticCall} opcode for such functions, this instruction leads to a revert, if that particular function modifies the contract state.\\
+
+So when analyzing the security aspects of contracts it's good to pay attention to the mutability of the functions to see, if they are viewer \texttt{pure}, but they actually modify the contract state in which case they would lead to reverts at runtime.
+
+\section{Return Values of low-level calls}
+
+Checking the \texttt{return} values of functions at \texttt{call} sites is a classic software engineering best practice that's been recommended over several decades and in the case of \texttt{Solidity} this specifically applies to \texttt{return} values of function \texttt{calls} made using the low level \texttt{call} primitives.\\
+
+These are the \texttt{call}, \texttt{delegateCall} and \texttt{send} parameters that do not \texttt{revert} under exceptional behavior, but instead return \texttt{success} or \texttt{failure} as a \texttt{return} value. \\
+
+So because of this particular characteristic it becomes critical for the \texttt{call} sites in contracts that use these primitives to check the \texttt{return} values and act accordingly, if not it could lead to unexpected failure.
+
+\section{Account Existence}
+
+Checking for the existence of a smart contract account at a particular address before making a call is a security concern. \\
+
+The reason for that is because when such calls are made using low level call primitives \texttt{call}, \texttt{delegateCall} or \texttt{staticCall} these functions return true even, if the account does not exist at that address.\\
+
+So if the contract making such a call looked at the \texttt{return} value, saw it was true and assumed that the target contract existed at the address that it called and also assumed that the contract executed successfully, then that would be a faulty assumption.\\
+
+This as you can imagine could have some serious implications to security, so the best practice here is before making low-level calls to external contract addresses one should check that those accounts do indeed exist at those addresses.
+
+\section{Shadowing}
+
+Shadowing of built-in civility variables was a concern in some of the older \texttt{Solidity} versions built-in variables such as now \texttt{assert} and some others could be shadowed by other variables functions or modifiers in the contract to override their behavior.\\
+
+This as you can imagine is dangerous and could lead to many unexpected behavior and therefore this Shadowing was disallowed in the later \texttt{Solidity} version.
+
+\section{Shadowing pt.2}
+
+Similar to the Shadowing of built-in variables the older versions of \texttt{Solidity} also allowed state variable Shadowing. \\
+
+This meant that the right contracts could have state variables that had the same name as some of their base contracts. You can imagine that the base variables and shadowed variables with the same names could be confusing even for the developer and they could end up using or modifying the wrong variable from the base contracts.\\
+
+This dangerous and unexpected consequences was recognized, so \texttt{Solidity} compiler \texttt{0.6.0} disallowed Shadowing of state variables.
+
+\section{Pre-declaration}
+
+Earlier versions of \texttt{Solidity} allowed the use of local variables even before they were declared. \\
+
+These variables could be declared later or they could have been declared in another scope. This led to undefined behavior as you may expect. \\
+
+\texttt{Solidity} version \texttt{0.5.0} and beyond change this, to implement the popular C99-style scoping rules where variables can only be used after they have been declared and only in the same or nested scopes.
+
+\section{Costly Operations}
+
+Certain operations in \texttt{Solidity} are considered costly or expensive in terms of the amount of Gas units they use. \\
+
+If such operations are used inside loops they end up consuming a lot of Gas which could result in unexpected behavior.\\
+
+The best example of a costly operation in \texttt{Solidity} is that of state variable updates remember that insularity state variables are stored in the storage area of the EVM updates to such state variables use the SSTORE instructions of the EVM which are one of the most expensive EVM instructions.\\
+
+As of the latest upgrade from Berlin, \texttt{SSTORE} costs 20000 Gas units, if they are a cold store where the state variable is being updated for the first time in the context of this transaction. Or they cost 5000 Gas units if it is a warm store, in which case this variable has already been updated in the context of this transaction.\\
+
+So either 5000 or 20000 Gas units are consumed every time a state variable is updated, so as you can imagine, if such updates are done inside loops, then they could end up consuming a lot of Gas and result in an Out-of-Gas error, if the amount of Gas supplied in this transaction is less than what is required.\\
+
+The solution here is to use local variables instead of state variables as much as possible, the reason is because local variables, if you remember are allocated in memory and memory updates using MSTORE only cost 3 Gas units compared to the 5000 or 20 000 that storage updates cost. \\
+
+So this notion of costly operations being used inside the loops leading to Out-of-Gas errors and in the worst case leading to a denial of service (DoS) can be mitigated by caching and using local variables as much as possible instead of storage variables.
+
+\section{Costly Calls}
+
+Similar to state variable updates, external calls inside loops should also be used very carefully. The reason is external calls cost 2600 Gas as of the latest upgrade this is more of a concern if the index of the loop is controlled by the user because in that case the number of iterations of the loop is also user controlled.\\
+
+Because that could result in a denial of service, if one of the calls inside the loops rewards or, if the execution runs Out-of-Gas because the Gas applied in the transaction wasn't enough.\\
+
+So the mitigation here is to avoid or reduce a number of external calls made inside loops and also check that the loop index can't be user controlled or that it is bounded to a small number of iterations, this again is in the context of preventing opportunities for denial of service.
+
+\section{Block Gas Limit}
+
+Costly operations such as state variable updates and external calls especially made inside loops are also relevant in the context of the block Gas Limit.\\
+
+Remember that Ethereum blocks have a notion of a block Gas Limit which limits the total amount of Gas units consumed by all the transactions included in the block to a maximum upper bound. This upper bound until recently was 15 million Gas units. This has changed significantly in how it works because of EIP 1559, but the notion of a block Gas Limit still remains.\\
+
+The reason why this is relevant is because, if expensive operations are used inside loops where the loop index may be user controlled. Then such expensive operations may result in an Out-of-Gas error, this Out-of-Gas could not only come from the amount of Gas units supplied in the transaction that resulted in all this execution, but it could also arise because of the Gas consumed by this transaction exceeding the Gas Limit for this block.\\
+
+So the mitigation here is again to evaluate the loops and make sure that a lot of these expensive operations are not used inside the loops and also to check if the loop index is user controlled, and if it can be bounded to a small finite number, so that opportunities for denial of service are prevented.
+
+\section{Events}
+
+Events should be emitted within smart contracts for all critical operations. Emission of events that are missing for such critical operations is a security concern. \\
+
+The reason for this is because it affects off-chain monitoring remember that events emitted from smart contracts end up storing the parameters of such events in the log part of the blockchain. \\
+
+These logs either the topics part or the data part can be queried by off-chain monitoring tools or off-chain interfaces to understand what is happening in the smart contracts. This is an easier way to understand the state of the smart contracts without having to query the contracts themselves.\\
+
+These events become very important from a transparency and user experience perspective. So the best practice is to recommend the addition of events in all places within the smart contracts where critical operations are happening, these could be updates to critical parameters from the smart contract applications perspective this could be operations that are being done only by the Owner or privileged roles within the smart contract. So in all such cases events should be emitted to allow transparency and a better user experience.
+
+\section{Event Parameters}
+
+Having talked about events, let's now focus on the event parameters. Event parameters not being indexed may be a concern in certain situations. \\
+
+Remember that event parameters may be considered as either indexed or not depending on the use of the \texttt{indexed} keyword. This results in those parameters being stored in the topics part of the log or the data part of the log, and being stored in the topics part of the log allows for those parameters to be accessed or queried faster. Because of the use of the bloom filter, if they're stored in the data part, then it results in a much slower access.\\
+
+There are certain parameters for certain events that are required to be indexed as per specifications \texttt{ERC20} token standard for example, has transfer and approval events that require some of their parameters to be indexed. \\
+
+Not doing it will result in the off-chain tools that are looking for such index events to be confused or thrown off track. \\
+
+So the best practice here is to add the ind\texttt{indexed} keyword to critical parameters in an event. Especially if the specification requires them to be in text, this comes at cost of some additional Gas usage, but allows for faster query.
+
+\section{Event Signatures}
+
+The concern here was that of incorrect event signature in libraries. The reason for this happening was because, if events used in libraries had parameters of contract types, then because of a compiler bug, the actual contract name was used to generate the signature hash instead of using their address type.\\
+
+This resulted in a wrong hash for such events being used in the logs. The mitigation here was to fix the compiler bug which happened in version 0.5.8 where the address type was used instead of using the contract name incorrectly.
+
+\section{Unary Expression}
+
+Unary expressions are where an operator is used on a single operand as opposed to two operands, in which case it would be a binary expression and such \texttt{unary} expressions are susceptible to typographical errors by developers.\\
+
+For example let's take a look at the scenario where there's a variable \texttt{x}. The developer wants to increment it by one, so the way to do that is to say \texttt{x += 1} which effectively is \texttt{x = x  + 1}. But if the developer interchanges the order of \texttt{+} and \texttt{=} and instead uses \texttt{x = +1}, then this would result in re-initializing the value of \texttt{x} to \texttt{+1}. The reason for this is that \texttt{+ 1} is a \texttt{unary} expression whose value is \texttt{1} and \texttt{x} would get initialized to that value.\\
+
+As you can imagine such typographical errors are likely to be made by developers it's very easy to make these switching the order and, if they are considered as valid by the compiler, then it's very hard to notice such errors both by the developer as well as by the security auditor. \\
+
+So in order to prevent some of the most common usages that result in such typographical errors the \texttt{unary} \texttt{+} was \texttt{deprecated} as of compiler \texttt{Solidity} version \texttt{0.5.0}.
+
+\section{Zero Addresses}
+
+Zero address in Ethereum and \texttt{Solidity} has a special consideration. Remember that Ethereum addresses are 20 bytes in length and, if all these bytes are zeros, then it's referred to as a Zero-address. \\
+
+These Zero-addresses become significant, because state variables or local variables of address types have a default value of zero in \texttt{Solidity}. These Zero-addresses are also used as burn addresses because the private key corresponding to this Zero-address is not known, so any Ether or tokens that are sent to the Zero-address gets burnt or inaccessible forever.\\
+
+If addresses used for access control within the smart contracts end up being Zero-addresses, such functions can't be invoked again because of the lack of knowledge of the private key. So such functions can't be called which might in the worst case end up in such contract getting locked.\\
+
+So the best practice is to perform input validation on all address parameters that are of address type to check that they are not Zero-addresses.\\
+
+This is a very commonly encountered security pitfall where address parameters of constructors setters or public \texttt{external} functions are not input validated to not be Zero-addresses.\\
+
+In the best case such scenarios only result in exceptional behavior at runtime, but in the worst case they could result in tokens getting burnt or the contract being locked.
+
+\section{Critical Addresses}
+
+Another security pitfall related to addresses is the aspect of changing values of Critical Addresses. Certain addresses within the context of the smart contract may be considered as critical, these may be special privileged roles such as the owner address, which has special access to certain functions for updating critical parameters or doing other administrative aspects related to the smart contract.\\
+
+Or these could also be addresses of other smart contracts that are used within the context of the application. As you can imagine there may be scenarios where such addresses would need to be changed, so for example the default owner of a contract could be the deployer of the contract and we may want to change this to another address later on. \\
+
+Or, if the addresses correspond to other smart contracts, then we may want to change the value to another smart contract once we have updated it.\\
+
+In such scenarios, the security pitfall is when this change is done in a single step, this may be using the Oracle library from \texttt{OpenZeppelin} where.\\
+
+There is a transfer ownership function provided that transfers the ownership from the existing owner to a new owner that is provided as a parameter.\\
+
+This happens in a single step where the \texttt{owner} variable is updated to the new address provided this single step change is prone to errors. If an incorrect address is used as a new address, then it may result in that contract getting locked forever, the reason for this is the address used may be an address for which we do not have the private key, so we can't sign any transactions from that address, which results in all the administrative functions or any of the address change functions being inaccessible. Thereafter the mitigation here or the best practice is to move away from a single step change and to move to what is known as a two-step change.\\
+
+Where the first step grants or approves a new address as being the Owner or as being that changed address, the second step is a transaction from the new address that claims itself as being the new owner or as being the new address. \\
+
+So this two-step change allows any errors that happen in the first step, where we \texttt{grant} or \texttt{approve} it to an incorrect address for which we do not have the key it allows us to recover from this mistake because the second transaction which claims itself as a new address can never be done if an incorrect address was used in the first step.\\
+
+So this aspect of Critical Addresses being changed and allowing errors to be recovered by moving away from a single step to a two-step change is a critical aspect of mitigating the risk from incorrect address changes.
+
+\section{assert()}
+
+This security best practice is related to the use of asserts within smart contracts. Assert should be used only to check or verify program invariants within the smart contracts. They should not be used to make any state changes within their predicates and they should also not be used to validate any user inputs.\\
+
+The reason for this is because, if any state changes are made as the side-effects of the predicates within asserts, then those could be missed both by developers during maintenance or when they are trying to do any testing. \\
+
+They could also be missed by auditors because these state changes are not expected to happen within a search and similarly, asserts should not be used to validate user inputs because that should be done using \texttt{require()} statements which we'll see in the next slide.\\
+
+As a general rule we do not expect to see any failures from asserts during normal contract functioning and therefore these best practices become very relevant.
+
+\section{assert() Vs require()}
+
+This best practice is related to the use of assert() versus \texttt{require()} and the specific conditions in which they should be used. \\
+
+These two aspects are related, but they have different usages. \\
+
+Asserts should be used to check or verify invariants where these invariants are expected to be held during normal contract functioning, so we do not expect any of these asserts to \texttt{fail} during the contract execution and any failures are critical panic errors that need to be caught and dealt with in a very serious manner.\\
+
+On the other hand \texttt{require()} is meant to be used for input validation of arguments that are supplied by users to various public or \texttt{external} functions where we do expect failures to happen because the user provided values may be zero-addresses in some cases or maybe values that are out-of-range or do not make sense from the smart contracts perspective.\\
+
+So this difference is something to be kept in mind, the best practice is to use \texttt{assert()} or \texttt{require()} appropriately as the situation demands. This had a more significant impact until \texttt{Solidity} compiler version \texttt{0.8.0}. Until then, \texttt{require()} used the \texttt{revert} opcode which refunded the remaining Gas and failure, whereas \texttt{assert} used the invalid opcode which consumed all the supplied Gas.\\
+
+So until that version the usage of \texttt{assert()} or \texttt{require()} incorrectly, would result in different Gas semantics. This is because in one situation the remaining Gas would be refunded, whereas in the other case all of it would be consumed.\\
+
+So this affected user experience as well, but this has changed since version \texttt{0.8.0} where both \texttt{require()} and \texttt{assert()} use the \texttt{revert} opcode and refund all the remaining Gas on failures.
+
+\section{Keywords}
+
+This security best practice is related to the use of duplicated keywords in \texttt{Solidity} over the different compiler versions. Different keywords have been deprecated to favor one over the other, so for example \texttt{msg.gas} has been deprecated to favor \texttt{msg.gasleft}, \texttt{throw} has been deprecated to favor the use of \texttt{reward}, \texttt{sha3} for \texttt{keccak-256}, \texttt{callcode} for \texttt{delegateCall}, \texttt{constant} Keyword for \texttt{view}, the \texttt{var} Keyword for using the actual type name instead.\\
+
+So all such deprecated keywords they start initially as compiler warnings where the compiler wants us not to use these keywords and over the future versions these warnings could be converted into compiler errors in which case the compilation fails. \\
+
+So the best practice here is to simply avoid the use of deprecated keywords even if they are compiling warnings, because these warnings can become errors in the future compiler versions.
+
+\section{Visibility}
+
+Remember that functions in \texttt{Solidity} have the notion of visibility where they could be either \texttt{public}, \texttt{external}, \texttt{internal} or \texttt{private}, this affects which users can call these functions.\\
+
+So \texttt{public} and \texttt{external} functions are callable by anyone depending on the access control that is enforced additionally on top of that whereas \texttt{internal} and \texttt{private} can be called only from within the contracts or the derived contracts.\\
+
+Until \texttt{Solidity} version \texttt{0.5.0} this visibility specifier was optional and they defaulted to \texttt{public}. This aspect led to vulnerabilities where the developer forgot to mention or specify the visibility in which case it became public by default and resulted in malicious users being able to call these functions and make unauthorized state changes completely unexpected by the developer or the smart partner.\\
+
+So this optional specification of function visibility defaulting to \texttt{public} visibility was removed as of \texttt{Solidity} version \texttt{0.5.2}, so this was a big change when it came to increasing the security of smart contracts and since that version function visibility is required to be specified explicitly for every function.
+
+\section{Inheritance}
+
+Contracts that inherit from multiple contracts should be careful about the inheritance order because, if more than one such base contract defines an identical function, then the particular function implementation that gets included in the derived contract depends on this inheritance order.\\
+
+The best practice is for this inheritance order to be from the more general implementation to the more specific implementation.
+
+\section{Inheritance pt.2}
+
+Another security pitfall related to inheritance is that of missing inheritance where a particular contract within an application might appear to inherit from another interface in that project or another abstract contract without actually doing so.\\
+
+And it might appear, because of the contract name that is similar to the abstract contract or the interface name or also because of the functions that are defined within this contract their names the parameter types and, so on.\\
+
+This appearance might give the notion that it is inheriting without actually inheriting this affects not only the readability and maintainability aspects for the developers of the project team, but it also affects the auditability because the security reviewer might look at this contract and assume certain aspects, thinking that it's inheriting from the similarly named interface or abstract contract whereas in fact it does not do so.\\
+
+So the best practice here, is to make sure that the inheritance is done appropriately and. If there are similarly named contracts where they do not actually inherit from each other, then the name should be changed but, if they do in fact are meant to be inherited, then specifying that inheritance will help.
+
+\section{Gas Griefing}
+
+Gas briefing is a security concept that becomes interesting in the context of transaction relayers.\\
+
+Remember that on Ethereum, users can submit transactions to the smart contracts on the blockchain or alternatively they can submit what are known as meta-transactions which are sent to the transaction relayers, where they do not need to be paid for Gas. The relayers in turn, forward such transactions to the blockchain with the appropriate amount of Gas. \\
+
+In this scenario the users typically compensate the relays for the Gas out of that. In such situations it becomes necessary for the users, to trust the transaction relayers, to submit those transactions or forward their transactions with a sufficient amount of Gas, so that their transactions do not fail.
+
+\section{Reference Parameters}
+
+Remember that \texttt{Solidity} has value types and reference types. In this security pitfall is related to the use of reference types in function parameters when structs, arrays or mappings, which are the reference types, are passed as arguments to a function. \\
+
+They may be passed by value or they may be passed by reference. This difference is dictated by the use of either the memory or the storage Keyword that specifies their data location. This was optional before \texttt{Solidity} version \texttt{0.5.0}, but since that version it is required to be specified explicitly. \\
+
+This difference is critical from a security perspective, because pass by value, if you remember, makes a copy, so any changes to the copy does not affect the original value. But pass by reference, creates a pointer to the original variable, so any changes to the past value is actually modifying the original variable itself.\\
+
+This, if not treated properly could lead to unexpected changes and modifications of the original variable or a copy which could have very different behavior and impact for the smart contract logic.
+
+\section{Arbitrary Jumps}
+
+Arbitrary jumps are possible within \texttt{Solidity}. \texttt{Solidity} supports many different types, one of which is a function type. These function type variables are not frequently encountered, but if they are indeed used especially within Assembly code in making arbitrary manipulations to variables of these types, then they could be used to change the control flow to switch to an arbitrary location in the code. This is something to be paid attention to and from a development perspective something to be avoided.\\
+
+Assembly in general is very tricky to use and it bypasses many security aspects of \texttt{Solidity} such as type safety, so it's best to avoid the use of Assembly if possible and definitely to avoid the use of function type variables and making arbitrary changes to it. This is because that could result in changes to control flow that is unexpected by the developers or the smart contract auditors.
+
+\section{Hash Collisions}
+
+Hash collisions are possible in certain scenarios where the \texttt{abi.encodePacked()} primitive, is used with multiple variable length arguments. \\
+
+This happens because this primitive does not zero \texttt{pad} the arguments, and it also does not save any length information for those arguments as a result of which it allows packing, this \texttt{pad} encoding could lead to collisions in certain scenarios, which you can imagine can affect the security of the smart contract.\\
+
+The best practice here is to avoid the use of the \texttt{pad} primitive where possible and use the \texttt{abi.encode()} primitive instead. \\
+
+In scenarios where it can't be avoided, one should at least make sure that only one variable length argument is used in this parameter and certainly, users who can reach this primitive via function calls should not be allowed to write to the parameters used and tainted to force collisions from happening.
+
+\section{Dirty Bits}
+There is a security risk from Dirty High Order Bits in \texttt{Solidity}. Remember that the EVM word size is 256 bits or 32 points, and there are multiple types in \texttt{Solidity} whose size is less than 32 bytes using variables of such types may result in their higher order bits containing dirty values.\\
+
+What this means is that they may contain values from previous rights to those bits, that have not been cleared or zeroed out. Such Dirty Order Bits are not a concern for variable operations because the compiler is aware of these Dirty Bits and takes care to make sure that they do not affect the values of variables. \\
+
+By the way, if those variables end up getting used or passed around as message data, then that may result in them having the different values and causing malleability or non-uniqueness. This is a risk that needs to be kept in mind when looking at contracts that have variables of such types.
+
+\section{Incorrect Shifts}
+There is a security pitfall related to the use of incorrect shifts in \texttt{Solidity} Assembly specifically.\\
+
+\texttt{Solidity} Assembly supports three different Shift operations: Shift left (\texttt{shl()}), Shift right (\texttt{shr()}) and Shift arithmetic right (\texttt{sar()}, all of which take two operands \texttt{x} and \texttt{y}. These operations Shift the \texttt{y} operand by \texttt{x} bits and not the other way around. \\
+
+This can be confusing, understandably the developer may have used these two operands interchangeably in which case the Shift operation does something completely different from what the developer anticipated. This is something that needs to be checked when looking at Shift operations in \texttt{Solidity} Assembly.
+
+\section{Assembly}
+The use of Assembly in \texttt{Solidity} itself is considered as a security risk because Assembly bypasses multiple security checks such as type safety, that is enforced by \texttt{Solidity}.\\
+
+Developers end up using \texttt{Solidity} Assembly to make the operations more optimized and efficient from a Gas perspective, but on the flip side this is very error-prone because the Assembly language Yul, is very different from \texttt{Solidity} itself and requires much greater understanding of the syntax and semantics of that Assembly language.\\
+
+So the use of \texttt{Solidity} Assembly not only affects readability and maintainability, but also the auditability, because the auditors themselves might not be aware of the Yul language: the syntax and semantics. \\
+
+All these aspects result in the recommended best practice of trying to avoid \texttt{Solidity} Assembly as much as possible or, if absolutely required, then the developers and the security review should double-check to make sure that they have been used appropriately in the context of the smart contracts.
+
+\section{RTLO}
+There is a security pitfall that arises because of the use of the Unicode Right-to-Left-Override control character (\texttt{U+202E}) in \texttt{Solidity} smart contracts causes the text to be rendered from right to left instead of the usual left to right.\\
+
+This reverse rendering confuses the users as well as the security reviewers from understanding what the real intent is of that particular snippet of the smart contract. \\
+
+The best practice here is to ensure that such confusing Unicode characters (the RTLO control character) is not used within smart contracts at all.
+
+\section{Constant}
+There is a best practice related to the use of the constant specifier for state variables in \texttt{Solidity}. \\
+
+State variables whose values do not need to change for the duration of the lifetime of the contract can be declared as constant. This saves Gas because the compiler replaces all the occurrences of such state variables with the constant value. This effectively means that reading such state variables no longer requires the expensive \texttt{SLOAD} instructions.
+
+So the best practice is to identify such state variables whose values do not need to change over the lifetime of the contract and declare them as constant. This also has an additional side effect on improving security because such state variables can no longer be accidentally changed within the different functions of the contract.
+
+\section{Variable names}
+There's a security best practice related to variable names. This ties to the programming style guidelines that we discussed in the \texttt{Solidity} module. \\
+
+The names of variables should be as distinct and unique from each other as possible because if they are very similar (if they differ by only a few characters or one character), then it could be confusing both to the developer as well as to the security reviewer. \\
+
+From a developer's perspective, it could lead to replaced usages where the developer uses a different variable than what was intended. As you can imagine, this can have disastrous effects to the functioning of the smart contract. \\
+
+So variable naming affects readability it affects maintainability and auditability of the code. The best practice is to use very distinct names for the variables meaningful names for the variables, so that errors are avoided.
+
+\section{Uninitialized Variables}
+Another security pitfall related to variables is the use of uninitialized state or local variables. Remember that in \texttt{Solidity} the default values of uninitialized variables such as address, \texttt{bool} or \texttt{uint} is \texttt{0}, string is \texttt{""} and so on.\\
+
+This results in address variables ending up as 0 addresses and \texttt{boolean} variables taking the value of \texttt{false} because 0 is effectively \texttt{false} (we have talked about the risks from 0 addresses and \texttt{bool}s being \texttt{false} by default will result in the conditionals taking a different branch than what was intended). \\
+
+The best practice is to make sure that state and local variables are initialized with reasonable values, so that errors are avoided from having the default values being used.
+
+\section{Unused State/Local Variables}
+Another aspect that needs to be paid attention in the use of variables inside contracts is that these could be state variables or local variables. The specific aspect is that if these variables are declared but are never used within the contract. \\
+
+It could be indicative of missing logic that is expected to be there (that uses these variables in certain ways). It may be missing because the developer forgot to add it or it could simply be indicative of some optimization opportunity where such variables can actually be removed and reduce the size of the byte curve, and therefore reduce the amount of Gas that is used either during deployment or during runtime.\\
+
+The best practice here is to pay attention to all the variables that are declared (in functions, in the contract, state variables\dots), see if they are used and, if they are never used, then determine if they need to be removed for optimization, or if there is any logic that is missing that needs to be added that uses those variables.
+
+\section{Storage Pointers}
+There is a security pitfall related to the use of uninitialized storage pointers. Local storage variables that are uninitialized can point to unexpected storage locations within the contract. \\
+
+This can lead to developers unintentionally modifying the contract state, which can lead to serious vulnerabilities. Given that this is so error-prone, \texttt{Solidity} compiler \texttt{0.5.0} started disallowing such pointers.
+
+\section{Function Pointers}
+There was a security risk in using uninitialized function pointers within constructors of contracts because of a compiler bug that resulted in unexpected behavior. \\
+
+This compiler bug was present in versions \texttt{solc 0.4.5} - \texttt{0.4.26} and \texttt{solc 0.5.0} - \texttt{0.5.7} and has since been fixed.
+
+\section{Long Number Literals}
+There is a security risk in the use of long number literals within \texttt{Solidity} contracts. These number literals may require many digits to represent their high values (as constants) or many decimal digits of precision, which as you can imagine is error prone. \\
+
+For example, if one were to define a variable representing Ether, then it would need to be assigned a number literal that has 18 zeros to represent the 18 decimals of precision.\\
+
+So the developer may accidentally use an extra zero or miss a zero in which case the Ether precision is different, thus the logic using this variable will be broken.\\
+
+The best practice here is to use the Ether or time suffixes supported by \texttt{Solidity} as applicable or to use the Scientific Notation which is also supported by \texttt{Solidity}.
+
+\section{Out-of-range Enum}
+Older versions of \texttt{Solidity} produced unexpected behavior with out-of-range enums. For example we had \texttt{enum E{a}} (with a single member \texttt{a}) as shown here, then \texttt{E(1)} is out-of-range because, remember, indexing of \texttt{enum} members begins with 0. \\
+
+So \texttt{E(1)} here is out-of-range because there's a single mapper. This out-of-range \texttt{enum} produced unexpected behavior in \texttt{Solidity < 0.4.5}. This was due to a compiler bug which has since been fixed.\\
+
+The best practice until the fix was applied was to check the use of \texttt{enums} to make sure they are not out-of-range.
+
+\section{Public Functions}
+Remember that \texttt{Solidity} has the notion of visibility for functions, there are four visibility specifiers: \texttt{internal}, \texttt{private}, \texttt{public} and \texttt{external}. \texttt{public} functions consume more Gas than \texttt{external} functions. \\
+
+The reason for this is because the arguments of \texttt{public} functions need to be copied from the call data component of the EVM to the memory component. This copying produces more byte code for such \texttt{public} functions which therefore consumes more Gas. \\
+
+This copying is not required for \texttt{external} functions where their arguments can be left behind in the call data component of the EVM. This key difference leads to \texttt{public} functions consuming more Gas than \texttt{external} functions in \texttt{Solidity}. \\
+
+So if there are functions in the contract that are never called from within the contracts themselves, then such functions should be declared with \texttt{external} visibility and not \texttt{public} visibility, which leads to better Gas efficiency.
+
+\section{Dead Code}
+Dead Code is any contract code that is unused from the contract's perspective or even unreachable from a control flow perspective. \\
+
+This could be indicative of programmer error or missing logic that leads to the developer adding this code to the contract, but not adding the logic that actually makes use of this code. This is certainly an opportunity for optimization because dead code increases the code size of the contract which, during deployment, leads to increased Gas costs.\\
+
+However, this also impacts readability, maintainability and auditability of the code, all of which affect security indirectly. Let's consider three scenarios in which dead code affects the security of smart contracts:
+
+\begin{enumerate}
+
+\item There is code in the contract that is in fact dead, but the developer or the smart contract auditor does not realize that this is dead code. If such code implements security checks, then we may assume that those checks are being enforced and improving the security, but in fact they are not effective because they are in dead code, so they reduce their security of the smart contracts again.
+\item There is dead code in the smart contract and the developers are aware that this code is dead, but decide to leave it (without removing it). In such cases, such code may not be tested because the developers know that this is dead code and, because of this, they may end up with security vulnerabilities contained in them or they may contribute to such vulnerabilities. Later on, if someone else decides to use this dead code, the vulnerabilities contained by it (or affected by it) get manifested in the contract and affects the security negatively.
+\item There is code that is actually used within the smart contracts, but the developers incorrectly determine that this is Dead Code (mistaken identity) and remove it. In such scenarios, if that code implemented security checks are actually improved security because of their logic, then removing it reduces the security of the code
+\end{enumerate}
+
+Effectively, dead code contributes to the security of smart contracts indirectly in potentially significant ways. The best practice is for the developers to determine if a particular piece of code is used or dead and, if it is dead, determine if it actually needs to be used. If it is not, then remove it from the contracts. If it needs to be used, then add logic that uses that code in the correct manner.
+
+\section{Unused Return Value}
+There are security risks associated with function \texttt{return} values in \texttt{Solidity}. Remember that in \texttt{Solidity}, functions may take arguments, implement logic that uses those arguments along with some local and global state, create some side effects due to all of that logic and then may \texttt{return} values that reflect the impact of that logic. For functions that return such values, the call sites are expected to look at those values and use them in some fashion. \\
+
+The reason for this is because those \texttt{return} values could reflect some error codes that are indicative of some issues that happen during the processing within that function, or they could reflect the data that is produced as a side effect of that execution of the logic within the function. \\
+
+If these \texttt{return} values are not used at the call sites, then that could be indicative of some missed error checking that needs to happen at the call sites. Or in cases where there was data that was being returned without any errors, not using that data at the call sites could result in unexpected behavior.\\
+
+In both these scenarios, these could affect the security of the contract if that error checking or the missing logic (due to not using the data returned) affected the security aspects of the smart contract logic. \\
+
+The best practice here is to see if a function needs to \texttt{return} values and if functions are returning values, then all their call sites should be checking those \texttt{return} values and using them in appropriate ways. If any of those call sites are not using the \texttt{return} values, and it does not affect the security, then the developers (or the auditors) need to evaluate if the functions need to return any value at all and remove the values from being returned from those functions.
+
+\section{Redundant Statements}
+Redundant statements are statements that either have no side effects or that do have side effects, but are made redundant because there are other statements that have the same side effect. \\
+
+In either scenario these are indicative of programmer error or missing logic that needs to exist to make these statements not redundant, or they may just present an opportunity for optimization where these redundant statements need to be removed.\\
+
+Removal reduces the size of the contract and therefore makes it more Gas efficient at deploy or execution time. \\
+
+The best practice here is to evaluate if statements are redundant and, if so, determine if they should indeed be having any side effects. If that's the case, add such side effects. If contrarily they are indeed redundant and do not affect the security in any way, then remove them. \\
+
+The impact of such redundant statements could be indirect to security because of the errors (the logic that we talked about) or they could be direct, where such redundant statements are actually meant to enforce certain security checks. Because they are redundant those checks never get executed and directly impact the security of the contract in a negative way.
+
+%% Compiler bugs start here
+
+\section{Storage array with signed Integers with ABIEncoderV2:}
+%% more like an intro
+%% Let's now discuss a set of security risks that manifested themselves because of compiling bugs: these were bugs in older versions of the \texttt{Solidity} compiler that have been since fixed. They are very specific to certain complex data structures or very specific conditions that one may not often encounter in smart contracts typically. Because of that, we will not be able to get into the details of these compiler bugs and their security risks. Nevertheless, taking a look at the higher level aspects of these compiler bugs would hopefully let us appreciate the complexity of some of them and the security risks that they may pose.\\
+
+This specific compiler bug was related to storage arrays and signed integers, and their usage was enabled by the ABIEncoderV2, which was a \texttt{pragma} directive, that needed to be explicitly specified until the latest versions (as it is now used by default). \\
+
+This specific bug arose when assigning an array of signed integers to a storage array of a different type \texttt{Type[]=int[]}. Under such assignments, it led to data corruption in that array.\\
+
+This bug was present in versions \texttt{solc 0.4.7} until \texttt{solc 0.5.10} (which are much older versions than the latest one that we often encounter), so it's very unlikely that we'll look at smart contracts using these much older versions, but it is something to be kept in mind.
+
+\section{Dynamic constructor arguments clipped with ABIEncoderV2}
+A contract's constructor that takes structs or arrays that contain dynamically sized arrays (made possible because of ABIEncoderV2) reverted or decoded to invalid data. \\
+
+This compiler bug was present in versions \texttt{solc 0.4.16} to \texttt{0.5.9}.
+
+\section{Storage array with multiSlot element with ABIEncoderV2}
+There was a compiler bug related to storage arrays in \texttt{Solidity}, specifically those with multi-slot elements, again made possible because of ABIEncoderV2. \\
+
+Such storage arrays containing \texttt{struct} or other statically sized arrays were not read properly when they were directly encoded in external function calls or using the \texttt{abi.encode()} primitive. \\
+
+This bug was present in versions \texttt{solc 0.4.16} to \texttt{0.5.10}.
+
+\section{Calldata structs with statically sized and dynamically encoded members with ABIEncoderV2}
+Another compiler bug was related to the \texttt{structs} type (specifically the call data structs) reading from call data structs that contained dynamically encoded, but statically sized members, could result in incorrect values being read. \\
+
+This again was limited to the compiler versions \texttt{solc 0.5.6} to \texttt{0.5.11}.
+
+\section{Packed storage with ABIEncoderV2}
+There was a compiler bug related to packed storage. Storage structs and arrays with types that are smaller than 32 bytes when encoded directly from storage using ABIEncoderV2 could cause data corruption. \\
+
+This occurred with compiler versions \texttt{solc 0.5.0} to \texttt{0.5.7}.
+
+\section{Incorrect loads with Yul optimizer and ABIEncoderV2}
+This is another compiler bug specifically coming from the Yul optimizer, part of it resulted in incorrect loads being done. \\
+
+Yul, if you remember is \texttt{Solidity}'s Assembly language. When the experimental Yul optimizer was activated manually in addition to ABIEncoderV2, it resulted in memory loads and storage loads via \texttt{MLOAD} and \texttt{SLOAD} instructions to be replaced by values that were already written. \\
+
+So effectively, the Yul optimizer replaced the \texttt{MLOAD} and \texttt{SLOAD} calls with stale values which as you can imagine, is a serious bug. This occurred with compiler versions \texttt{solc 0.5.14} to \texttt{0.5.15}.
+
+\section{Array slice dynamically encoded base type with ABIEncoderV2}
+There was a compiler bug specifically related to array slices, which there are views of the arrays that lets us access specific ranges of those arrays in a very efficient manner. \\
+
+Accessing such array slices for arrays that had dynamically encoded base types resulted in invalid data being read for the compiler versions \texttt{solc 0.6.0} to \texttt{0.6.8}.
+
+\section{Missing escaping in formatting with ABIEncoderV2}
+This compiler bug was related to missed escaping. Escaping is relevant to string literals where certain characters can be escaped using the double backslash. \\
+
+String literals that contained double backslash characters for escaping, that were passed directly to \texttt{external}, or encoding function calls, could result in a different string being used when ABIEncoderV2 was enabled. \\
+
+Notice that this compiler bug was present across many compiler versions all the way from \texttt{solc 0.5.14} to \texttt{0.6.8}.
+
+\section{Double shift size overflow}
+If multiple conditions were true, then the shifting operations resulted in overflows resulting in unexpected values being output.\\
+
+Some of those conditions were that the optimizer needed to be enabled. These had to be double bitwise shifts where large constants were being used whose sum overflowed 256 bits. \\
+
+Under such conditions the shifting operations overflowed for the compiler versions \texttt{solc 0.5.5} to \texttt{0.5.6}.
+
+\section{Incorrect byte instruction optimization}
+This was a compiler bug originating from incorrect optimization of byte instructions.\\
+
+The optimizer, when dealing with byte codes whose second argument was \texttt{31} or a constant expression that evaluated to \texttt{31}, incorrectly optimized it which resulted in unexpected values being produced. \\
+
+This was possible when doing an index access on the \texttt{bytesNN} types (so all the types like \texttt{bytes1}, \texttt{bytes2} to \texttt{bytes32}) or when using the bytes opcode in assembly.\\
+
+Unexpected values were produced when these conditions were met, from versions \texttt{solc 0.5.5} to \texttt{0.5.7}.
+
+\section{Essential assignments removed with Yul Optimizer}
+There was another compiler bug coming from the Yul optimizer. In this case, the Yul optimizer removed essential assignments for variables that were specifically declared inside \texttt{for} loops.\\
+
+This would happen while using Yul's \texttt{continue} or \texttt{break} statements, and again limited to the compiler versions \texttt{solc 0.5.8}/\texttt{0.6.0} to \texttt{0.5.16}/\texttt{0.6.1}.
+
+\section{Private methods overriden}
+Remember that function visibilities in \texttt{Solidity} can be \texttt{private}, \texttt{internal}, \texttt{public} or \texttt{external}. \\
+
+\texttt{private} functions are specific to the contract in which they are defined: they can't be called from any other contract, even those deriving from it. \\
+
+While this is true, it was still possible for a derived contract to declare a function of the same name and type as a \texttt{private} function in one of the base contracts. And by doing so, change the behavior of the base contracts function.\\
+
+What is interesting to note here, from a security perspective, is that this compiler bug was present across multiple versions all the way from \texttt{0.3.0} to \texttt{0.5.17}.\\
+
+%%%% note, this is important but maybe moving to an intro, cause this is not exactly related to the bug itself but how bugs on compilers are found over time
+%% So the takeaway is that some of these compiler bugs may be so deep down in the compiler code and may be triggered only under specific conditions, that they might not be discovered very soon after the compiler is released. So while the test of time is true, there are no guarantees that a much older compiler version has most of its bugs discovered, reported and fixed.
+
+\section{Tuple assignment multi stack slot components}
+Tuple assignments where the components occupied several stack slots, for example in the case of nested tuples, resulted in invalid values because of a compiler bug. \\
+
+Notice again that this compiler bug lasted across 5 breaking versions: all the way from \texttt{0.1.6} to \texttt{0.6.6}.
+
+\section{Dynamic array cleanup}
+When dynamically sized arrays were being assigned with types whose size was at most 16 bytes in storage, it would cause the assigned array to shrink to reduce their slots. \\
+
+However, some parts of the deleted slots were not being zeroed out by the compiler. This would lead to stale or dirty data being used. This bug was fixed in \texttt{0.7.3}.
+
+\section{Empty byte array copy}
+This bug is related to byte arrays, from \texttt{memory} or \texttt{calldata}, that were empty were copied to \texttt{storage} and they could result in data corruption. \\
+
+This only occurred if the target array's length was subsequently increased, but without storing new data in it. Notice how specific the conditions are for this bug to be triggered. Nevertheless, this bug was discovered and fixed in version \texttt{0.7.4}.
+
+\section{Memory array creation overflow}
+When memory arrays were being created, if they were very large in size, then they would result in overlapping memory regions, which would lead to corruption.\\
+
+In this case, this compiler bug was introduced in \texttt{0.2.0} and fixed in \texttt{0.6.5}.
+
+\section{Calldata \texttt{using for} compiler bug}
+Remember, \texttt{using for} primitive is used for calling library functions on specific types used within the smart contract. \\
+
+In this case the bug was specific to when the parameters used in such function calls were in the calldata portion of the EVM. In such cases, the reading of such parameters would result in invalid data being read. This bug existed accross versions \texttt{solc 0.6.9} to \texttt{0.6.10}.
+
+\section{Free function redefinition}
+Remember, free functions in \texttt{Solidity} are functions that are declared outside contracts: they are declared at file level. This compiler bug allowed free functions to be declared with the same name and parameter types. This redefinition or collision was not detected by the compiler as an error. This bug was present in one of the recent versions: \texttt{0.7.1}, and fixed in \texttt{0.7.2}.\\
+
+Compiler bugs should be taken very seriously because, unlike smart contracts that may differ from each other in the logic implemented, in the data structures or other aspects used, the compiler is a common dependency or perhaps a single point of failure for all the smart contracts compiled with that version.\\
+
+Having said that, let's also recognize that a compiler is another software, so just like any software it is bound to have bugs and perhaps even more, because the compiler is significantly more complex than a smart contract or any other general software application.\\
+
+From a security perspective, the things to be kept in mind when looking at a compiler version that's being used in smart contracts is to know which features of that compiler version are considered as being extensively used, and which are considered as experimental and perhaps staying away from them, so that one is not susceptible or vulnerable to any bugs in them. \\
+
+It is also important to recognize the bugs that have been fixed in the compiler version, the bugs that have been reported and perhaps fixed in later versions (if those are available). These aspects should dictate the choice of the compiler version for the smart contracts and the specific features that are available within those compiler versions.
+
+\section{Proxy pitfalls: Initializers}
+The final set of security pitfalls and best practices that we'll discuss in this module are related to Proxy-based contracts.\\
+
+Remember that Proxy-based architectures are used for upgradability and other aspects desired in smart contract applications. In this Proxy setup, there is typically a Proxy contract that does a \texttt{delegateCall} to a logic contract, and because of the \texttt{delegateCall}, the logic contract gets to implement logic that executes on the state of the Proxy contract.\\
+
+Under this specific setup, due to the \texttt{delegateCall} the data, the logic aspects has specific requirements that need to be met by both the Proxy as well as the logic contract. These lead to some security pitfalls and best practices.\\
+
+In this particular pitfall, initializer functions should not be callable multiple times: they should be callable only once, and by the authorized Proxy contract as soon as the logic contract has been deployed.\\
+
+Remember that under a Proxy setup, the implementation contract can't use a constructor to initialize its state, because it is working with the state of the Proxy contract that does a \texttt{delegateCall}. So instead, implementation contract is expected to declare an initializer function which does all the required initializations for it. Such functions need to have an \texttt{external} or \texttt{public} visibility because they need to be callable from an external contract (which is the Proxy contract).
+
+The deployment is typically done from a deploy script or from a factory contract. Preventing multiple invocations is critical because such invocations could happen from unauthorized contracts (or unauthorized users). In those cases, they could re-initialize the contract with values that let them exploit some of the contract functionality. \\
+
+The best practice here is to use \texttt{OpenZeppelin}'s OZ Initializable library, which provides an initializer modifier that can be applied to the initialize function, preventing it from being called multiple times.
+
+\section{Proxy pitfalls: State Variables}
+This is a pitfall related to the previous one discussed. This specifically applies to initializing state variables in the Proxy-based setup. \\
+
+Constructors should not be used in the implementation (or logic contracts) to initialize its state, but using an initializer function instead. State variables in the implementation contract, similarly, should not be initialized in their declarations themselves because such initializations will not be reflected when the Proxy contract makes a \texttt{delegateCall} to this implementation. \\
+
+So instead, the state variables should be initialized within the initializer function because otherwise they would not be set when the \texttt{delegateCall} happens.
+
+\section{Proxy pitfalls: Import Contracts}
+The contracts used in a Proxy setup may also derive from other libraries or other contracts within the project itself, which could be defined in other files. In this case they are imported to be used in the Proxy contract. \\
+
+These imported contracts that the Proxy contracts derive from, should also adhere to the same rules discussed: the base contracts should also not use a constructor, they should be using an initializer function. In addition, such contacts should also not initialize state variables during declaration. \\
+
+The best practice is to make sure that the imported contracts also follow those rules, because if not, the state would be uninitialized and using that state could result in undefined behavior or potentially even serious vulnerabilities.
+
+\section{Proxy pitfalls: selfdestruct}
+If a Data Proxy calls a logic implementation contract that has a \texttt{selfdestruct} call in it, then that logic contract would end up getting destroyed and thereafter all calls to that logic contract will end up delegating calls to an address without any code.\\
+
+Similarly, the use of \texttt{delegateCall} may also cause issues because the logic implementation works with the state of the Data Proxy. \\
+
+The best practice is to avoid entirely the use of \texttt{selfdestruct} or \texttt{delegateCall}s with Proxy-based contracts.
+
+\section{Proxy pitfalls: State Variables}
+In Proxy-based contracts, the order layout type and mutability of state variables declared in the proxy, the corresponding implementation (or different versions of the implementation), should be preserved exactly while upgrading. This is to prevent storage layout mismatch errors. These ones can lead to very critical errors if they are inherited. \\
+
+The best practice is to make sure that these aspects of state variables are exactly the same in Proxy-based setups.
+
+\section{Proxy pitfalls: Function ID}
+Remember that \texttt{Solidity} and EVM have the notion of a function selector which is the \texttt{keccak256()} hash of the function signatures. \\
+
+These selectors are used to determine which contact function is being called, so at runtime the function dispatcher in the contract byte code should determine (by looking at the function selector) if one of the functions in the proxy is being called or if this call needs to be delegated to the implementation contract.\\
+
+In Proxy-based setups, a malicious Proxy contract may declare a function such that its function id collides (is the same as) with one of the Proxy Functions. So even though the call was targeting an implementation function, the malicious proxy, hijacks that call and could lead to the execution of a function that can cause an exploit.\\
+
+The best practice here is to pay attention to the proxy, any trust assumptions related to the proxy and implementation contracts. Also, to check if the proxy has or can declare a function whose id might collide with one of the implementation contract functions.
+
+\section{Proxy pitfalls: Shadowing}
+Instead of the Proxy contract trying to hijack calls meant for the implementation by declaring functions whose IDs collide with the implementation contract functions, they could simply shadow the functions in the implementation contract.\\
+
+This means that a Proxy contract can declare functions that have the same name, the same parameter numbers and types as functions in the implementation contract. In such a scenario, the function dispatcher would simply call the proxy contact function instead of forwarding it to the implementation contract. \\
+
+This way, a malicious proxy can intercept (or hijack) calls instead of delegating it to the implementation contract and exploit this aspect to cause malicious behavior. \\
+
+The best practice here is again to pay attention to the Proxy contract, the implementation contract, look at all the functions declared in both these contracts to see if any of the Proxy Functions are indeed Shadowing those in the implementation contract. If that is the case, recognize that such functions will be executed in the context of the proxy without being forwarded to the implementation contract.
