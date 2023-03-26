@@ -22,7 +22,7 @@ After **Epoch 0**'s success, Secureum's mission continues through the ongoing **
 
 ### Sections
 
-**[Epoch 0]()**
+**[Epoch 0](Epoch_0/README.md)**
 
 **[Epoch ∞]()**
 
