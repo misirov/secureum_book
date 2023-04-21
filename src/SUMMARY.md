@@ -9,3 +9,4 @@
         * [1.4 Ethereum Core Components](Epoch0/1.4_Ethereum_core_components.md)
         * [1.5 Gas Metering: Solving the Halting Problem](Epoch0/1.5_Gas_Metering_Solving_the_Halting_Problem.md)
         * [1.6 web2 vs. web3: The Paradigm Shift](Epoch0/1.6_web2_vs_web3_The_Paradigm_Shift.md)
+        * [1.7 Decentralization](Epoch0/1.7_Decentralization.md)
