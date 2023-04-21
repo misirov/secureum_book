@@ -11,5 +11,6 @@
     * [1.6 web2 vs. web3: The Paradigm Shift](Epoch\_0/1.6\_web2\_vs\_web3\_The\_Paradigm\_Shift.md)
     * [1.7 Decentralization](Epoch\_0/1.7\_Decentralization.md)
     * [1.8 Cryptography, Digital Signature and Keys](Epoch\_0/1.8\_Cryptography\_Digital\_Signature\_and\_Keys.md)
-    * [1.9 Ethereum State \& Account Types](Epoch\_0/1.9\_Ethereum\_State\_and\_Account\_Types.md)
-    * [1.10 Transactions: Properties \& Components](Epoch_0/1.10_Transactions_Properties_and_Components.md)
+    * [1.9 Ethereum State & Account Types](Epoch\_0/1.9\_Ethereum\_State\_and\_Account\_Types.md)
+    * [1.10 Transactions: Properties & Components](Epoch_0/1.10\_Transactions\_Properties\_and\_Components.md)
+    * [1.11 Contract Creation](Epoch\_0/1.11\_Contract\_Creation.md)
