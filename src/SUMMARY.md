@@ -12,3 +12,4 @@
     * [1.7 Decentralization](Epoch\_0/1.7\_Decentralization.md)
     * [1.8 Cryptography, Digital Signature and Keys](Epoch\_0/1.8\_Cryptography\_Digital\_Signature\_and\_Keys.md)
     * [1.9 Ethereum State & Account Types](Epoch\_0/1.9\_Ethereum\_State\_and\_Account\_Types.md)
+    * [1.10 Transactions: Properties & Components](Epoch_0/1.10_Transactions_Properties_and_Components.md)
