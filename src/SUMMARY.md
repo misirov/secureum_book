@@ -8,6 +8,6 @@
     * [1.3 Ethereum vs. Bitcoin](Epoch\_0/1.3\_Ethereum\_vs\_Bitcoin.md)
     * [1.4 Ethereum Core Components](Epoch\_0/1.4\_Ethereum\_core\_components.md)
     * [1.5 Gas Metering: Solving the Halting Problem](Epoch\_0/1.5\_Gas\_Metering\_Solving\_the\_Halting\_Problem.md)
-    * [1.6 web2 vs. web3: The Paradigm Shift](Epoch\_0/1\_ethereum\_101/1.6-web2-vs.-web3-the-paradigm-shift.md)
+    * [1.6 web2 vs. web3: The Paradigm Shift](Epoch\_0/1.6\_web2\_vs\_web3\_The\_Paradigm\_Shift.md)
     * [1.7 Decentralization](Epoch\_0/1.7\_Decentralization.md)
     * [1.8 Cryptography, Digital Signature and Keys](Epoch\_0/1.8\_Cryptography\_Digital\_Signature\_and\_Keys.md)
