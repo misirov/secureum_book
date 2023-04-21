@@ -14,3 +14,4 @@
     * [1.9 Ethereum State & Account Types](Epoch\_0/1.9\_Ethereum\_State\_and\_Account\_Types.md)
     * [1.10 Transactions: Properties & Components](Epoch_0/1.10\_Transactions\_Properties\_and\_Components.md)
     * [1.11 Contract Creation](Epoch\_0/1.11\_Contract\_Creation.md)
+    * [1.12 Transactions, Messages and Blockchain](Epoch\_0/1.12\_Transactions\_Messages\_and\_Blockchain.md)
