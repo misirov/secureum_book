@@ -21,4 +21,5 @@
     * [1.16 Mainnet and Testnets](Epoch\_0/1.16\_Mainnet\_and\_Testnets.md)
     * [1.17 ERCs & EIPs](Epoch\_0/1.17\_EIPs\_and\_ERCs.md)
     * [1.18 Legal Aspects in web3: Pseudonymity & DAOs](Epoch\_0/1.18\_Legal\_Aspects\_in\_web3.md)
+    * [1.19 Security in web3](Epoch\_0/1.19\_Security\_in\_web3.md)
 
