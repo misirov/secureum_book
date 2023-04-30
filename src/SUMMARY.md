@@ -16,3 +16,4 @@
     * [1.11 Contract Creation](Epoch\_0/1.11\_Contract\_Creation.md)
     * [1.12 Transactions, Messages and Blockchain](Epoch\_0/1.12\_Transactions\_Messages\_and\_Blockchain.md)
     * [1.13 EVM (Ethereum Virtual Machine) in Depth](Epoch\_0/1.13\_EVM\_in\_Depth.md)
+    * [1.14 Transaction Reverts and Data](Epoch\_0/1.14\_Transaction\_Reverts\_and\_Data.md)
