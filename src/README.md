@@ -24,17 +24,23 @@ After **Epoch 0**'s success, Secureum's mission continues through the ongoing **
 
 #### Sections
 
+##### Epoch 0
+
 {% content-ref url="Epoch_0/" %}
-[Epoch\_0 Introduction](Epoch\_0/)
+[Epoch\_0](Epoch\_0/)
 {% endcontent-ref %}
 
 {% content-ref url="Epoch_0/1_Ethereum_101.md" %}
-[Ethereum 101](Epoch\_0/1\_Ethereum\_101.md)
+[1\_Ethereum\_101](Epoch\_0/1\_Ethereum\_101.md)
 {% endcontent-ref %}
+
+##### Epoch ∞
 
 {% content-ref url="./" %}
 [Epoch ∞](./)
 {% endcontent-ref %}
+
+##### a-MAZE-X CTF Workshops
 
 {% content-ref url="./" %}
 [a-MAZE-X CTF Workshops](./)
