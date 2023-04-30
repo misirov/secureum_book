@@ -20,3 +20,5 @@
     * [1.15 Block Explorer](Epoch\_0/1.15\_Block\_Explorer.md)
     * [1.16 Mainnet and Testnets](Epoch\_0/1.16\_Mainnet\_and\_Testnets.md)
     * [1.17 ERCs & EIPs](Epoch\_0/1.17\_EIPs\_and\_ERCs.md)
+    * [1.18 Legal Aspects in web3: Pseudonymity & DAOs](Epoch\_0/1.18\_Legal\_Aspects\_in\_web3.md)
+
