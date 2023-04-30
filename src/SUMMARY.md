@@ -1,7 +1,7 @@
 # Table of contents
 
 * [Introduction](README.md)
-* [Epoch 0](Epoch\_0/README.md)
+* [Epoch 0: Introduction](Epoch\_0/README.md)
   * [1. Ethereum 101](Epoch\_0/1\_Ethereum\_101.md)
     * [1.1 Ethereum: Concept, Infrastructure and Purpose](Epoch\_0/1.1\_Ethereum\_Concept.md)
     * [1.2 Properties of the Ethereum Infrastructure](Epoch\_0/1.2\_Properties\_of\_the\_Ethereum\_Infrastructure.md)
@@ -12,7 +12,7 @@
     * [1.7 Decentralization](Epoch\_0/1.7\_Decentralization.md)
     * [1.8 Cryptography, Digital Signature and Keys](Epoch\_0/1.8\_Cryptography\_Digital\_Signature\_and\_Keys.md)
     * [1.9 Ethereum State & Account Types](Epoch\_0/1.9\_Ethereum\_State\_and\_Account\_Types.md)
-    * [1.10 Transactions: Properties & Components](Epoch_0/1.10\_Transactions\_Properties\_and\_Components.md)
+    * [1.10 Transactions: Properties & Components](Epoch\_0/1.10\_Transactions\_Properties\_and\_Components.md)
     * [1.11 Contract Creation](Epoch\_0/1.11\_Contract\_Creation.md)
     * [1.12 Transactions, Messages and Blockchain](Epoch\_0/1.12\_Transactions\_Messages\_and\_Blockchain.md)
     * [1.13 EVM (Ethereum Virtual Machine) in Depth](Epoch\_0/1.13\_EVM\_in\_Depth.md)
