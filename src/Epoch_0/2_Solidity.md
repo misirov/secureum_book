@@ -1,6 +1,6 @@
 ## Ethereum 101
 
-As mentioned in the previous chapter, `Solidity` is currently the most popular programming language used to develop smart contract. In fact, it is so commonly used and there are so few alternatives to high-level languages on Ethereum, that it has become a fundamental pillar to smart contracts on Ethereum and therefore their security.
+As mentioned in the previous chapter, `Solidity` is currently the most popular programming language used to develop smart contracts. In fact, it is so commonly used and there are so few alternatives to high-level languages on Ethereum, that it has become a fundamental pillar to smart contracts on Ethereum and therefore their security.
 
 This section is a high level overview of the `Solidity` EVM smart contract programming language. It is based on the following content:
 
