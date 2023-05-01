@@ -33,3 +33,4 @@
     * [2.6 State Variables: Definition, Visibility & Mutability](Epoch\_0/2.6\_State\_Variables\_Definition\_Visibility\_and\_Mutability.md)
     * [2.7 Functions](Epoch\_0/2.7\_Functions.md)
     * [2.8 Events](Epoch\_0/2.8\_Events.md)
+    * [2.9 Structs & Enums](Epoch\_0/2.9\_Structs\_and\_Enums.md)
