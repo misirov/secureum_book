@@ -28,3 +28,4 @@
     * [2.1 Solidity: Influence, Features and Layout](Epoch\_0/2.1\_Solidity\_Influence\_Features\_and\_Layout.md)
     * [2.2 SPDX & Pragmas](Epoch\_0/2.2\_SPDX\_and\_Pragmas.md)
     * [2.3 Imports](Epoch\_0/2.3\_Imports.md)
+    * [2.4 Comments & NatSpec](Epoch\_0/2.4\_Comments\_and\_Natspec.md)
