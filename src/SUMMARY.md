@@ -26,3 +26,4 @@
     * [1.21 Test-in-Prod. SSLDC vs. Audits](Epoch\_0/1.21\_Test\_in\_Prod\_SSLDC\_vs\_Audits.md)
   * [2. `Solidity`](Epoch\_0/2\_Solidity.md)
     * [2.1 Solidity: Influence, Features and Layout](Epoch\_0/2.1\_Solidity\_Influence\_Features\_and\_Layout.md)
+    * [2.2 SPDX & Pragmas](Epoch\_0/2.2\_SPDX\_and\_Pragmas.md)
