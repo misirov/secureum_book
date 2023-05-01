@@ -25,3 +25,4 @@
     * [1.20 web2 Timescales vs. web3 Timescales](Epoch\_0/1.20\_web2\_timescales\_vs\_web3\_timescales.md)
     * [1.21 Test-in-Prod. SSLDC vs. Audits](Epoch\_0/1.21\_Test\_in\_Prod\_SSLDC\_vs\_Audits.md)
   * [2. `Solidity`](Epoch\_0/2\_Solidity.md)
+    * [2.1 Solidity: Influence, Features and Layout](Epoch\_0/2.1\_Solidity\_Influence\_Features\_and\_Layout.md)
