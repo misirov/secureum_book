@@ -34,6 +34,10 @@ After **Epoch 0**'s success, Secureum's mission continues through the ongoing **
 [1\_Ethereum\_101](Epoch\_0/1\_Ethereum\_101.md)
 {% endcontent-ref %}
 
+{% content-ref url="Epoch_0/2_Solidity.md" %}
+[2\_Solidity](Epoch\_0/2\_Solidity.md)
+{% endcontent-ref %}
+
 ##### Epoch ∞
 
 {% content-ref url="./" %}
