@@ -31,3 +31,4 @@
     * [2.4 Comments & NatSpec](Epoch\_0/2.4\_Comments\_and\_Natspec.md)
     * [2.5 Smart Contracts](Epoch\_0/2.5\_Smart\_Contracts.md)
     * [2.6 State Variables: Definition, Visibility & Mutability](Epoch\_0/2.6\_State\_Variables\_Definition\_Visibility\_and\_Mutability.md)
+    * [2.7 Functions](Epoch\_0/2.7\_Functions.md)
