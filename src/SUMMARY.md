@@ -35,3 +35,4 @@
     * [2.8 Events](Epoch\_0/2.8\_Events.md)
     * [2.9 Structs & Enums](Epoch\_0/2.9\_Structs\_and\_Enums.md)
     * [2.10 Special Functions](Epoch\_0/2.10\_Special\_Functions.md)
+    * [2.11 `Solidity` Typing](Epoch\_0/2.11\_Solidity\_Typing.md)
